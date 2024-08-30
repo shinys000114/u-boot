@@ -182,9 +182,21 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = 0,
+
+		//CNTL3 bit20 = 1 set this bit to 1 when use spread spectrum,
+		//CNTL0 bit11=0 disable SSC,cfg_board_common_setting.pll_ssc_mode = 0,
+		//center_ssc_1000ppm,(1 << 16) | (2 << 4) | (0 << 2)
+		//CNTL0 bit11=1 enable SSC,
+
+		//CNTL2
+		//bit[19:16],1-12, 1-x500ppm, 2-x1000ppm, 3-x1500ppm
+		//bit[7:4], 1-10,ssc value = bit[7:4] * bit[19:16];
+		//bit[3:2], 0-center_ssc, 1-up_ssc, 2-down_ssc
+		//center_ssc_1000ppm,
 		.cfg_board_common_setting.pll_ssc_mode =
-			(1 << 20) | (1 << 8) | (2 << 4) | 0,
-		//center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
+			(1 << 16) | (2 << 4) | (0 << 2),
+		//.cfg_board_common_setting.pll_ssc_mode = 0,
+
 		.cfg_board_common_setting.org_tdqs2dq = 0,
 		.cfg_board_common_setting.reserve1_test = {
 			0
@@ -264,9 +276,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.max_core_timmming_frequency = 0,
 
 // 1 //real chip stk lp4
-		.cfg_board_common_setting.dbi_enable = 0,      // 0,0x00000041
 		.cfg_board_common_setting.ddr_rfc_type = DDR_RFC_TYPE_LPDDR4_8Gbx1, // 13,
-		.cfg_board_common_setting.pll_ssc_mode = 0x00000000,    // 0,0x00000044
 //.cfg_board_common_setting.max_core_timmming_frequency=0x00000e10,// 3600,0x0000006a
 
 //.cfg_board_common_setting.lpddr4_x8_mode=0x00000000,// 0,0x00000087
@@ -1253,9 +1263,21 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
-		.cfg_board_common_setting.pll_ssc_mode =
-			(1 << 20) | (1 << 8) | (2 << 4) | 0,
-		//center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
+
+		//CNTL3 bit20 = 1 set this bit to 1 when use spread spectrum,
+		//CNTL0 bit11=0 disable SSC,cfg_board_common_setting.pll_ssc_mode = 0,
+		//center_ssc_1000ppm,(1 << 16) | (2 << 4) | (0 << 2)
+		//CNTL0 bit11=1 enable SSC,
+
+		//CNTL2
+		//bit[19:16],1-12, 1-x500ppm, 2-x1000ppm, 3-x1500ppm
+		//bit[7:4], 1-10,ssc value = bit[7:4] * bit[19:16];
+		//bit[3:2], 0-center_ssc, 1-up_ssc, 2-down_ssc
+		//center_ssc_1000ppm,
+		//.cfg_board_common_setting.pll_ssc_mode =
+		//	(1 << 16) | (2 << 4) | (0 << 2),
+		.cfg_board_common_setting.pll_ssc_mode = 0,
+
 		.cfg_board_common_setting.org_tdqs2dq = 0,
 		.cfg_board_common_setting.reserve1_test = {
 			0
@@ -1299,9 +1321,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.vref_dram_data_permil = 800,
 		.cfg_board_SI_setting_ps.max_core_timmming_frequency = 0,
 // 1 //real chip stk lp4
-		.cfg_board_common_setting.dbi_enable = 0x00000000,
 		.cfg_board_common_setting.ddr_rfc_type = DDR_RFC_TYPE_DDR4_2Gbx4,//DDR_RFC_TYPE_DDR4_2Gbx8,
-		.cfg_board_common_setting.pll_ssc_mode = 0x00000000,
 //.cfg_board_common_setting.max_core_timmming_frequency=0x00000e10,// 3600,0x0000006a
 
 //.cfg_board_common_setting.lpddr4_x8_mode=0x00000000,// 0,0x00000087
@@ -2518,9 +2538,21 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
-		.cfg_board_common_setting.pll_ssc_mode =
-			(1 << 20) | (1 << 8) | (2 << 4) | 0,
-		//center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
+
+		//CNTL3 bit20 = 1 set this bit to 1 when use spread spectrum,
+		//CNTL0 bit11=0 disable SSC,cfg_board_common_setting.pll_ssc_mode = 0,
+		//center_ssc_1000ppm,(1 << 16) | (2 << 4) | (0 << 2)
+		//CNTL0 bit11=1 enable SSC,
+
+		//CNTL2
+		//bit[19:16],1-12, 1-x500ppm, 2-x1000ppm, 3-x1500ppm
+		//bit[7:4], 1-10,ssc value = bit[7:4] * bit[19:16];
+		//bit[3:2], 0-center_ssc, 1-up_ssc, 2-down_ssc
+		//center_ssc_1000ppm,
+		//.cfg_board_common_setting.pll_ssc_mode =
+		//	(1 << 16) | (2 << 4) | (0 << 2),
+		.cfg_board_common_setting.pll_ssc_mode = 0,
+
 		.cfg_board_common_setting.org_tdqs2dq = 0,
 		.cfg_board_common_setting.reserve1_test = {
 			0
@@ -2574,9 +2606,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.max_core_timmming_frequency = 0,//1320,//0,
 
 // 1 //real chip stk lp4
-		.cfg_board_common_setting.dbi_enable = 0x00000000,
 		.cfg_board_common_setting.ddr_rfc_type = DDR_RFC_TYPE_DDR4_2Gbx8,
-		.cfg_board_common_setting.pll_ssc_mode = 0x00000000,
 //.cfg_board_common_setting.max_core_timmming_frequency=0x00000e10,// 3600,0x0000006a
 
 //.cfg_board_common_setting.lpddr4_x8_mode=0x00000000,// 0,0x00000087
