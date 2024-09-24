@@ -926,6 +926,43 @@ config TARGET_S6_BL215
 	depends on S6_BL215
 endif
 
+if MESON_T6W
+
+config SYS_SOC
+	default "t6w"
+
+config DDRFW_TYPE
+	string "t6w DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "t6w CHIPSET NAME"
+	default ""
+
+config CHIPSET_VARIANT
+	string "t6w CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "t6w AMLOGIC KEY TYPE"
+	default ""
+
+choice
+	prompt "t6w Board"
+
+config T6W_SKT
+	bool "T6W_SKT"
+	select TARGET_T6W_SKT
+	help
+		Select T6W SKT(XXXX) config
+
+endchoice
+
+config TARGET_T6W_SKT
+	bool "T6W SKT board"
+	depends on T6W_SKT
+endif
+
 # Amlogic boards
 
 source "board/amlogic/s4_ap222/Kconfig"
@@ -1004,3 +1041,4 @@ source "board/amlogic/s6_bn201/Kconfig"
 
 source "board/amlogic/s6_bl215/Kconfig"
 
+source "board/amlogic/t6w_skt/Kconfig"
