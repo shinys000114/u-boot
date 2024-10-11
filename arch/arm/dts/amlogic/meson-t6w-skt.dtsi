@@ -153,7 +153,7 @@
 
 /* SD card */
 &sd_emmc_b {
-	status = "disable";
+	status = "okay";
 	pinctrl-0 = <&sdcard_pins>;
 	pinctrl-1 = <&sdcard_pins &to_sduart_pins>;
 	pinctrl-names = "sd_all_pins", "sd_uart";
@@ -174,13 +174,13 @@
 	sd_hs_co_phase = <2>;
 	sd_hs_to_phase = <0>;
 
-	vmmc-supply = <&vddao_3v3>;
-	vqmmc-supply = <&vddio_boot>;
+	//vmmc-supply = <&vddao_3v3>;
+	//vqmmc-supply = <&vddio_boot>;
 };
 
 /* eMMC */
 &sd_emmc_c {
-	status = "disable";
+	status = "okay";
 	pinctrl-0 = <&emmc_pins>;
 	pinctrl-names = "default";
 
