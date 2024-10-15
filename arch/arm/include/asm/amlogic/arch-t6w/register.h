@@ -2457,135 +2457,88 @@
 //`define ANACTRL_GP0PLL_CTRL5    8'h25
 //`define ANACTRL_GP0PLL_CTRL6    8'h26
 #define ANACTRL_GP0PLL_STS                         ((0x0027  << 2) + 0xfe008000)
-#define ANACTRL_GP1PLL_CTRL0                       ((0x0060  << 2) + 0xfe008000)
-#define ANACTRL_GP1PLL_CTRL1                       ((0x0061  << 2) + 0xfe008000)
-#define ANACTRL_GP1PLL_CTRL2                       ((0x0062  << 2) + 0xfe008000)
-#define ANACTRL_GP1PLL_CTRL3                       ((0x0063  << 2) + 0xfe008000)
-//`define ANACTRL_GP1PLL_CTRL4    8'h64
-//`define ANACTRL_GP1PLL_CTRL5    8'h65
-//`define ANACTRL_GP1PLL_CTRL6    8'h66
-#define ANACTRL_GP1PLL_STS                         ((0x0067  << 2) + 0xfe008000)
-#define ANACTRL_GP2PLL_CTRL0                       ((0x0070  << 2) + 0xfe008000)
-#define ANACTRL_GP2PLL_CTRL1                       ((0x0071  << 2) + 0xfe008000)
-#define ANACTRL_GP2PLL_CTRL2                       ((0x0072  << 2) + 0xfe008000)
-#define ANACTRL_GP2PLL_CTRL3                       ((0x0073  << 2) + 0xfe008000)
-//`define ANACTRL_GP2PLL_CTRL4    8'h74
-//`define ANACTRL_GP2PLL_CTRL5    8'h75
-//`define ANACTRL_GP2PLL_CTRL6    8'h76
-#define ANACTRL_GP2PLL_STS                         ((0x0077  << 2) + 0xfe008000)
-#define ANACTRL_HIFIPLL_CTRL0                      ((0x0040  << 2) + 0xfe008000)
-#define ANACTRL_HIFIPLL_CTRL1                      ((0x0041  << 2) + 0xfe008000)
-#define ANACTRL_HIFIPLL_CTRL2                      ((0x0042  << 2) + 0xfe008000)
-#define ANACTRL_HIFIPLL_CTRL3                      ((0x0043  << 2) + 0xfe008000)
-//`define ANACTRL_HIFIPLL_CTRL4    8'h44
-//`define ANACTRL_HIFIPLL_CTRL5    8'h45
-//`define ANACTRL_HIFIPLL_CTRL6    8'h46
-#define ANACTRL_HIFIPLL_STS                        ((0x0047  << 2) + 0xfe008000)
-#define ANACTRL_HIFI1PLL_CTRL0                     ((0x0030  << 2) + 0xfe008000)
-#define ANACTRL_HIFI1PLL_CTRL1                     ((0x0031  << 2) + 0xfe008000)
-#define ANACTRL_HIFI1PLL_CTRL2                     ((0x0032  << 2) + 0xfe008000)
-#define ANACTRL_HIFI1PLL_CTRL3                     ((0x0033  << 2) + 0xfe008000)
-//`define ANACTRL_HIFI1PLL_CTRL4    8'h34
-//`define ANACTRL_HIFI1PLL_CTRL5    8'h35
-//`define ANACTRL_HIFI1PLL_CTRL6    8'h36
-#define ANACTRL_HIFI1PLL_STS                       ((0x0037  << 2) + 0xfe008000)
-#define ANACTRL_USBPLL_CTRL0                       ((0x0050  << 2) + 0xfe008000)
-#define ANACTRL_USBPLL_CTRL1                       ((0x0051  << 2) + 0xfe008000)
-//`define ANACTRL_USBPLL_CTRL2   8'h52
-//`define ANACTRL_USBPLL_CTRL3   8'h53
-#define ANACTRL_USBPLL_STS                         ((0x0054  << 2) + 0xfe008000)
-//`define ANACTRL_PCIEPLL_CTRL0    8'h50
-//`define ANACTRL_PCIEPLL_CTRL1    8'h51
-//`define ANACTRL_PCIEPLL_CTRL2    8'h52
-//`define ANACTRL_PCIEPLL_CTRL3    8'h53
-//`define ANACTRL_PCIEPLL_CTRL4    8'h54
-//`define ANACTRL_PCIEPLL_CTRL5    8'h55
-//`define ANACTRL_PCIEPLL_STS      8'h56
-//`define ANACTRL_MPLL_CTRL0       8'h60
-//`define ANACTRL_MPLL_CTRL1       8'h61
-//`define ANACTRL_MPLL_CTRL2       8'h62
-//`define ANACTRL_MPLL_CTRL3       8'h63
-//`define ANACTRL_MPLL_CTRL4       8'h64
-//`define ANACTRL_MPLL_CTRL5       8'h65
-//`define ANACTRL_MPLL_CTRL6       8'h66
-//`define ANACTRL_MPLL_CTRL7       8'h67
-//`define ANACTRL_MPLL_CTRL8       8'h68
-//`define ANACTRL_MPLL_STS         8'h69
-//`define ANACTRL_HDMIPLL_CTRL0    8'h70
-//`define ANACTRL_HDMIPLL_CTRL1    8'h71
-//`define ANACTRL_HDMIPLL_CTRL2    8'h72
-//`define ANACTRL_HDMIPLL_CTRL3    8'h73
-//`define ANACTRL_HDMIPLL_CTRL4    8'h74
-//`define ANACTRL_HDMIPLL_CTRL5    8'h75
-//`define ANACTRL_HDMIPLL_CTRL6    8'h76
-//`define ANACTRL_HDMIPLL_STS      8'h77
-//`define ANACTRL_HDMIPLL_VLOCK    8'h79
-//`define ANACTRL_HDMIPHY_CTRL0    8'h80
-//`define ANACTRL_HDMIPHY_CTRL1    8'h81
-//`define ANACTRL_HDMIPHY_CTRL2    8'h82
-//`define ANACTRL_HDMIPHY_CTRL3    8'h83
-//`define ANACTRL_HDMIPHY_CTRL4    8'h84
-//`define ANACTRL_HDMIPHY_CTRL5    8'h85
-//`define ANACTRL_HDMIPHY_STS      8'h86
-#define ANACTRL_DADC_CNTL                          ((0x0090  << 2) + 0xfe008000)
-#define ANACTRL_DADC_CNTL2                         ((0x0091  << 2) + 0xfe008000)
-#define ANACTRL_DADC_CNTL3                         ((0x0092  << 2) + 0xfe008000)
-#define ANACTRL_DADC_CNTL4                         ((0x0093  << 2) + 0xfe008000)
-#define ANACTRL_S2_DADC_CNTL                       ((0x0094  << 2) + 0xfe008000)
-#define ANACTRL_S2_DADC_CNTL2                      ((0x0095  << 2) + 0xfe008000)
-#define ANACTRL_DADC_RDBK0_I                       ((0x0096  << 2) + 0xfe008000)
-#define ANACTRL_ADC_PLL_CNTL                       ((0x0097  << 2) + 0xfe008000)
-#define ANACTRL_ADC_PLL_CNTL1                      ((0x0098  << 2) + 0xfe008000)
-#define ANACTRL_ADC_PLL_CNTL2                      ((0x0099  << 2) + 0xfe008000)
-//`define ANACTRL_ADC_PLL_CNTL3    8'h9a
-//`define ANACTRL_ADC_PLL_CNTL4    8'h9b
-//`define ANACTRL_ADC_PLL_CNTL5    8'h9c
-//`define ANACTRL_ADC_PLL_CNTL6    8'h9d
-#define ANACTRL_ADC_PLL_STS                        ((0x009e  << 2) + 0xfe008000)
-#define ANACTRL_CVBS_DETECT_CNTL                   ((0x009f  << 2) + 0xfe008000)
-#define ANACTRL_HDMIRX_AUD_PLL_CNTL                ((0x00a0  << 2) + 0xfe008000)
-#define ANACTRL_HDMIRX_AUD_PLL_CNTL2               ((0x00a1  << 2) + 0xfe008000)
-#define ANACTRL_HDMIRX_AUD_PLL_CNTL3               ((0x00a2  << 2) + 0xfe008000)
-#define ANACTRL_HDMIRX_AUD_PLL_STS                 ((0x00a3  << 2) + 0xfe008000)
-#define ANACTRL_HDMIRX_AUD_PLL4X_SCAN_CNTL         ((0x00a4  << 2) + 0xfe008000)
-//`define ANACTRL_MIPICSI_CTRL0    8'h90
-//`define ANACTRL_MIPICSI_CTRL1    8'h91
-//`define ANACTRL_MIPICSI_CTRL2    8'h92
-//`define ANACTRL_MIPICSI_CTRL3    8'h93
-//`define ANACTRL_MIPICSI_CTRL4    8'h94
-//`define ANACTRL_MIPICSI_CTRL5    8'h95
+#define ANACTRL_GP1PLL_CTRL0                       ((0x0030  << 2) + 0xfe008000)
+#define ANACTRL_GP1PLL_CTRL1                       ((0x0031  << 2) + 0xfe008000)
+#define ANACTRL_GP1PLL_CTRL2                       ((0x0032  << 2) + 0xfe008000)
+#define ANACTRL_GP1PLL_CTRL3                       ((0x0033  << 2) + 0xfe008000)
+//`define ANACTRL_GP1PLL_CTRL4    10'h34
+//`define ANACTRL_GP1PLL_CTRL5    10'h35
+//`define ANACTRL_GP1PLL_CTRL6    10'h36
+#define ANACTRL_GP1PLL_STS                         ((0x0037  << 2) + 0xfe008000)
+#define ANACTRL_GP2PLL_CTRL0                       ((0x0040  << 2) + 0xfe008000)
+#define ANACTRL_GP2PLL_CTRL1                       ((0x0041  << 2) + 0xfe008000)
+#define ANACTRL_GP2PLL_CTRL2                       ((0x0042  << 2) + 0xfe008000)
+#define ANACTRL_GP2PLL_CTRL3                       ((0x0043  << 2) + 0xfe008000)
+//`define ANACTRL_GP2PLL_CTRL4    10'h44
+//`define ANACTRL_GP2PLL_CTRL5    10'h45
+//`define ANACTRL_GP2PLL_CTRL6    10'h46
+#define ANACTRL_GP2PLL_STS                         ((0x0047  << 2) + 0xfe008000)
+#define ANACTRL_HIFIPLL_CTRL0                      ((0x0050  << 2) + 0xfe008000)
+#define ANACTRL_HIFIPLL_CTRL1                      ((0x0051  << 2) + 0xfe008000)
+#define ANACTRL_HIFIPLL_CTRL2                      ((0x0052  << 2) + 0xfe008000)
+#define ANACTRL_HIFIPLL_CTRL3                      ((0x0053  << 2) + 0xfe008000)
+//`define ANACTRL_HIFIPLL_CTRL4    10'h54
+//`define ANACTRL_HIFIPLL_CTRL5    10'h55
+//`define ANACTRL_HIFIPLL_CTRL6    10'h56
+#define ANACTRL_HIFIPLL_STS                        ((0x0057  << 2) + 0xfe008000)
+#define ANACTRL_HIFI1PLL_CTRL0                     ((0x0060  << 2) + 0xfe008000)
+#define ANACTRL_HIFI1PLL_CTRL1                     ((0x0061  << 2) + 0xfe008000)
+#define ANACTRL_HIFI1PLL_CTRL2                     ((0x0062  << 2) + 0xfe008000)
+#define ANACTRL_HIFI1PLL_CTRL3                     ((0x0063  << 2) + 0xfe008000)
+//`define ANACTRL_HIFI1PLL_CTRL4    10'h64
+//`define ANACTRL_HIFI1PLL_CTRL5    10'h65
+//`define ANACTRL_HIFI1PLL_CTRL6    10'h66
+#define ANACTRL_HIFI1PLL_STS                       ((0x0067  << 2) + 0xfe008000)
+//`define ANACTRL_USBPLL_CTRL0   10'h50
+//`define ANACTRL_USBPLL_CTRL1   10'h51
+//`define ANACTRL_USBPLL_CTRL2   10'h52
+//`define ANACTRL_USBPLL_CTRL3   10'h53
+//`define ANACTRL_USBPLL_STS     10'h54
+//`define ANACTRL_PCIEPLL_CTRL0    10'h50
+//`define ANACTRL_PCIEPLL_CTRL1    10'h51
+//`define ANACTRL_PCIEPLL_CTRL2    10'h52
+//`define ANACTRL_PCIEPLL_CTRL3    10'h53
+//`define ANACTRL_PCIEPLL_CTRL4    10'h54
+//`define ANACTRL_PCIEPLL_CTRL5    10'h55
+//`define ANACTRL_PCIEPLL_STS      10'h56
+#define ANACTRL_ADC_PLL_CNTL                       ((0x0070  << 2) + 0xfe008000)
+#define ANACTRL_ADC_PLL_CNTL1                      ((0x0071  << 2) + 0xfe008000)
+#define ANACTRL_ADC_PLL_CNTL2                      ((0x0072  << 2) + 0xfe008000)
+//`define ANACTRL_ADC_PLL_CNTL3    10'h73
+//`define ANACTRL_ADC_PLL_CNTL4    10'h74
+//`define ANACTRL_ADC_PLL_CNTL5    10'h75
+//`define ANACTRL_ADC_PLL_CNTL6    10'h76
+#define ANACTRL_ADC_PLL_STS                        ((0x0077  << 2) + 0xfe008000)
+#define ANACTRL_HDMIRX_AUD_PLL_CNTL                ((0x0080  << 2) + 0xfe008000)
+#define ANACTRL_HDMIRX_AUD_PLL_CNTL2               ((0x0081  << 2) + 0xfe008000)
+#define ANACTRL_HDMIRX_AUD_PLL_CNTL3               ((0x0082  << 2) + 0xfe008000)
+#define ANACTRL_HDMIRX_AUD_PLL_STS                 ((0x0083  << 2) + 0xfe008000)
+#define ANACTRL_HDMIRX_AUD_PLL4X_SCAN_CNTL         ((0x0084  << 2) + 0xfe008000)
+#define ANACTRL_DADC_CNTL                          ((0x0190  << 2) + 0xfe008000)
+#define ANACTRL_DADC_CNTL2                         ((0x0191  << 2) + 0xfe008000)
+#define ANACTRL_DADC_CNTL3                         ((0x0192  << 2) + 0xfe008000)
+#define ANACTRL_DADC_CNTL4                         ((0x0193  << 2) + 0xfe008000)
+#define ANACTRL_S2_DADC_CNTL                       ((0x0194  << 2) + 0xfe008000)
+#define ANACTRL_S2_DADC_CNTL2                      ((0x0195  << 2) + 0xfe008000)
+#define ANACTRL_DADC_RDBK0_I                       ((0x0196  << 2) + 0xfe008000)
+#define ANACTRL_CVBS_DETECT_CNTL                   ((0x019f  << 2) + 0xfe008000)
+//`define ANACTRL_MIPICSI_CTRL0    10'h90
+//`define ANACTRL_MIPICSI_CTRL1    10'h91
+//`define ANACTRL_MIPICSI_CTRL2    10'h92
+//`define ANACTRL_MIPICSI_CTRL3    10'h93
+//`define ANACTRL_MIPICSI_CTRL4    10'h94
+//`define ANACTRL_MIPICSI_CTRL5    10'h95
 //
-//`define ANACTRL_MIPIDSI_CTRL0    8'hA0
-//`define ANACTRL_MIPIDSI_CTRL1    8'hA1
-//`define ANACTRL_MIPIDSI_CTRL2    8'hA2
-//`define ANACTRL_MIPIDSI_STS      8'hA3
-#define ANACTRL_MISC_PZQ_CTRL                      ((0x00a6  << 2) + 0xfe008000)
-#define ANACTRL_VDAC_CTRL0                         ((0x00b0  << 2) + 0xfe008000)
-#define ANACTRL_VDAC_CTRL1                         ((0x00b1  << 2) + 0xfe008000)
-#define ANACTRL_POR_CTRL                           ((0x00b6  << 2) + 0xfe008000)
-#define ANACTRL_LOCK_BIT                           ((0x00b8  << 2) + 0xfe008000)
-#define ANACTRL_PROT_BIT                           ((0x00b9  << 2) + 0xfe008000)
-//`define ANACTRL_MCLK_PLL_CNTL0   8'hC0
-//`define ANACTRL_MCLK_PLL_CNTL1   8'hC1
-//`define ANACTRL_MCLK_PLL_CNTL2   8'hC2
-//`define ANACTRL_MCLK_PLL_CNTL3   8'hC3
-//`define ANACTRL_MCLK_PLL_CNTL4   8'hC4
-//`define ANACTRL_MCLK_PLL_STS     8'hC5
-//`define ANACTRL_DIF_PHY_CNTL17    8'hd8
-//`define ANACTRL_DIF_PHY_CNTL18    8'hd9
-//`define ANACTRL_DIF_PHY_CNTL19    8'hda
-//`define ANACTRL_DIF_PHY_CNTL20    8'hdb
-//`define ANACTRL_DIF_PHY_CNTL21    8'hdc
-//`define ANACTRL_TCON_PLL1_CNTL0   8'he5
-//`define ANACTRL_TCON_PLL1_CNTL1   8'he6
-//`define ANACTRL_TCON_PLL1_CNTL2   8'he7
-//`define ANACTRL_TCON_PLL1_CNTL3   8'he8
-//`define ANACTRL_TCON_PLL1_CNTL4   8'he9
-//`define ANACTRL_TCON_PLL2_CNTL0   8'hea
-//`define ANACTRL_TCON_PLL2_CNTL1   8'heb
-//`define ANACTRL_TCON_PLL2_CNTL2   8'hec
-//`define ANACTRL_TCON_PLL2_CNTL3   8'hed
-//`define ANACTRL_TCON_PLL2_CNTL4   8'hee
+//`define ANACTRL_MIPIDSI_CTRL0    10'hA0
+//`define ANACTRL_MIPIDSI_CTRL1    10'hA1
+//`define ANACTRL_MIPIDSI_CTRL2    10'hA2
+//`define ANACTRL_MIPIDSI_STS      10'hA3
+#define ANACTRL_MISC_PZQ_CTRL                      ((0x01a6  << 2) + 0xfe008000)
+#define ANACTRL_VDAC_CTRL0                         ((0x01b0  << 2) + 0xfe008000)
+#define ANACTRL_VDAC_CTRL1                         ((0x01b1  << 2) + 0xfe008000)
+#define ANACTRL_POR_CTRL                           ((0x01b6  << 2) + 0xfe008000)
+#define ANACTRL_LOCK_BIT                           ((0x01b8  << 2) + 0xfe008000)
+#define ANACTRL_PROT_BIT                           ((0x01b9  << 2) + 0xfe008000)
 //========================================================================
 //  VX1_LVDS_CTRL - Registers
 //========================================================================
@@ -3796,6 +3749,7 @@
 #define EE_AUDIO_SPDIFOUT_GAIN3                    ((0x0135  << 2) + 0xfe330000)
 #define EE_AUDIO_SPDIFOUT_GAIN_EN                  ((0x0136  << 2) + 0xfe330000)
 #define EE_AUDIO_SPDIFOUT_GAIN_CTRL                ((0x0137  << 2) + 0xfe330000)
+#define EE_AUDIO_SPDIFOUT_CTRL2                    ((0x0138  << 2) + 0xfe330000)
 #define EE_AUDIO_TDMOUT_A_CTRL0                    ((0x0140  << 2) + 0xfe330000)
 #define EE_AUDIO_TDMOUT_A_CTRL1                    ((0x0141  << 2) + 0xfe330000)
 #define EE_AUDIO_TDMOUT_A_SWAP0                    ((0x0142  << 2) + 0xfe330000)
@@ -3899,6 +3853,7 @@
 #define EE_AUDIO_SPDIFOUT_B_GAIN3                  ((0x01b5  << 2) + 0xfe330000)
 #define EE_AUDIO_SPDIFOUT_B_GAIN_EN                ((0x01b6  << 2) + 0xfe330000)
 #define EE_AUDIO_SPDIFOUT_B_GAIN_CTRL              ((0x01b7  << 2) + 0xfe330000)
+#define EE_AUDIO_SPDIFOUT_B_CTRL2                  ((0x01b8  << 2) + 0xfe330000)
 #define EE_AUDIO_SPDIFOUT_MUX                      ((0x01ba  << 2) + 0xfe330000)
 #define EE_AUDIO_TORAM_CTRL0                       ((0x01c0  << 2) + 0xfe330000)
 #define EE_AUDIO_TORAM_CTRL1                       ((0x01c1  << 2) + 0xfe330000)
@@ -9725,7 +9680,7 @@
 // RDMA registers 0x00 - 0xff
 //===========================================================================
 //==========================================ctrl regs==========================================
-#define RDMA_CTRL                                  ((0xfe80700000  << 2) + 0xff800000)
+#define RDMA_CTRL                                  ((0x1100  << 2) + 0xff800000)
 //Bit 31:24     ctrl_clr_rdma_done_int                  //unsigned, WO, default = 0, clear int. Write 1 to reset rdma_int level to 0. No need to clear this bit.
 //Bit 23        ctrl_clr_err                            //unsigned, WO, default = 0, clear RDMA err
 //Bit 22:12     reserved
@@ -9737,18 +9692,18 @@
 //Bit 3:2       ctrl_ahb_rd_burst_size                  //unsigned, RW, default = 0, ABH read request burst size, 0:16 1:24: 2:32 3:48
 //Bit 1         ctrl_sw_reset                           //unsigned, RW, default = 0, 1=Reset RDMA logic except register
 //Bit 0         ctrl_free_clk_enable                    //unsigned, RW, default = 0, Enable clock gating. 1=No clock gating, enable free clock
-#define RDMA_SRAM_CNTL                             ((0xfe80700001  << 2) + 0xff800000)
+#define RDMA_SRAM_CNTL                             ((0x1101  << 2) + 0xff800000)
 //Bit 31:18     reserved
 //Bit 17        ram_incr_mode                           //unsigned, RW, default = 0, increase mode, 0=SRAM address increment after RDMA_SRAM_REGDATA; 1=SRAM address increment after RDMA_SRAM_REGADDR
 //Bit 16        ram_wr_int                              //unsigned, RW, default = 0, rd/wr mode, 0=Write; 1=Read
 //Bit 15:10     reserved
 //Bit 9:0       ram_addr_int                            //unsigned, RW, default = 0, init sram addr
-#define RDMA_SRAM_REGADDR                          ((0xfe80700002  << 2) + 0xff800000)
+#define RDMA_SRAM_REGADDR                          ((0x1102  << 2) + 0xff800000)
 //Bit 31:16     reserved
 //Bit 15:0      ram_regaddr                             //unsigned, RW, default = 0, reg addr which write to sram or read from sram
-#define RDMA_SRAM_REGDATA                          ((0xfe80700003  << 2) + 0xff800000)
+#define RDMA_SRAM_REGDATA                          ((0x1103  << 2) + 0xff800000)
 //Bit 31:0      ram_regdata                             //unsigned, RW, default = 0, reg data which write to sram or read from sram
-#define RDMA_STATUS                                ((0xfe80700004  << 2) + 0xff800000)
+#define RDMA_STATUS                                ((0x1104  << 2) + 0xff800000)
 //Bit 31:24     rdma_done_flag                          //unsigned, RO, default = 0
 //Bit 23        reserved
 //Bit 22        err_axi_wrfifo_undflow                  //unsigned, RO, default = 0
@@ -9760,7 +9715,7 @@
 //Bit 13:11     rdma_id_axi                             //unsigned, RO, default = 0, axi RDMA channel id
 //Bit 10:8      rdma_id_pipe                            //unsigned, RO, default = 0, sram RDMA channel id
 //Bit 7 :0      req_latch                               //unsigned, RO, default = 0, req_latch. Requests that are yet to be serviced. E.g. 0000=No request; 0001=Req 0 waiting; 1100=Req 2 and 3 waiting.
-#define RDMA_STATUS2                               ((0xfe80700006  << 2) + 0xff800000)
+#define RDMA_STATUS2                               ((0x1106  << 2) + 0xff800000)
 //Bit 31:30     reserved
 //Bit 29:24     shr_wrfifo_cnt                          //unsigned, RO, default = 0
 //Bit 23:22     reserved
@@ -9769,31 +9724,31 @@
 //Bit 13:8      axi_wrfifo_room                         //unsigned, RO, default = 0
 //Bit 7:6       reserved
 //Bit 5:0       axi_rdfifo_room                         //unsigned, RO, default = 0
-#define RDMA_STATUS3                               ((0xfe80700007  << 2) + 0xff800000)
+#define RDMA_STATUS3                               ((0x1107  << 2) + 0xff800000)
 //Bit 31:29     reserved
 //Bit 28:27     ram_req_st                              //unsigned, RO, default = 0
 //Bit 26:24     rdma_id_ram                             //unsigned, RO, default = 0
 //Bit 23:8      axi_b_pending                           //unsigned, RO, default = 0
 //Bit 7:0       axi_aw_pending                          //unsigned, RO, default = 0
 //==========================================man regs==========================================
-#define RDMA_ACCESS_MAN                            ((0xfe80700010  << 2) + 0xff800000)
+#define RDMA_ACCESS_MAN                            ((0x1110  << 2) + 0xff800000)
 //Bit 31:4      reserved
 //Bit 3         ctrl_buf_sel_man                        //unsigned, RW, default = 0, 0:select ddr 1:select sram
 //Bit 2         ctrl_cbus_write_man                     //unsigned, RW, default = 0, Register read/write mode for manual-start. 1=Register write; 0=Register read
 //Bit 1         ctrl_cbus_addr_incr_man                 //unsigned, RW, default = 0, 1=Incremental register access for manual-start; 0=Non-incremental (individual) register access
 //Bit 0         ctrl_start_man                          //unsigned, WO, default = 0, Write 1 to this bit to manual-start DMA. This bit always read back 0
-#define RDMA_AHB_START_ADDR_MAN_MSB                ((0xfe80700011  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_MAN_MSB                ((0x1111  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB start address_high                  //unsigned, RW, default = 0, AHB start address[33:32] for manual start DMA
-#define RDMA_AHB_START_ADDR_MAN                    ((0xfe80700012  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_MAN                    ((0x1112  << 2) + 0xff800000)
 //Bit 31:0      AHB start address_low                   //unsigned, RW, default = 0, AHB start address[31:0] for manual start DMA
-#define RDMA_AHB_END_ADDR_MAN_MSB                  ((0xfe80700013  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_MAN_MSB                  ((0x1113  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB end address_high                    //unsigned, RW, default = 0, AHB end address[33:32] for manual start DMA
-#define RDMA_AHB_END_ADDR_MAN                      ((0xfe80700014  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_MAN                      ((0x1114  << 2) + 0xff800000)
 //Bit 31:0      AHB end address_low                     //unsigned, RW, default = 0, AHB end address[31:0] for manual start DMA
 //==========================================auto regs==========================================
-#define RDMA_ACCESS_AUTO                           ((0xfe80700020  << 2) + 0xff800000)
+#define RDMA_ACCESS_AUTO                           ((0x1120  << 2) + 0xff800000)
 //Bit 24:8      reserved
 //Bit    7      ctrl_cbus_write_3                       //unsigned, RW, default = 0, Register read/write mode for auto-start 3. 1=Register write; 0=Register read
 //Bit    6      ctrl_cbus_write_2                       //unsigned, RW, default = 0, Register read/write mode for auto-start 2. 1=Register write; 0=Register read
@@ -9803,7 +9758,7 @@
 //Bit    2      ctrl_cbus_addr_incr_2                   //unsigned, RW, default = 0, 1=Incremental register access for auto-start 2; 0=Non-incremental (individual) register access
 //Bit    1      ctrl_cbus_addr_incr_1                   //unsigned, RW, default = 0, 1=Incremental register access for auto-start 1; 0=Non-incremental (individual) register access
 //Bit    0      reserved
-#define RDMA_ACCESS_AUTO2                          ((0xfe80700021  << 2) + 0xff800000)
+#define RDMA_ACCESS_AUTO2                          ((0x1121  << 2) + 0xff800000)
 //Bit 31:8      reserved
 //Bit    7      ctrl_cbus_write_7                       //unsigned, RW, default = 0, Register read/write mode for auto-start 7. 1=Register write; 0=Register read
 //Bit    6      ctrl_cbus_write_6                       //unsigned, RW, default = 0, Register read/write mode for auto-start 6. 1=Register write; 0=Register read
@@ -9813,7 +9768,7 @@
 //Bit    2      ctrl_cbus_addr_incr_6                   //unsigned, RW, default = 0, 1=Incremental register access for auto-start 6; 0=Non-incremental (individual) register access
 //Bit    1      ctrl_cbus_addr_incr_5                   //unsigned, RW, default = 0, 1=Incremental register access for auto-start 5; 0=Non-incremental (individual) register access
 //Bit    0      ctrl_cbus_addr_incr_4                   //unsigned, RW, default = 0, 1=Incremental register access for auto-start 4; 0=Non-incremental (individual) register access
-#define RDMA_ACCESS_AUTO4                          ((0xfe80700023  << 2) + 0xff800000)
+#define RDMA_ACCESS_AUTO4                          ((0x1123  << 2) + 0xff800000)
 //Bit 31:8   reserved
 //Bit 7      ctrl_buf_sel_7                             //unsigned, RW, default = 0
 //Bit 6      ctrl_buf_sel_6                             //unsigned, RW, default = 0
@@ -9823,89 +9778,89 @@
 //Bit 2      ctrl_buf_sel_2                             //unsigned, RW, default = 0
 //Bit 1      ctrl_buf_sel_1                             //unsigned, RW, default = 0
 //Bit 0      reserved
-#define RDMA_AUTO_SRC1_SEL                         ((0xfe80700024  << 2) + 0xff800000)
+#define RDMA_AUTO_SRC1_SEL                         ((0x1124  << 2) + 0xff800000)
 //Bit 31:0      ctrl_enable_int_1                       //unsigned, RW, default = 0
-#define RDMA_AHB_START_ADDR_1_MSB                  ((0xfe80700025  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_1_MSB                  ((0x1125  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB start address_high                  //unsigned, RW, default = 0, AHB start address[33:32] for  auto start source 1
-#define RDMA_AHB_START_ADDR_1                      ((0xfe80700026  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_1                      ((0x1126  << 2) + 0xff800000)
 //Bit 31:0      AHB start address_low                   //unsigned, RW, default = 0, AHB start address[31:0] for auto start source 1
-#define RDMA_AHB_END_ADDR_1_MSB                    ((0xfe80700027  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_1_MSB                    ((0x1127  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB end address_high                    //unsigned, RW, default = 0, AHB end address[33:32] for  auto start source 1
-#define RDMA_AHB_END_ADDR_1                        ((0xfe80700028  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_1                        ((0x1128  << 2) + 0xff800000)
 //Bit 31:0      AHB end address_low                     //unsigned, RW, default = 0, AHB end address[31:0] for auto start source 1
-#define RDMA_AUTO_SRC2_SEL                         ((0xfe80700029  << 2) + 0xff800000)
+#define RDMA_AUTO_SRC2_SEL                         ((0x1129  << 2) + 0xff800000)
 //Bit 31:0      ctrl_enable_int_2                       //unsigned, RW, default = 0
-#define RDMA_AHB_START_ADDR_2_MSB                  ((0xfe8070002a  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_2_MSB                  ((0x112a  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB start address_high                  //unsigned, RW, default = 0, AHB start address[33:32] for  auto start source 2
-#define RDMA_AHB_START_ADDR_2                      ((0xfe8070002b  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_2                      ((0x112b  << 2) + 0xff800000)
 //Bit 31:0      AHB start address_low                   //unsigned, RW, default = 0, AHB start address[31:0] for auto start source 2
-#define RDMA_AHB_END_ADDR_2_MSB                    ((0xfe8070002c  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_2_MSB                    ((0x112c  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB end address_high                    //unsigned, RW, default = 0, AHB end address[33:32] for  auto start source 2
-#define RDMA_AHB_END_ADDR_2                        ((0xfe8070002d  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_2                        ((0x112d  << 2) + 0xff800000)
 //Bit 31:0      AHB end address_low                     //unsigned, RW, default = 0, AHB end address[31:0] for auto start source 2
-#define RDMA_AUTO_SRC3_SEL                         ((0xfe8070002e  << 2) + 0xff800000)
+#define RDMA_AUTO_SRC3_SEL                         ((0x112e  << 2) + 0xff800000)
 //Bit 31:0      ctrl_enable_int_3                       //unsigned, RW, default = 0
-#define RDMA_AHB_START_ADDR_3_MSB                  ((0xfe8070002f  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_3_MSB                  ((0x112f  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB start address_high                  //unsigned, RW, default = 0, AHB start address[33:32] for  auto start source 3
-#define RDMA_AHB_START_ADDR_3                      ((0xfe80700030  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_3                      ((0x1130  << 2) + 0xff800000)
 //Bit 31:0      AHB start address_low                   //unsigned, RW, default = 0, AHB start address[31:0] for auto start source 3
-#define RDMA_AHB_END_ADDR_3_MSB                    ((0xfe80700031  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_3_MSB                    ((0x1131  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB end address_high                    //unsigned, RW, default = 0, AHB end address[33:32] for  auto start source 3
-#define RDMA_AHB_END_ADDR_3                        ((0xfe80700032  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_3                        ((0x1132  << 2) + 0xff800000)
 //Bit 31:0      AHB end address_low                     //unsigned, RW, default = 0, AHB end address[31:0] for auto start source 3
-#define RDMA_AUTO_SRC4_SEL                         ((0xfe80700033  << 2) + 0xff800000)
+#define RDMA_AUTO_SRC4_SEL                         ((0x1133  << 2) + 0xff800000)
 //Bit 31:0      ctrl_enable_int_4                       //unsigned, RW, default = 0
-#define RDMA_AHB_START_ADDR_4_MSB                  ((0xfe80700034  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_4_MSB                  ((0x1134  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB start address_high                  //unsigned, RW, default = 0, AHB start address[33:32] for  auto start source 4
-#define RDMA_AHB_START_ADDR_4                      ((0xfe80700035  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_4                      ((0x1135  << 2) + 0xff800000)
 //Bit 31:0      AHB start address_low                   //unsigned, RW, default = 0, AHB start address[31:0] for auto start source 4
-#define RDMA_AHB_END_ADDR_4_MSB                    ((0xfe80700036  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_4_MSB                    ((0x1136  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB end address_high                    //unsigned, RW, default = 0, AHB end address[33:32] for  auto start source 4
-#define RDMA_AHB_END_ADDR_4                        ((0xfe80700037  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_4                        ((0x1137  << 2) + 0xff800000)
 //Bit 31:0      AHB end address_low                     //unsigned, RW, default = 0, AHB end address[31:0] for auto start source 4
-#define RDMA_AUTO_SRC5_SEL                         ((0xfe80700038  << 2) + 0xff800000)
+#define RDMA_AUTO_SRC5_SEL                         ((0x1138  << 2) + 0xff800000)
 //Bit 31:0      ctrl_enable_int_5                       //unsigned, RW, default = 0
-#define RDMA_AHB_START_ADDR_5_MSB                  ((0xfe80700039  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_5_MSB                  ((0x1139  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB start address_high                  //unsigned, RW, default = 0, AHB start address[33:32] for  auto start source 5
-#define RDMA_AHB_START_ADDR_5                      ((0xfe8070003a  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_5                      ((0x113a  << 2) + 0xff800000)
 //Bit 31:0      AHB start address_low                   //unsigned, RW, default = 0, AHB start address[31:0] for auto start source 5
-#define RDMA_AHB_END_ADDR_5_MSB                    ((0xfe8070003b  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_5_MSB                    ((0x113b  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB end address_high                    //unsigned, RW, default = 0, AHB end address[33:32] for  auto start source 5
-#define RDMA_AHB_END_ADDR_5                        ((0xfe8070003c  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_5                        ((0x113c  << 2) + 0xff800000)
 //Bit 31:0      AHB end address_low                     //unsigned, RW, default = 0, AHB end address[31:0] for auto start source 5
-#define RDMA_AUTO_SRC6_SEL                         ((0xfe8070003d  << 2) + 0xff800000)
+#define RDMA_AUTO_SRC6_SEL                         ((0x113d  << 2) + 0xff800000)
 //Bit 31:0      ctrl_enable_int_6                       //unsigned, RW, default = 0
-#define RDMA_AHB_START_ADDR_6_MSB                  ((0xfe8070003e  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_6_MSB                  ((0x113e  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB start address_high                  //unsigned, RW, default = 0, AHB start address[33:32] for  auto start source 6
-#define RDMA_AHB_START_ADDR_6                      ((0xfe8070003f  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_6                      ((0x113f  << 2) + 0xff800000)
 //Bit 31:0      AHB start address_low                   //unsigned, RW, default = 0, AHB start address[31:0] for auto start source 6
-#define RDMA_AHB_END_ADDR_6_MSB                    ((0xfe80700040  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_6_MSB                    ((0x1140  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB end address_high                    //unsigned, RW, default = 0, AHB end address[33:32] for  auto start source 6
-#define RDMA_AHB_END_ADDR_6                        ((0xfe80700041  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_6                        ((0x1141  << 2) + 0xff800000)
 //Bit 31:0      AHB end address_low                     //unsigned, RW, default = 0, AHB end address[31:0] for auto start source 6
-#define RDMA_AUTO_SRC7_SEL                         ((0xfe80700042  << 2) + 0xff800000)
+#define RDMA_AUTO_SRC7_SEL                         ((0x1142  << 2) + 0xff800000)
 //Bit 31:0      ctrl_enable_int_7                       //unsigned, RW, default = 0
-#define RDMA_AHB_START_ADDR_7_MSB                  ((0xfe80700043  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_7_MSB                  ((0x1143  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB start address_high                  //unsigned, RW, default = 0, AHB start address[33:32] for  auto start source 7
-#define RDMA_AHB_START_ADDR_7                      ((0xfe80700044  << 2) + 0xff800000)
+#define RDMA_AHB_START_ADDR_7                      ((0x1144  << 2) + 0xff800000)
 //Bit 31:0      AHB start address_low                   //unsigned, RW, default = 0, AHB start address[31:0] for auto start source 7
-#define RDMA_AHB_END_ADDR_7_MSB                    ((0xfe80700045  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_7_MSB                    ((0x1145  << 2) + 0xff800000)
 //Bit 31:2      reserved
 //Bit  1:0      AHB end address_high                    //unsigned, RW, default = 0, AHB end address[33:32] for  auto start source 7
-#define RDMA_AHB_END_ADDR_7                        ((0xfe80700046  << 2) + 0xff800000)
+#define RDMA_AHB_END_ADDR_7                        ((0x1146  << 2) + 0xff800000)
 //Bit 31:0      AHB end address_low                     //unsigned, RW, default = 0, AHB end address[31:0] for auto start source 7
 //
 // Closing file:  ./rdma_regs.h
@@ -11058,6 +11013,12 @@
 #define LCD_VAC_DMA_H_BGN                          ((0x14c3  << 2) + 0xff800000)
 #define LCD_VAC_DMA_V_BGN                          ((0x14c4  << 2) + 0xff800000)
 #define LCD_VAC9001_DBG_CTRL                       ((0x14c5  << 2) + 0xff800000)
+//ambight
+#define LDC_AMBIGHT_HSIZE                          ((0x14c6  << 2) + 0xff800000)
+#define LDC_AMBIGHT_VSIZE                          ((0x14c7  << 2) + 0xff800000)
+#define LDC_AMBIGHT_STAT_NUM                       ((0x14c8  << 2) + 0xff800000)
+#define LDC_INTP_CTRL                              ((0x14c9  << 2) + 0xff800000)
+#define LDC_SPI_INTP_CTRL                          ((0x14ca  << 2) + 0xff800000)
 //
 // Closing file:  ./lcd_regs.h
 //
@@ -33708,6 +33669,24 @@
 #define VPU_AXIRD_IRQ_EN1                          ((0x6c86  << 2) + 0xff800000)
 //Bit 31:16       pls_irq_clr1                  // unsigned ,   RW,  default = 0
 //Bit 15: 0       reg_irq_en1                   // unsigned ,   RW,  default = 0
+#define VPU_AXIRD_LINE_CRTL0                       ((0x6c8a  << 2) + 0xff800000)
+//Bit 31:30       reserved
+//Bit 29:28       reg_line_sync_en               // unsigned ,   RW,  default = 0
+//Bit 27:24       reg_rd_dly_en                  // unsigned ,   RW,  default = 0
+//Bit 23:16       reg_line_clr_reg               // unsigned ,   RW,  default = 0
+//Bit 15:8        reg_line_end_ds                // unsigned ,   RW,  default = 0
+//Bit 7:4         reg_rd_idx_num                 // unsigned ,   RW,  default =15
+//Bit 3:1         reserved
+//Bit 0           pls_rd_idx_int_en              // unsigned ,   W1T, default = 0
+#define VPU_AXIRD_LINE_CRTL1                       ((0x6c8b  << 2) + 0xff800000)
+//Bit 31:0        reg_line_ini                   // unsigned ,   RW,  default =0
+#define VPU_AXIRD_LINE_CRTL2                       ((0x6c8c  << 2) + 0xff800000)
+//Bit 31:8       reserved
+//Bit 7:0        reg_rd_idx_int                  // unsigned ,   RW,  default =0
+#define VPU_AXIRD_LINE_CRTL3                       ((0x6c8d  << 2) + 0xff800000)
+//Bit 31:0        reg_rd_dly_line0                // unsigned ,   RW,  default =0
+#define VPU_AXIRD_LINE_CRTL4                       ((0x6c8e  << 2) + 0xff800000)
+//Bit 31:0        reg_rd_dly_line1                // unsigned ,   RW,  default =0
 #define VPU_AXIRD_OUT_REMAP                        ((0x6c90  << 2) + 0xff800000)
 //Bit 31:0        reg_vfcdxn_out_map            // unsigned ,   RW,  default = 0
 #define VPU_AXIRD_BC_REMAP0                        ((0x6c91  << 2) + 0xff800000)
@@ -34150,6 +34129,22 @@
 #define DPSS_FRC_INP_FW_DONE                       ((0x8071  << 2) + 0xff850000)
 //Bit 31 :1         reserved
 //Bit 0             pls_inp_frm_done         // unsigned ,    W1T,default = 0   reg_dpe_byp_hsize
+#define DPSS_FNR_SW_DRV_CTRL0                      ((0x8072  << 2) + 0xff850000)
+//Bit 31 :3         reserved
+//Bit 2             pls_fnr_dpe_obuf_free    // unsigned ,    W1T,default = 0
+//Bit 1             pls_fnr_dpe_obuf_rdy     // unsigned ,    W1T,default = 0
+//Bit 0             pls_fnr_dae_ibuf_rdy     // unsigned ,    W1T,default = 0
+#define DPSS_FNR_SW_DRV_CTRL1                      ((0x8073  << 2) + 0xff850000)
+//Bit 31:16         reg_fnr_dae_ibuf_din_h      // unsigned ,    RW,default = 0
+//Bit 15:8          reg_fnr_dpe_obuf_free_idx   // unsigned ,    RW,default = 0
+//Bit 7:4           reg_fnr_dpe_obuf_wrpt       // unsigned ,    RW,default = 0
+//Bit 3:1           reserved
+//Bit 0             reg_fnr_drv_mode            // unsigned ,    RW,default = 0
+#define DPSS_FNR_SW_DRV_CTRL2                      ((0x8074  << 2) + 0xff850000)
+//Bit 31:0          reg_fnr_dae_ibuf_din_l      // unsigned ,    RW,default = 0
+#define FRC_FRC_DAE_STATUS                         ((0x8080  << 2) + 0xff850000)
+//Bit 31: 8         reserved
+//Bit 7 : 0         ro_me_film_mode           //  unsigned ,   RW, default = 0
 #define DPSS_FRC_PROC_STATUS                       ((0x8085  << 2) + 0xff850000)
 //Bit 31:19         reserved
 //Bit 18:16         ro_frc_inp_proc_st        // unsigned ,   RO, default = 3'h0    0:IDLE; 1:REQ; 2:INIT; 3:PROC; 4:IRDY; 5:ORDY; 6:SYNC
@@ -34309,6 +34304,9 @@
 #define DPSS_FRC_INP_RLS_SIZE                      ((0x80c1  << 2) + 0xff850000)
 //Bit 31:16         reg_inp_rls_vsize         // unsigned ,   RW, default = 5   reg_inp_rls_vsize for inp buffer rls block
 //Bit 15:0          reg_inp_rls_hsize         // unsigned ,   RW, default = 320 reg_inp_rls_hsize for inp buffer rls block
+#define DPSS_REG_LOOP_PHASE_ADJ_TH                 ((0x80c3  << 2) + 0xff850000)
+//Bit 31:8          reserved
+//Bit 7 :0          reg_zero_phase_th         // unsigned ,   RW, default = 16  reg_zero_phase_th
 #define DPSS_REG_LOOP_PHASE_ADJ                    ((0x80c5  << 2) + 0xff850000)
 //Bit 31:1          reserved
 //Bit    0          reg_loop_phase_adj_en    // unsigned ,   RW, default = 0   reg_dbg_path_mode
@@ -35437,212 +35435,86 @@
 //
 // synopsys translate_off
 // synopsys translate_on
-#define DPSS_SRC0_IDW_YBUF_ADDR                    ((0x8200  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_idw_ybuf_addr          // unsigned ,  RW, default = 32'h4000000 mif_addr
-#define DPSS_SRC0_IDW_CBUF_ADDR                    ((0x8201  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_idw_cbuf_addr          // unsigned ,  RW, default = 32'h4100000 mif_addr
-#define DPSS_SRC0_MIX_PBUF_ADDR                    ((0x8204  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mix_pbuf_addr          // unsigned ,  RW, default = 32'h4200000 mif_addr
-#define DPSS_SRC0_MIX_CBUF_ADDR                    ((0x8205  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mix_cbuf_addr          // unsigned ,  RW, default = 32'h4280000 mif_addr
-#define DPSS_SRC0_ME_NC_UNI_MV_ADDR                ((0x8210  << 2) + 0xff850000)
+#define DPSS_FRC_INP_YBODY_ADDR                    ((0x8200  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_ybody_addr          // unsigned ,  RW, default = 32'h7200000 mif_addr
+#define DPSS_FRC_INP_CBODY_ADDR                    ((0x8201  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_cbody_addr          // unsigned ,  RW, default = 32'h8200000 mif_addr
+#define DPSS_FRC_INP_YHEAD_ADDR                    ((0x8202  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_yhead_addr         // unsigned ,  RW, default = 32'hA420000 reg_FRC_inp_yhead_addr
+#define DPSS_FRC_INP_CHEAD_ADDR                    ((0x8203  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_chead_addr         // unsigned ,  RW, default = 32'hA460000 reg_FRC_inp_chead_addr
+#define DPSS_FRC_IDW_YBUF_ADDR                     ((0x8204  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_idw_ybuf_addr          // unsigned ,  RW, default = 32'h4000000 mif_addr
+#define DPSS_FRC_IDW_CBUF_ADDR                     ((0x8205  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_idw_cbuf_addr          // unsigned ,  RW, default = 32'h4100000 mif_addr
+#define DPSS_FRC_INP_MBUF_ADDR                     ((0x8206  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_mbuf_addr          // unsigned ,  RW, default = 32'h4200000 mif_addr
+#define DPSS_FRC_ME_MBUF_ADDR                      ((0x8207  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_me_mbuf_addr           // unsigned ,  RW, default = 32'hA2A0000 mif_addr
+#define DPSS_SRC0_ME_NC_UNI_MV_ADDR                ((0x8208  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_me_nc_uni_mv_addr      // unsigned ,  RW, default = 32'h4300000  mif_addr
-#define DPSS_SRC0_ME_CN_UNI_MV_ADDR                ((0x8211  << 2) + 0xff850000)
+#define DPSS_SRC0_ME_CN_UNI_MV_ADDR                ((0x8209  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_me_cn_uni_mv_addr      // unsigned ,  RW, default = 32'h4340000  mif_addr
-#define DPSS_SRC0_ME_PC_PHS_MV_ADDR                ((0x8212  << 2) + 0xff850000)
+#define DPSS_SRC0_ME_PC_PHS_MV_ADDR                ((0x8210  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_me_pc_phs_mv_addr      // unsigned ,  RW, default = 32'h4350000  mif_addr
-#define DPSS_SRC0_LOGO_IIR_BUF_ADDR                ((0x8218  << 2) + 0xff850000)
+#define DPSS_SRC0_LOGO_IIR_BUF_ADDR                ((0x8211  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_logo_iir_buf_addr      // unsigned ,  RW, default = 32'h4358000  mif_addr
-#define DPSS_SRC0_LOGO_SCC_BUF_ADDR                ((0x8219  << 2) + 0xff850000)
+#define DPSS_SRC0_LOGO_SCC_BUF_ADDR                ((0x8212  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_logo_scc_buf_addr      // unsigned ,  RW, default = 32'h4368000  mif_addr
-#define DPSS_SRC0_BLK_LOGO_ADDR                    ((0x821a  << 2) + 0xff850000)
+#define DPSS_SRC0_BLK_LOGO_ADDR                    ((0x8213  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_blk_logo_addr          // unsigned ,  RW, default = 32'h4378000 mif_addr
-#define DPSS_SRC0_PIX_LOGO_ADDR                    ((0x821b  << 2) + 0xff850000)
+#define DPSS_SRC0_PIX_LOGO_ADDR                    ((0x8214  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_pix_logo_addr          // unsigned ,  RW, default = 32'h43B8000 mif_addr
-#define DPSS_SRC0_VP_MC_MV_ADDR                    ((0x821c  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_vp_mc_mv_addr          // unsigned ,  RW, default = 32'h43F8000 reg_src0_vp_mc_mv_addr,must be burst4 align
-#define DPSS_SRC0_VP_MC_LOGO_ADDR                  ((0x821d  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_vp_mc_logo_addr        // unsigned ,  RW, default = 32'h4438000 reg_src0_vp_mc_logo_addr,must be burst4 align
-#define DPSS_SRC0_MCOUT_YBUF_ADDR                  ((0x8220  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcout_ybuf_addr        // unsigned ,  RW, default = 32'h4478000 reg_src0_mcout_ybuf_addr
-#define DPSS_SRC0_MCOUT_CBUF_ADDR                  ((0x8221  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcout_cbuf_addr        // unsigned ,  RW, default = 32'h4C78000 reg_src0_mcout_cbuf_addr
-#define DPSS_SRC0_MCODW_YBUF_ADDR                  ((0x8222  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcodw_ybuf_addr        // unsigned ,  RW, default = 32'h5478000 reg_src0_mcodw_ybuf_addr
-#define DPSS_SRC0_MCODW_CBUF_ADDR                  ((0x8223  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcodw_cbuf_addr        // unsigned ,  RW, default = 32'h54F8000 reg_src0_mcodw_cbuf_addr
-#define DPSS_SRC0_ME_INFO_ADDR                     ((0x8230  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_info_addr           // unsigned ,  RW, default = 32'h7000000 reg_src0_me_info_addr,must be burst4 align
-#define DPSS_SRC0_ME_MTN_ADDR                      ((0x8231  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_mtn_addr            // unsigned ,  RW, default = 32'h7040000 reg_src0_me_mtn_addr,must be burst4 align
-#define DPSS_SRC0_ME_ALP_ADDR                      ((0x8232  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_alp_addr            // unsigned ,  RW, default = 32'h7040000 reg_src0_me_alp_addr,must be burst4 align
-#define DPSS_SRC0_ME_TFBF_ADDR                     ((0x8233  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_tfbf_addr           // unsigned ,  RW, default = 32'h7040000 reg_src0_me_tfbf_addr,must be burst4 align
-#define DPSS_SRC0_NRDI_MV_ADDR                     ((0x8234  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrdi_mv_addr           // unsigned ,  RW, default = 32'h7040000 reg_src0_nrdi_mv_addr,must be burst4 align
-#define DPSS_SRC0_DCG_HIST_ADDR                    ((0x8240  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dcg_hist_addr          // unsigned ,  RW, default = 32'h7080000 reg_src0_dcg_hist_addr
-#define DPSS_SRC0_DCG_YDS_ADDR                     ((0x8241  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dcg_yds_addr           // unsigned ,  RW, default = 32'h70C0000 reg_src0_dcg_yds_addr
-#define DPSS_SRC0_DCG_CDS_ADDR                     ((0x8242  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dcg_cds_addr           // unsigned ,  RW, default = 32'h7100000 reg_src0_dcg_cds_addr
-#define DPSS_SRC0_DV_PYMD_ADDR                     ((0x8248  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dv_pymd_addr           // unsigned ,  RW, default = 32'h7140000 reg_src0_dv_pymd_addr,must be burst4 align
-#define DPSS_SRC0_DV_HIST_ADDR                     ((0x8249  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dv_hist_addr           // unsigned ,  RW, default = 32'h7180000 reg_src0_dv_hist_addr,must be burst4 align
-#define DPSS_SRC0_DV_INTP_ADDR                     ((0x824a  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dv_intp_addr           // unsigned ,  RW, default = 32'h71C0000 reg_src0_dv_intp_addr,must be burst4 align
-#define DPSS_SRC0_INP_YBUF_ADDR                    ((0x8250  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_inp_ybuf_addr          // unsigned ,  RW, default = 32'h7200000 mif_addr
-#define DPSS_SRC0_INP_CBUF_ADDR                    ((0x8251  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_inp_cbuf_addr          // unsigned ,  RW, default = 32'h8200000 mif_addr
-#define DPSS_SRC0_NR_HDBLK_ADDR                    ((0x8254  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nr_hdblk_addr          // unsigned ,  RW, default = 32'h9200000 reg_src0_nr_hdblk_addr
-#define DPSS_SRC0_NR_VDBLK_ADDR                    ((0x8255  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nr_vdblk_addr          // unsigned ,  RW, default = 32'h9240000 reg_src0_nr_vdblk_addr
-#define DPSS_SRC0_NR_DMSQ_ADDR                     ((0x8256  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nr_dmsq_addr           // unsigned ,  RW, default = 32'h9280000 reg_src0_nr_dmsq_addr
-#define DPSS_SRC0_NROUT_YBUF_ADDR                  ((0x8258  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrout_ybuf_addr        // unsigned ,  RW, default = 32'h92A0000 reg_src0_nrout_ybuf_addr
-#define DPSS_SRC0_NROUT_CBUF_ADDR                  ((0x8259  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrout_cbuf_addr        // unsigned ,  RW, default = 32'h9AA0000 reg_src0_nrout_cbuf_addr
-#define DPSS_SRC0_NRODW_MBUF_ADDR                  ((0x825a  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrodw_mbuf_addr        // unsigned ,  RW, default = 32'hA2A0000 reg_src0_nrodw_mbuf_addr,must be burst4 align
-#define DPSS_SRC0_NRODW_YBUF_ADDR                  ((0x825b  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrodw_ybuf_addr        // unsigned ,  RW, default = 32'hA2E0000 reg_src0_nrodw_ybuf_addr
-#define DPSS_SRC0_NRODW_CBUF_ADDR                  ((0x825c  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrodw_cbuf_addr        // unsigned ,  RW, default = 32'hA360000 reg_src0_nrodw_cbuf_addr
-#define DPSS_SRC0_DIOUT_YBUF_ADDR                  ((0x825d  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diout_ybuf_addr        // unsigned ,  RW, default = 32'hA3E0000 reg_src0_diout_ybuf_addr
-#define DPSS_SRC0_DIOUT_CBUF_ADDR                  ((0x825e  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diout_cbuf_addr        // unsigned ,  RW, default = 32'hA7E0000 reg_src0_diout_cbuf_addr
-#define DPSS_SRC0_MCOUT_YHEAD_ADDR                 ((0x825f  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcout_yhead_addr       // unsigned ,  RW, default = 32'hA3E0000 reg_src0_mcout_yhead_addr
-#define DPSS_SRC0_MCOUT_CHEAD_ADDR                 ((0x8260  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcout_chead_addr       // unsigned ,  RW, default = 32'hA400000 reg_src0_mcout_chead_addr
-#define DPSS_SRC0_INP_YHEAD_ADDR                   ((0x8261  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_inp_yhead_addr         // unsigned ,  RW, default = 32'hA420000 reg_src0_inp_yhead_addr
-#define DPSS_SRC0_INP_CHEAD_ADDR                   ((0x8262  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_inp_chead_addr         // unsigned ,  RW, default = 32'hA460000 reg_src0_inp_chead_addr
-#define DPSS_SRC0_NROUT_YHEAD_ADDR                 ((0x8263  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrout_yhead_addr       // unsigned ,  RW, default = 32'hA4A0000 reg_src0_nrout_yhead_addr
-#define DPSS_SRC0_NROUT_CHEAD_ADDR                 ((0x8264  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrout_chead_addr       // unsigned ,  RW, default = 32'hA4C0000 reg_src0_nrout_chead_addr
-#define DPSS_SRC0_DIOUT_YHEAD_ADDR                 ((0x8265  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diout_yhead_addr       // unsigned ,  RW, default = 32'hA4E0000 reg_src0_diout_yhead_addr
-#define DPSS_SRC0_DIOUT_CHEAD_ADDR                 ((0x8266  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diout_chead_addr       // unsigned ,  RW, default = 32'hA4E0000 reg_src0_diout_chead_addr
-#define DPSS_SRC0_FRC_MERO_ADDR                    ((0x8267  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_frc_mero_addr          // unsigned ,  RW, default = 32'hA500000 reg_src0_frc_mero_addr
-#define DPSS_SRC0_NR_MERO_ADDR                     ((0x8268  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nr_mero_addr           // unsigned ,  RW, default = 32'hA900000 reg_src0_nr_mero_addr
-#define DPSS_SRC0_DIODW_YBUF_ADDR                  ((0x8269  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diodw_ybuf_addr        // unsigned ,  RW, default = 32'hABE0000 reg_src0_diodw_ybuf_addr
-#define DPSS_SRC0_DIODW_CBUF_ADDR                  ((0x826a  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diodw_cbuf_addr        // unsigned ,  RW, default = 32'hAC20000 reg_src0_diodw_cbuf_addr
-#define DPSS_SRC0_IDW_YBUF_STEP                    ((0x8280  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_idw_ybuf_step          // unsigned ,  RW, default = 32'h10000
-#define DPSS_SRC0_IDW_CBUF_STEP                    ((0x8281  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_idw_cbuf_step          // unsigned ,  RW, default = 32'h10000
-#define DPSS_SRC0_MIX_PBUF_STEP                    ((0x8284  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mix_pbuf_step          // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_MIX_CBUF_STEP                    ((0x8285  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mix_cbuf_step          // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_ME_NC_UNI_MV_STEP                ((0x8290  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_nc_uni_mv_step      // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_ME_CN_UNI_MV_STEP                ((0x8291  << 2) + 0xff850000)
+#define DPSS_SRC0_VP_MC_MV_ADDR                    ((0x8215  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_vp_mc_mv_addr          // unsigned ,  RW, default = 32'h43F8000 reg_SRC0_vp_mc_mv_addr,must be burst4 align
+#define DPSS_SRC0_VP_MC_LOGO_ADDR                  ((0x8216  << 2) + 0xff850000)
+//Bit 31:0 reg_SRC0_vp_mc_logo_addr        // unsigned ,  RW, default = 32'h4438000 reg_src0_vp_mc_logo_addr,must be burst4 align
+#define DPSS_SRC0_FRC_MERO_ADDR                    ((0x8217  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_frc_mero_addr          // unsigned ,  RW, default = 32'hA500000 reg_src0_src0_mero_addr
+#define DPSS_INP_IDW_YBUF_ADDR                     ((0x8218  << 2) + 0xff850000)
+//Bit 31:0 reg_inp_idw_ybuf_addr          // unsigned ,  RW, default = 32'h4000000 mif_addr
+#define DPSS_INP_IDW_CBUF_ADDR                     ((0x8219  << 2) + 0xff850000)
+//Bit 31:0 reg_inp_idw_cbuf_addr          // unsigned ,  RW, default = 32'h4100000 mif_addr
+#define DPSS_FRC_INP_YBODY_STEP                    ((0x8240  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_ybody_step          // unsigned ,  RW, default = 32'h100000 reg_FRC_inp_ybuf_step
+#define DPSS_FRC_INP_CBODY_STEP                    ((0x8241  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_cbody_step          // unsigned ,  RW, default = 32'h100000 reg_FRC_inp_cbuf_step
+#define DPSS_FRC_INP_YHEAD_STEP                    ((0x8242  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_yhead_step         // unsigned ,  RW, default = 32'h4000 reg_FRC_inp_yhead_step
+#define DPSS_FRC_INP_CHEAD_STEP                    ((0x8243  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_chead_step         // unsigned ,  RW, default = 32'h4000 reg_FRC_inp_chead_step
+#define DPSS_FRC_IDW_YBUF_STEP                     ((0x8244  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_idw_ybuf_step          // unsigned ,  RW, default = 32'h10000
+#define DPSS_FRC_IDW_CBUF_STEP                     ((0x8245  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_idw_cbuf_step          // unsigned ,  RW, default = 32'h10000
+#define DPSS_FRC_INP_MBUF_STEP                     ((0x8246  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_inp_mbuf_step          // unsigned ,  RW, default = 32'h8000
+#define DPSS_FRC_ME_MBUF_STEP                      ((0x8247  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_me_mbuf_step           // unsigned ,  RW, default = 32'h8000
+#define DPSS_SRC0_ME_NC_UNI_MV_STEP                ((0x8248  << 2) + 0xff850000)
+//Bit 31:0 reg_SRC0_me_nc_uni_mv_step      // unsigned ,  RW, default = 32'h8000
+#define DPSS_SRC0_ME_CN_UNI_MV_STEP                ((0x8249  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_me_cn_uni_mv_step      // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_ME_PC_PHS_MV_STEP                ((0x8292  << 2) + 0xff850000)
+#define DPSS_SRC0_ME_PC_PHS_MV_STEP                ((0x8250  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_me_pc_phs_mv_step      // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_LOGO_IIR_BUF_STEP                ((0x8298  << 2) + 0xff850000)
+#define DPSS_SRC0_LOGO_IIR_BUF_STEP                ((0x8251  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_logo_iir_buf_step      // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_LOGO_SCC_BUF_STEP                ((0x8299  << 2) + 0xff850000)
+#define DPSS_SRC0_LOGO_SCC_BUF_STEP                ((0x8252  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_logo_scc_buf_step      // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_BLK_LOGO_STEP                    ((0x829a  << 2) + 0xff850000)
+#define DPSS_SRC0_BLK_LOGO_STEP                    ((0x8253  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_blk_logo_step          // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_PIX_LOGO_STEP                    ((0x829b  << 2) + 0xff850000)
+#define DPSS_SRC0_PIX_LOGO_STEP                    ((0x8254  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_pix_logo_step          // unsigned ,  RW, default = 32'h8000
-#define DPSS_SRC0_VP_MC_MV_STEP                    ((0x829c  << 2) + 0xff850000)
+#define DPSS_SRC0_VP_MC_MV_STEP                    ((0x8255  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_vp_mc_mv_step          // unsigned ,  RW, default = 32'h8000 reg_src0_vp_mc_mv_step,must be burst4 align
-#define DPSS_SRC0_VP_MC_LOGO_STEP                  ((0x829d  << 2) + 0xff850000)
+#define DPSS_SRC0_VP_MC_LOGO_STEP                  ((0x8256  << 2) + 0xff850000)
 //Bit 31:0 reg_src0_vp_mc_logo_step        // unsigned ,  RW, default = 32'h8000 reg_src0_vp_mc_logo_step,must be burst4 align
-#define DPSS_SRC0_MCOUT_YBUF_STEP                  ((0x82a0  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcout_ybuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_mcout_ybuf_step
-#define DPSS_SRC0_MCOUT_CBUF_STEP                  ((0x82a1  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcout_cbuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_mcout_cbuf_step
-#define DPSS_SRC0_MCODW_YBUF_STEP                  ((0x82a2  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcodw_ybuf_step        // unsigned ,  RW, default = 32'h10000 reg_src0_mcodw_ybuf_step
-#define DPSS_SRC0_MCODW_CBUF_STEP                  ((0x82a3  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcodw_cbuf_step        // unsigned ,  RW, default = 32'h10000 reg_src0_mcodw_cbuf_step
-#define DPSS_SRC0_ME_INFO_STEP                     ((0x82b0  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_info_step           // unsigned ,  RW, default = 32'h8000 reg_src0_me_info_step,must be burst4 align
-#define DPSS_SRC0_ME_MTN_STEP                      ((0x82b1  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_mtn_step            // unsigned ,  RW, default = 32'h8000 reg_src0_me_mtn_step,must be burst4 align
-#define DPSS_SRC0_ME_ALP_STEP                      ((0x82b2  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_alp_step            // unsigned ,  RW, default = 32'h8000 reg_src0_me_alp_step,must be burst4 align
-#define DPSS_SRC0_ME_TFBF_STEP                     ((0x82b3  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_me_tfbf_step           // unsigned ,  RW, default = 32'h8000 reg_src0_me_tfbf_step,must be burst4 align
-#define DPSS_SRC0_NRDI_MV_STEP                     ((0x82b4  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrdi_mv_step           // unsigned ,  RW, default = 32'h8000 reg_src0_nrdi_mv_step,must be burst4 align
-#define DPSS_SRC0_DCG_HIST_STEP                    ((0x82c0  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dcg_hist_step          // unsigned ,  RW, default = 32'h8000 reg_src0_dcg_hist_step
-#define DPSS_SRC0_DCG_YDS_STEP                     ((0x82c1  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dcg_yds_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dcg_yds_step
-#define DPSS_SRC0_DCG_CDS_STEP                     ((0x82c2  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dcg_cds_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dcg_cds_step
-#define DPSS_SRC0_DV_PYMD_STEP                     ((0x82c8  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dv_pymd_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dv_pymd_step,must be burst4 align
-#define DPSS_SRC0_DV_HIST_STEP                     ((0x82c9  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dv_hist_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dv_hist_step,must be burst4 align
-#define DPSS_SRC0_DV_INTP_STEP                     ((0x82ca  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_dv_intp_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dv_intp_step,must be burst4 align
-#define DPSS_SRC0_INP_YBUF_STEP                    ((0x82d0  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_inp_ybuf_step          // unsigned ,  RW, default = 32'h100000 reg_src0_inp_ybuf_step
-#define DPSS_SRC0_INP_CBUF_STEP                    ((0x82d1  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_inp_cbuf_step          // unsigned ,  RW, default = 32'h100000 reg_src0_inp_cbuf_step
-#define DPSS_SRC0_NR_HDBLK_STEP                    ((0x82d4  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nr_hdblk_step          // unsigned ,  RW, default = 32'h8000  reg_src0_nr_hdblk_step
-#define DPSS_SRC0_NR_VDBLK_STEP                    ((0x82d5  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nr_vdblk_step          // unsigned ,  RW, default = 32'h8000  reg_src0_nr_vdblk_step
-#define DPSS_SRC0_NR_DMSQ_STEP                     ((0x82d6  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nr_dmsq_step           // unsigned ,  RW, default = 32'h10000 reg_src0_nr_dmsq_step
-#define DPSS_SRC0_NROUT_YBUF_STEP                  ((0x82d8  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrout_ybuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_nrout_ybuf_step
-#define DPSS_SRC0_NROUT_CBUF_STEP                  ((0x82d9  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrout_cbuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_nrout_cbuf_step
-#define DPSS_SRC0_NRODW_MBUF_STEP                  ((0x82da  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrodw_mbuf_step        // unsigned ,  RW, default = 32'h8000 reg_src0_nrodw_mbuf_step
-#define DPSS_SRC0_NRODW_YBUF_STEP                  ((0x82db  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrodw_ybuf_step        // unsigned ,  RW, default = 32'h10000 reg_src0_nrodw_ybuf_step
-#define DPSS_SRC0_NRODW_CBUF_STEP                  ((0x82dc  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrodw_cbuf_step        // unsigned ,  RW, default = 32'h10000 reg_src0_nrodw_cbuf_step
-#define DPSS_SRC0_DIOUT_YBUF_STEP                  ((0x82dd  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diout_ybuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_diout_ybuf_step
-#define DPSS_SRC0_DIOUT_CBUF_STEP                  ((0x82de  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diout_cbuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_diout_cbuf_step
-#define DPSS_SRC0_MCOUT_YHEAD_STEP                 ((0x82df  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcout_yhead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_mcout_yhead_step
-#define DPSS_SRC0_MCOUT_CHEAD_STEP                 ((0x82e0  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mcout_chead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_mcout_chead_step
-#define DPSS_SRC0_INP_YHEAD_STEP                   ((0x82e1  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_inp_yhead_step         // unsigned ,  RW, default = 32'h4000 reg_src0_inp_yhead_step
-#define DPSS_SRC0_INP_CHEAD_STEP                   ((0x82e2  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_inp_chead_step         // unsigned ,  RW, default = 32'h4000 reg_src0_inp_chead_step
-#define DPSS_SRC0_NROUT_YHEAD_STEP                 ((0x82e3  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrout_yhead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_nrout_yhead_step
-#define DPSS_SRC0_NROUT_CHEAD_STEP                 ((0x82e4  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_nrout_chead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_nrout_chead_step
-#define DPSS_SRC0_DIOUT_YHEAD_STEP                 ((0x82e5  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diout_yhead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_diout_yhead_step
-#define DPSS_SRC0_DIOUT_CHEAD_STEP                 ((0x82e6  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diout_chead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_diout_chead_step
-#define DPSS_SRC0_MERO_STEP                        ((0x82e7  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_mero_step              // unsigned ,  RW, default = 32'h1000 reg_src0_mero_step
-#define DPSS_SRC0_DIODW_YBUF_STEP                  ((0x82e8  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diodw_ybuf_step        // unsigned ,  RW, default = 32'h40000 reg_src0_diodw_ybuf_step
-#define DPSS_SRC0_DIODW_CBUF_STEP                  ((0x82e9  << 2) + 0xff850000)
-//Bit 31:0 reg_src0_diodw_cbuf_step        // unsigned ,  RW, default = 32'h40000 reg_src0_diodw_cbuf_step
+#define DPSS_FRC_MERO_STEP                         ((0x8257  << 2) + 0xff850000)
+//Bit 31:0 reg_frc_mero_step              // unsigned ,  RW, default = 32'h1000 reg_src0_mero_step
+#define DPSS_INP_IDW_YBUF_STEP                     ((0x8258  << 2) + 0xff850000)
+//Bit 31:0 reg_inp_idw_ybuf_step          // unsigned ,  RW, default = 32'h10000
+#define DPSS_INP_IDW_CBUF_STEP                     ((0x8259  << 2) + 0xff850000)
+//Bit 31:0 reg_inp_idw_cbuf_step          // unsigned ,  RW, default = 32'h10000
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -35840,7 +35712,163 @@
 //
 // Closing file:  ./dpss_inc/./dpss_fbuf_ctrl_regs.h
 //
-//`include "./dpss_src1_buff_regs.h"           //8'h00-8'hff
+// -----------------------------------------------
+// REG_BASE:  DPSS_FNR_BUFF_APB_BASE = 0x84
+// -----------------------------------------------
+//
+// Reading file:  ./dpss_inc/./dpss_src0_buff_regs.h
+//
+// synopsys translate_off
+// synopsys translate_on
+#define DPSS_SRC0_IDW_YBUF_ADDR                    ((0x8400  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_idw_ybuf_addr          // unsigned ,  RW, default = 32'h4000000 mif_addr
+#define DPSS_SRC0_IDW_CBUF_ADDR                    ((0x8401  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_idw_cbuf_addr          // unsigned ,  RW, default = 32'h4100000 mif_addr
+#define DPSS_SRC0_MIX_PBUF_ADDR                    ((0x8404  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_mix_pbuf_addr          // unsigned ,  RW, default = 32'h4200000 mif_addr
+#define DPSS_SRC0_MIX_CBUF_ADDR                    ((0x8405  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_mix_cbuf_addr          // unsigned ,  RW, default = 32'h4280000 mif_addr
+#define DPSS_SRC0_ME_INFO_ADDR                     ((0x8430  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_me_info_addr           // unsigned ,  RW, default = 32'h7000000 reg_src0_me_info_addr,must be burst4 align
+#define DPSS_SRC0_ME_MTN_ADDR                      ((0x8431  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_me_mtn_addr            // unsigned ,  RW, default = 32'h7040000 reg_src0_me_mtn_addr,must be burst4 align
+#define DPSS_SRC0_ME_ALP_ADDR                      ((0x8432  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_me_alp_addr            // unsigned ,  RW, default = 32'h7040000 reg_src0_me_alp_addr,must be burst4 align
+#define DPSS_SRC0_ME_TFBF_ADDR                     ((0x8433  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_me_tfbf_addr           // unsigned ,  RW, default = 32'h7040000 reg_src0_me_tfbf_addr,must be burst4 align
+#define DPSS_SRC0_NRDI_MV_ADDR                     ((0x8434  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrdi_mv_addr           // unsigned ,  RW, default = 32'h7040000 reg_src0_nrdi_mv_addr,must be burst4 align
+#define DPSS_SRC0_DCG_HIST_ADDR                    ((0x8440  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dcg_hist_addr          // unsigned ,  RW, default = 32'h7080000 reg_src0_dcg_hist_addr
+#define DPSS_SRC0_DCG_YDS_ADDR                     ((0x8441  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dcg_yds_addr           // unsigned ,  RW, default = 32'h70C0000 reg_src0_dcg_yds_addr
+#define DPSS_SRC0_DCG_CDS_ADDR                     ((0x8442  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dcg_cds_addr           // unsigned ,  RW, default = 32'h7100000 reg_src0_dcg_cds_addr
+#define DPSS_SRC0_DV_PYMD_ADDR                     ((0x8448  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dv_pymd_addr           // unsigned ,  RW, default = 32'h7140000 reg_src0_dv_pymd_addr,must be burst4 align
+#define DPSS_SRC0_DV_HIST_ADDR                     ((0x8449  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dv_hist_addr           // unsigned ,  RW, default = 32'h7180000 reg_src0_dv_hist_addr,must be burst4 align
+#define DPSS_SRC0_DV_INTP_ADDR                     ((0x844a  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dv_intp_addr           // unsigned ,  RW, default = 32'h71C0000 reg_src0_dv_intp_addr,must be burst4 align
+#define DPSS_SRC0_INP_YBUF_ADDR                    ((0x8450  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_inp_ybuf_addr          // unsigned ,  RW, default = 32'h7200000 mif_addr
+#define DPSS_SRC0_INP_CBUF_ADDR                    ((0x8451  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_inp_cbuf_addr          // unsigned ,  RW, default = 32'h8200000 mif_addr
+#define DPSS_SRC0_NR_HDBLK_ADDR                    ((0x8454  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nr_hdblk_addr          // unsigned ,  RW, default = 32'h9200000 reg_src0_nr_hdblk_addr
+#define DPSS_SRC0_NR_VDBLK_ADDR                    ((0x8455  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nr_vdblk_addr          // unsigned ,  RW, default = 32'h9240000 reg_src0_nr_vdblk_addr
+#define DPSS_SRC0_NR_DMSQ_ADDR                     ((0x8456  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nr_dmsq_addr           // unsigned ,  RW, default = 32'h9280000 reg_src0_nr_dmsq_addr
+#define DPSS_SRC0_NROUT_YBUF_ADDR                  ((0x8458  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrout_ybuf_addr        // unsigned ,  RW, default = 32'h92A0000 reg_src0_nrout_ybuf_addr
+#define DPSS_SRC0_NROUT_CBUF_ADDR                  ((0x8459  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrout_cbuf_addr        // unsigned ,  RW, default = 32'h9AA0000 reg_src0_nrout_cbuf_addr
+#define DPSS_SRC0_NRODW_MBUF_ADDR                  ((0x845a  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrodw_mbuf_addr        // unsigned ,  RW, default = 32'hA2A0000 reg_src0_nrodw_mbuf_addr,must be burst4 align
+#define DPSS_SRC0_NRODW_YBUF_ADDR                  ((0x845b  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrodw_ybuf_addr        // unsigned ,  RW, default = 32'hA2E0000 reg_src0_nrodw_ybuf_addr
+#define DPSS_SRC0_NRODW_CBUF_ADDR                  ((0x845c  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrodw_cbuf_addr        // unsigned ,  RW, default = 32'hA360000 reg_src0_nrodw_cbuf_addr
+#define DPSS_SRC0_DIOUT_YBUF_ADDR                  ((0x845d  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diout_ybuf_addr        // unsigned ,  RW, default = 32'hA3E0000 reg_src0_diout_ybuf_addr
+#define DPSS_SRC0_DIOUT_CBUF_ADDR                  ((0x845e  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diout_cbuf_addr        // unsigned ,  RW, default = 32'hA7E0000 reg_src0_diout_cbuf_addr
+#define DPSS_SRC0_INP_YHEAD_ADDR                   ((0x8461  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_inp_yhead_addr         // unsigned ,  RW, default = 32'hA420000 reg_src0_inp_yhead_addr
+#define DPSS_SRC0_INP_CHEAD_ADDR                   ((0x8462  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_inp_chead_addr         // unsigned ,  RW, default = 32'hA460000 reg_src0_inp_chead_addr
+#define DPSS_SRC0_NROUT_YHEAD_ADDR                 ((0x8463  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrout_yhead_addr       // unsigned ,  RW, default = 32'hA4A0000 reg_src0_nrout_yhead_addr
+#define DPSS_SRC0_NROUT_CHEAD_ADDR                 ((0x8464  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrout_chead_addr       // unsigned ,  RW, default = 32'hA4C0000 reg_src0_nrout_chead_addr
+#define DPSS_SRC0_DIOUT_YHEAD_ADDR                 ((0x8465  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diout_yhead_addr       // unsigned ,  RW, default = 32'hA4E0000 reg_src0_diout_yhead_addr
+#define DPSS_SRC0_DIOUT_CHEAD_ADDR                 ((0x8466  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diout_chead_addr       // unsigned ,  RW, default = 32'hA4E0000 reg_src0_diout_chead_addr
+#define DPSS_SRC0_NR_MERO_ADDR                     ((0x8468  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nr_mero_addr           // unsigned ,  RW, default = 32'hA900000 reg_src0_nr_mero_addr
+#define DPSS_SRC0_DIODW_YBUF_ADDR                  ((0x8469  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diodw_ybuf_addr        // unsigned ,  RW, default = 32'hABE0000 reg_src0_diodw_ybuf_addr
+#define DPSS_SRC0_DIODW_CBUF_ADDR                  ((0x846a  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diodw_cbuf_addr        // unsigned ,  RW, default = 32'hAC20000 reg_src0_diodw_cbuf_addr
+#define DPSS_SRC0_IDW_YBUF_STEP                    ((0x8480  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_idw_ybuf_step          // unsigned ,  RW, default = 32'h10000
+#define DPSS_SRC0_IDW_CBUF_STEP                    ((0x8481  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_idw_cbuf_step          // unsigned ,  RW, default = 32'h10000
+#define DPSS_SRC0_MIX_PBUF_STEP                    ((0x8484  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_mix_pbuf_step          // unsigned ,  RW, default = 32'h8000
+#define DPSS_SRC0_MIX_CBUF_STEP                    ((0x8485  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_mix_cbuf_step          // unsigned ,  RW, default = 32'h8000
+#define DPSS_SRC0_ME_INFO_STEP                     ((0x84b0  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_me_info_step           // unsigned ,  RW, default = 32'h8000 reg_src0_me_info_step,must be burst4 align
+#define DPSS_SRC0_ME_MTN_STEP                      ((0x84b1  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_me_mtn_step            // unsigned ,  RW, default = 32'h8000 reg_src0_me_mtn_step,must be burst4 align
+#define DPSS_SRC0_ME_ALP_STEP                      ((0x84b2  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_me_alp_step            // unsigned ,  RW, default = 32'h8000 reg_src0_me_alp_step,must be burst4 align
+#define DPSS_SRC0_ME_TFBF_STEP                     ((0x84b3  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_me_tfbf_step           // unsigned ,  RW, default = 32'h8000 reg_src0_me_tfbf_step,must be burst4 align
+#define DPSS_SRC0_NRDI_MV_STEP                     ((0x84b4  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrdi_mv_step           // unsigned ,  RW, default = 32'h8000 reg_src0_nrdi_mv_step,must be burst4 align
+#define DPSS_SRC0_DCG_HIST_STEP                    ((0x84c0  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dcg_hist_step          // unsigned ,  RW, default = 32'h8000 reg_src0_dcg_hist_step
+#define DPSS_SRC0_DCG_YDS_STEP                     ((0x84c1  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dcg_yds_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dcg_yds_step
+#define DPSS_SRC0_DCG_CDS_STEP                     ((0x84c2  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dcg_cds_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dcg_cds_step
+#define DPSS_SRC0_DV_PYMD_STEP                     ((0x84c8  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dv_pymd_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dv_pymd_step,must be burst4 align
+#define DPSS_SRC0_DV_HIST_STEP                     ((0x84c9  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dv_hist_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dv_hist_step,must be burst4 align
+#define DPSS_SRC0_DV_INTP_STEP                     ((0x84ca  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_dv_intp_step           // unsigned ,  RW, default = 32'h8000 reg_src0_dv_intp_step,must be burst4 align
+#define DPSS_SRC0_INP_YBUF_STEP                    ((0x84d0  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_inp_ybuf_step          // unsigned ,  RW, default = 32'h100000 reg_src0_inp_ybuf_step
+#define DPSS_SRC0_INP_CBUF_STEP                    ((0x84d1  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_inp_cbuf_step          // unsigned ,  RW, default = 32'h100000 reg_src0_inp_cbuf_step
+#define DPSS_SRC0_NR_HDBLK_STEP                    ((0x84d4  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nr_hdblk_step          // unsigned ,  RW, default = 32'h8000  reg_src0_nr_hdblk_step
+#define DPSS_SRC0_NR_VDBLK_STEP                    ((0x84d5  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nr_vdblk_step          // unsigned ,  RW, default = 32'h8000  reg_src0_nr_vdblk_step
+#define DPSS_SRC0_NR_DMSQ_STEP                     ((0x84d6  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nr_dmsq_step           // unsigned ,  RW, default = 32'h10000 reg_src0_nr_dmsq_step
+#define DPSS_SRC0_NROUT_YBUF_STEP                  ((0x84d8  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrout_ybuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_nrout_ybuf_step
+#define DPSS_SRC0_NROUT_CBUF_STEP                  ((0x84d9  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrout_cbuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_nrout_cbuf_step
+#define DPSS_SRC0_NRODW_MBUF_STEP                  ((0x84da  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrodw_mbuf_step        // unsigned ,  RW, default = 32'h8000 reg_src0_nrodw_mbuf_step
+#define DPSS_SRC0_NRODW_YBUF_STEP                  ((0x84db  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrodw_ybuf_step        // unsigned ,  RW, default = 32'h10000 reg_src0_nrodw_ybuf_step
+#define DPSS_SRC0_NRODW_CBUF_STEP                  ((0x84dc  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrodw_cbuf_step        // unsigned ,  RW, default = 32'h10000 reg_src0_nrodw_cbuf_step
+#define DPSS_SRC0_DIOUT_YBUF_STEP                  ((0x84dd  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diout_ybuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_diout_ybuf_step
+#define DPSS_SRC0_DIOUT_CBUF_STEP                  ((0x84de  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diout_cbuf_step        // unsigned ,  RW, default = 32'h100000 reg_src0_diout_cbuf_step
+#define DPSS_SRC0_INP_YHEAD_STEP                   ((0x84e1  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_inp_yhead_step         // unsigned ,  RW, default = 32'h4000 reg_src0_inp_yhead_step
+#define DPSS_SRC0_INP_CHEAD_STEP                   ((0x84e2  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_inp_chead_step         // unsigned ,  RW, default = 32'h4000 reg_src0_inp_chead_step
+#define DPSS_SRC0_NROUT_YHEAD_STEP                 ((0x84e3  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrout_yhead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_nrout_yhead_step
+#define DPSS_SRC0_NROUT_CHEAD_STEP                 ((0x84e4  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_nrout_chead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_nrout_chead_step
+#define DPSS_SRC0_DIOUT_YHEAD_STEP                 ((0x84e5  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diout_yhead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_diout_yhead_step
+#define DPSS_SRC0_DIOUT_CHEAD_STEP                 ((0x84e6  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diout_chead_step       // unsigned ,  RW, default = 32'h4000 reg_src0_diout_chead_step
+#define DPSS_SRC0_MERO_STEP                        ((0x84e7  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_mero_step              // unsigned ,  RW, default = 32'h1000 reg_src0_mero_step
+#define DPSS_SRC0_DIODW_YBUF_STEP                  ((0x84e8  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diodw_ybuf_step        // unsigned ,  RW, default = 32'h40000 reg_src0_diodw_ybuf_step
+#define DPSS_SRC0_DIODW_CBUF_STEP                  ((0x84e9  << 2) + 0xff850000)
+//Bit 31:0 reg_src0_diodw_cbuf_step        // unsigned ,  RW, default = 32'h40000 reg_src0_diodw_cbuf_step
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./dpss_inc/./dpss_src0_buff_regs.h
+//
 // -----------------------------------------------
 // REG_BASE:  DPSS_VDI_TOP_APB_BASE = 0x86
 // -----------------------------------------------
@@ -36069,6 +36097,8 @@
 //Bit 2             pls_dae_syn_rst             //unsigned, W1T, default=0,pls_dae_syn_rst
 //Bit 1             pls_inp_syn_rst             //unsigned, W1T, default=0,pls_inp_syn_rst
 //Bit 0             pls_top_syn_rst             //unsigned, W1T, default=0,pls_top_syn_rst
+#define DPSS_DPE_PRE_VSYNC_INT_CNT                 ((0x89a9  << 2) + 0xff850000)
+//Bit 31: 0         ro_dpe_pre_vsync_int_cnt    //unsigned, RO, default=0
 #define DPSS_TOP_INT_MODE_CTRL                     ((0x89aa  << 2) + 0xff850000)
 //Bit 31:29         reg_crash_int_clr           //unsigned, RW, default=0
 //Bit 28            reg_rdma_done_clr           //unsigned, RW, default=0
@@ -36607,6 +36637,21 @@
 #define FRC_INP_RD_LINE_INITIAL                    ((0x8a95  << 2) + 0xff850000)
 //Bit 31:16         reserved
 //Bit 15:0          reg_line_ini               //unsigned, RW, default=0
+#define FRC_INP_HSCALE_CFG                         ((0x8a9a  << 2) + 0xff850000)
+//Bit 31:29         reserved
+//Bit 28:16         reg_scale_hsize            //unsigned, RW, default = 1024
+//Bit 15:12         reserved
+//Bit 11:8          reg_flt_sft                //unsigned, RW, default = 9
+//Bit 7 :4          reserved
+//Bit 3 :0          reg_hsc_tap_num            //unsigned, RW, default = 8
+#define FRC_INP_HSCALE_PHS                         ((0x8a9b  << 2) + 0xff850000)
+//Bit 31:29         reserved
+//Bit 28:0          reg_hsc_ini_phs            //unsigned, RW, default = 0
+#define FRC_INP_HSCALE_STEP                        ((0x8a9c  << 2) + 0xff850000)
+//Bit 31:28         reserved
+//Bit 27:0          reg_pre_hsc_step           //unsigned, RW, default = 17895697 , //u4.24(insize/outsize*2^24)
+#define FRC_INP_HSCALE_COEF_IDX                    ((0x8a9d  << 2) + 0xff850000)
+#define FRC_INP_HSCALE_COEF                        ((0x8a9e  << 2) + 0xff850000)
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -45549,7 +45594,7 @@
 //
 // synopsys translate_off
 // synopsys translate_on
-#define FRC_AA_DS_CTRL                             ((0xca00  << 2) + 0xff850000)
+#define FRC_AA_PPS_CTRL                            ((0xca00  << 2) + 0xff850000)
 //Bit 31:21        reserved
 //Bit 20           reg_aa_ds_ue_clr             // unsigned,   RW, default = 0  clr undone status
 //Bit 19:18        reserved
@@ -45561,32 +45606,33 @@
 //Bit 3 :2         reserved
 //Bit 1            reg_aa_ds_hdsc_en            // unsigned,   RW, default = 1  downscale of x direction enable
 //Bit 0            reg_aa_ds_vdsc_en            // unsigned,   RW, default = 1  downscale of y direction enable
-#define FRC_AA_DS_COEF_0                           ((0xca01  << 2) + 0xff850000)
+#define FRC_AA_PPS_COEF_0                          ((0xca01  << 2) + 0xff850000)
 //Bit 31:16        reserved
 //Bit 15: 8        reg_aa_ds_dsx_coef_0         // signed ,    RW, default = 24  coef of AA filter for horizontal downsampling of blended data, normalized to 128 as 1
 //Bit  7: 0        reg_aa_ds_dsy_coef_0         // signed ,    RW, default = 24  coef of AA filter for vertical downsampling of blended data, normalized to 128 as 1
-#define FRC_AA_DS_COEF_1                           ((0xca02  << 2) + 0xff850000)
+#define FRC_AA_PPS_COEF_1                          ((0xca02  << 2) + 0xff850000)
 //Bit 31:16        reserved
 //Bit 15: 8        reg_aa_ds_dsx_coef_1         // signed ,    RW, default = 20  coef of AA filter for horizontal downsampling of blended data, normalized to 128 as 1
 //Bit  7: 0        reg_aa_ds_dsy_coef_1         // signed ,    RW, default = 20  coef of AA filter for vertical downsampling of blended data, normalized to 128 as 1
-#define FRC_AA_DS_COEF_2                           ((0xca03  << 2) + 0xff850000)
+#define FRC_AA_PPS_COEF_2                          ((0xca03  << 2) + 0xff850000)
 //Bit 31:16        reserved
 //Bit 15: 8        reg_aa_ds_dsx_coef_2         // signed ,    RW, default = 16  coef of AA filter for horizontal downsampling of blended data, normalized to 128 as 1
 //Bit  7: 0        reg_aa_ds_dsy_coef_2         // signed ,    RW, default = 16  coef of AA filter for vertical downsampling of blended data, normalized to 128 as 1
-#define FRC_AA_DS_COEF_3                           ((0xca04  << 2) + 0xff850000)
+#define FRC_AA_PPS_COEF_3                          ((0xca04  << 2) + 0xff850000)
 //Bit 31:16        reserved
 //Bit 15: 8        reg_aa_ds_dsx_coef_3         // signed ,    RW, default = 16  coef of AA filter for horizontal downsampling of blended data, normalized to 128 as 1
 //Bit  7: 0        reg_aa_ds_dsy_coef_3         // signed ,    RW, default = 16  coef of AA filter for vertical downsampling of blended data, normalized to 128 as 1
-#define FRC_AA_DS_BB_SCP_H                         ((0xca05  << 2) + 0xff850000)
+#define FRC_AA_PPS_BB_SCP_H                        ((0xca05  << 2) + 0xff850000)
 //Bit 31:16        reg_aa_ds_bb_hscp0           // unsigned ,  RW, default = 0     ds lft posi, dft0
 //Bit 15: 0        reg_aa_ds_bb_hscp1           // unsigned ,  RW, default = 1919  ds rit posi, dft0
-#define FRC_AA_DS_BB_SCP_V                         ((0xca06  << 2) + 0xff850000)
+#define FRC_AA_PPS_BB_SCP_V                        ((0xca06  << 2) + 0xff850000)
 //Bit 31:16        reg_aa_ds_bb_vscp0           // unsigned ,  RW, default = 0     ds top posi, dft xsize-1
 //Bit 15: 0        reg_aa_ds_bb_vscp1           // unsigned ,  RW, default = 2159  ds bot posi, dft ysize-1
-#define FRC_AA_DS_RO_DBG                           ((0xca07  << 2) + 0xff850000)
-//Bit 31:1         reserved
-//Bit 0            ro_undone_err                // unsigned ,  RO, default = 0
-#define FRC_AA_DS_C42C44_MODE                      ((0xca08  << 2) + 0xff850000)
+#define FRC_AA_PPS_RO_DBG                          ((0xca07  << 2) + 0xff850000)
+//Bit 31:2         reserved
+//Bit 1            ro_undone_err1                // unsigned ,  RO, default = 0
+//Bit 0            ro_undone_err0                // unsigned ,  RO, default = 0
+#define FRC_AA_PPS_C42C44_MODE                     ((0xca08  << 2) + 0xff850000)
 //Bit 31: 8        reserved
 //Bit  7           reserved
 //Bit  6           reg_422to444_en           // unsigned ,    RW, default = 1
@@ -45594,50 +45640,54 @@
 //Bit  3           reserved
 //Bit  2           reg_444to422_en           // unsigned ,    RW, default = 1
 //Bit  1: 0        reg_444to422_mode         // unsigned ,    RW, default = 0
-#define FRC_AA_DS_HSC_START_PHASE_STEP             ((0xca09  << 2) + 0xff850000)
+#define FRC_AA_PPS_HSC_START_PHASE_STEP            ((0xca09  << 2) + 0xff850000)
 //Bit 31:28        reserved
 //Bit 27:24        reg_hsc_integer_part        // unsigned ,   RW, default = 1 integer	part	of	step
 //Bit 23: 0        reg_hsc_fraction_part       // unsigned ,   RW, default = 0 fraction	part	of	step
-#define FRC_AA_DS_VSC_START_PHASE_STEP             ((0xca0a  << 2) + 0xff850000)
+#define FRC_AA_PPS_VSC_START_PHASE_STEP            ((0xca0a  << 2) + 0xff850000)
 //Bit 31:30        reserved
 //Bit 29           reg_post_sc_mux_sel         // unsigned ,   RW, default = 1 sel hscaler first
 //Bit 28           reg_vf_sep_coef_en          // unsigned ,   RW, default = 0
 //Bit 27:24        reg_vsc_integer_part        // unsigned ,   RW, default = 1 integer	part	of	step
 //Bit 23: 0        reg_vsc_fraction_part       // unsigned ,   RW, default = 0 fraction	part	of	step
-#define FRC_AA_DS_VSC_INIT                         ((0xca0b  << 2) + 0xff850000)
+#define FRC_AA_PPS_VSC_INIT                        ((0xca0b  << 2) + 0xff850000)
 //Bit 31:29        reserved
 //Bit 28:24        reg_vsc_ini_integer         // signed ,     RW, default = 0
 //Bit 23: 0        reg_vsc_ini_phase           // unsigned ,   RW, default = 0
-#define FRC_AA_DS_PPS_COMP                         ((0xca0c  << 2) + 0xff850000)
-//Bit 31:18       reserved
+#define FRC_AA_PPS_COMP                            ((0xca0c  << 2) + 0xff850000)
+//Bit 31:25       reserved
+//Bit 24:23       reg_hds_sel                  // unsigned ,   RW, default = 0
+//Bit 22:21       reg_vds_sel                  // unsigned ,   RW, default = 0
+//Bit 20          reg_hvds_sel                 // unsigned ,   RW, default = 0
+//Bit 19:18       reserved
 //Bit 17:14       reg_vsc_nor_rs_bits          // unsigned ,   RW, default = 7
 //Bit 13:10       reg_hsc_nor_rs_bits          // unsigned ,   RW, default = 7
 //Bit  9:8        reserved
-//Bit  7:4        reg_hsc_tap_num              // unsigned ,   RW, default = 4
-//Bit  3:0        reg_vsc_tap_num              // unsigned ,   RW, default = 4
-#define FRC_AA_DS_HSC_PHASE_CTRL_0                 ((0xca0d  << 2) + 0xff850000)
+//Bit  7:4        reg_hds_tap_num              // unsigned ,   RW, default = 4
+//Bit  3:0        reg_vds_tap_num              // unsigned ,   RW, default = 4
+#define FRC_AA_PPS_HSC_PHASE_CTRL_0                ((0xca0d  << 2) + 0xff850000)
 //Bit 31:29       reserved
 //Bit 28:24       reg_hsc_ini_integer0         // signed ,     RW, default = 0
 //Bit 23:0        reg_hsc_ini_phase0           // unsigned ,   RW, default = 0
-#define FRC_AA_DS_HSC_PHASE_CTRL_1                 ((0xca0e  << 2) + 0xff850000)
+#define FRC_AA_PPS_HSC_PHASE_CTRL_1                ((0xca0e  << 2) + 0xff850000)
 //Bit 31:29       reserved
 //Bit 28:24       reg_hsc_ini_integer1         // signed ,     RW, default = 0
 //Bit 23:0        reg_hsc_ini_phase1           // unsigned ,   RW, default = 0
-#define FRC_AA_DS_HSC_PHASE_CTRL_2                 ((0xca0f  << 2) + 0xff850000)
+#define FRC_AA_PPS_HSC_PHASE_CTRL_2                ((0xca0f  << 2) + 0xff850000)
 //Bit 31:29       reserved
 //Bit 28:24       reg_hsc_ini_integer2         // signed ,     RW, default = 0
 //Bit 23:0        reg_hsc_ini_phase2           // unsigned ,   RW, default = 0
-#define FRC_AA_DS_HSC_PHASE_CTRL_3                 ((0xca10  << 2) + 0xff850000)
+#define FRC_AA_PPS_HSC_PHASE_CTRL_3                ((0xca10  << 2) + 0xff850000)
 //Bit 31:29       reserved
 //Bit 28:24       reg_hsc_ini_integer3         // signed ,     RW, default = 0
 //Bit 23:0        reg_hsc_ini_phase3           // unsigned ,   RW, default = 0
-#define FRC_AA_DS_OUT_HSIZE_1                      ((0xca11  << 2) + 0xff850000)
+#define FRC_AA_PPS_OUT_HSIZE_1                     ((0xca11  << 2) + 0xff850000)
 //Bit 31:16        reg_out_hsize_3           // unsigned ,    RW, default = 3840
 //Bit 15:0         reg_out_hsize_2           // unsigned ,    RW, default = 3840
-#define FRC_AA_DS_OUT_HSIZE_0                      ((0xca12  << 2) + 0xff850000)
+#define FRC_AA_PPS_OUT_HSIZE_0                     ((0xca12  << 2) + 0xff850000)
 //Bit 31:16        reg_out_hsize_1           // unsigned ,    RW, default = 3840
 //Bit 15:0         reg_out_hsize_0           // unsigned ,    RW, default = 3840
-#define FRC_AA_DS_OUT_VSIZE_0                      ((0xca13  << 2) + 0xff850000)
+#define FRC_AA_PPS_OUT_VSIZE_0                     ((0xca13  << 2) + 0xff850000)
 //Bit 31:16        reserved
 //Bit 15:0         reg_out_vsize             // unsigned ,    RW, default = 2160
 #define FRC_AA_PPS_COEF_IDX                        ((0xca14  << 2) + 0xff850000)
@@ -47627,6 +47677,8 @@
 //Bit 31:0  pls_dpe_irq_clr          //unsigned, W1T, default=0
 #define DPSS_DPE_IRQ_STATUS                        ((0xd612  << 2) + 0xff850000)
 //Bit 31:0  ro_dpe_irq_status       //unsigned, RO, default=0
+#define DPSS_DPE_MIF_CTRL1                         ((0xd613  << 2) + 0xff850000)
+//Bit 31:0  reg_top_mode            //unsigned, RW, default=0 //0:use port reg 1:use apb reg
 #define DPSS_DPE_PATH_LUMA_X_SLC0                  ((0xd620  << 2) + 0xff850000)
 //Bit 31:29 reserved
 //Bit 28:16 reg_luma_slc0_xend              //unsigned, RW, default=0
@@ -47856,6 +47908,26 @@
 #define DPSS_DPE_VFCD_MIF0_VSIZE                   ((0xd64d  << 2) + 0xff850000)
 //Bit 31:13 reserved
 //Bit 12:0  reg_vfcd_mif0_vsize                  //unsigned, RW, default=0
+#define DPSS_DPE_NRDI_OUT_X_SLC0                   ((0xd650  << 2) + 0xff850000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_nrdi_out_slc0_xend              //unsigned, RW, default=0
+//Bit 15:13 reserved
+//Bit 12:0  reg_nrdi_out_slc0_xbgn              //unsigned, RW, default=0
+#define DPSS_DPE_NRDI_OUT_X_SLC1                   ((0xd651  << 2) + 0xff850000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_nrdi_out_slc1_xend              //unsigned, RW, default=0
+//Bit 15:13 reserved
+//Bit 12:0  reg_nrdi_out_slc1_xbgn              //unsigned, RW, default=0
+#define DPSS_DPE_NRDI_OUT_X_SLC2                   ((0xd652  << 2) + 0xff850000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_nrdi_out_slc2_xend              //unsigned, RW, default=0
+//Bit 15:13 reserved
+//Bit 12:0  reg_nrdi_out_slc2_xbgn              //unsigned, RW, default=0
+#define DPSS_DPE_NRDI_OUT_X_SLC3                   ((0xd653  << 2) + 0xff850000)
+//Bit 31:29 reserved
+//Bit 28:16 reg_nrdi_out_slc3_xend              //unsigned, RW, default=0
+//Bit 15:13 reserved
+//Bit 12:0  reg_nrdi_out_slc3_xbgn              //unsigned, RW, default=0
 #define DPSS_BBD_ONLY_CTRL                         ((0xd670  << 2) + 0xff850000)
 //Bit 31:2         reserved
 //Bit 1            reg_cur_only                 //unsigned, RW, default=0
@@ -53072,6 +53144,31 @@
 //Bit 31:8  reserved
 //Bit 7:4   reg_vdin_cur_frm_idx                   //unsigned, RW, default=0
 //Bit 3:0   reg_dae_cur_frm_idx                   //unsigned, RW, default=0
+#define DPSS_DPE_MC_LLM_FRM_STATUS                 ((0xe83f  << 2) + 0xff850000)
+//Bit 31:24 reserved
+//Bit 23:20 ro_llm_mc_image_cur_frm_idx                   //unsigned, RO, default=0
+//Bit 19:16 ro_llm_mc_mv_cur_frm_idx                   //unsigned, RO, default=0
+//Bit 15:8  reserved
+//Bit 7:4   ro_llm_vdin_frm_idx                   //unsigned, RO, default=0
+//Bit 3:0   ro_llm_dae_frm_idx                   //unsigned, RO, default=0
+#define DPSS_DPE_MC_LLM_CUR_LUMA_STATUS            ((0xe840  << 2) + 0xff850000)
+//Bit 31:16 ro_llm_cur_luma_wr_line_cnt                //unsigned, RO, default=0
+//Bit 15:0  ro_llm_cur_luma_rd_line_cnt                //unsigned, RO, default=0
+#define DPSS_DPE_MC_LLM_CUR_CHRM_STATUS            ((0xe841  << 2) + 0xff850000)
+//Bit 31:16 ro_llm_cur_chrm_wr_line_cnt                //unsigned, RO, default=0
+//Bit 15:0  ro_llm_cur_chrm_rd_line_cnt                //unsigned, RO, default=0
+#define DPSS_DPE_MC_LLM_MELOGO_STATUS              ((0xe842  << 2) + 0xff850000)
+//Bit 31:16 ro_llm_melogo_wr_line_cnt                //unsigned, RO, default=0
+//Bit 15:0  ro_llm_melogo_rd_line_cnt                //unsigned, RO, default=0
+#define DPSS_DPE_MC_LLM_MV_STATUS                  ((0xe843  << 2) + 0xff850000)
+//Bit 31:16 ro_llm_mv_wr_line_cnt                //unsigned, RO, default=0
+//Bit 15:0  ro_llm_mv_rd_line_cnt                //unsigned, RO, default=0
+#define DPSS_DPE_MC_LLM_CUR_IPLOGO_STATUS          ((0xe844  << 2) + 0xff850000)
+//Bit 31:16 ro_llm_cur_iplogo_wr_line_cnt                //unsigned, RO, default=0
+//Bit 15:0  ro_llm_cur_iplogo_rd_line_cnt                //unsigned, RO, default=0
+#define DPSS_DPE_MC_LLM_PRE_IPLOGO_STATUS          ((0xe845  << 2) + 0xff850000)
+//Bit 31:16 ro_llm_pre_iplogo_wr_line_cnt                //unsigned, RO, default=0
+//Bit 15:0  ro_llm_pre_iplogo_rd_line_cnt                //unsigned, RO, default=0
 // synopsys translate_off
 // synopsys translate_on
 //
