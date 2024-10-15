@@ -15,9 +15,13 @@
 #define SYS_CLK		166666666
 
 static struct meson_gate gates[] = {
-	{CLKID_SPICC_0, T6D_CLKCTRL_SPICC_CLK_CTRL, 6},
-	{CLKID_SARADC, T6D_CLKCTRL_SAR_CLK_CTRL, 8},
-	{CLKID_SD_EMMC_C, T6D_CLKCTRL_NAND_CLK_CTRL, 7},
+	{CLKID_SPICC_0, T6W_CLKCTRL_SPICC_CLK_CTRL, 6},
+	{CLKID_SARADC, T6W_CLKCTRL_SAR_CLK_CTRL, 8},
+	{CLKID_SD_EMMC_C, T6W_CLKCTRL_NAND_CLK_CTRL, 7},
+	{CLKID_VPU_0, T6W_CLKCTRL_VPU_CLK_CTRL, 8},
+	{CLKID_VPU_1, T6W_CLKCTRL_VPU_CLK_CTRL, 24},
+	{CLKID_VAPB_0, T6W_CLKCTRL_VAPBCLK_CTRL, 8},
+	{CLKID_VAPB_1, T6W_CLKCTRL_VAPBCLK_CTRL, 24},
 };
 
 static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK};
@@ -30,35 +34,72 @@ static unsigned int spicc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK,
 	CLKID_FCLK_DIV4, CLKID_FCLK_DIV3, CLKID_FCLK_DIV2,
 	CLKID_FCLK_DIV5, CLKID_FCLK_DIV7, CLKID_UNREALIZED};
 
+static unsigned int vpu_mux_parents[] = {CLKID_FCLK_DIV3, CLKID_FCLK_DIV4,
+	CLKID_GP1_PLL, CLKID_FCLK_DIV2P5, CLKID_GP0_PLL,
+	CLKID_UNREALIZED, CLKID_GP2_PLL, CLKID_UNREALIZED,
+	CLKID_UNREALIZED};
+
+static unsigned int vpu_parents[] = {CLKID_VPU_0, CLKID_VPU_1};
+
+static unsigned int vpab_mux_parents[] = {CLKID_FCLK_DIV4, CLKID_FCLK_DIV3,
+	CLKID_FCLK_DIV5, CLKID_FCLK_DIV7, CLKID_UNREALIZED,
+	CLKID_UNREALIZED, CLKID_GP0_PLL, CLKID_FCLK_DIV2P5};
+
+static unsigned int vapb_parents[] = {CLKID_VAPB_0, CLKID_VAPB_1};
+
 static struct meson_mux muxes[] = {
-	{CLKID_SPICC_0_MUX, T6D_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
-	{CLKID_SARADC_MUX, T6D_CLKCTRL_SAR_CLK_CTRL, 9, 0x3, saradc_parents, ARRAY_SIZE(saradc_parents)},
-	{CLKID_SD_EMMC_C_MUX, T6D_CLKCTRL_NAND_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_SPICC_0_MUX, T6W_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SARADC_MUX, T6W_CLKCTRL_SAR_CLK_CTRL, 9, 0x3, saradc_parents, ARRAY_SIZE(saradc_parents)},
+	{CLKID_SD_EMMC_C_MUX, T6W_CLKCTRL_NAND_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_VPU_0_MUX, T6W_CLKCTRL_VPU_CLK_CTRL, 9, 0x7, vpu_mux_parents, ARRAY_SIZE(vpu_mux_parents)},
+	{CLKID_VPU_1_MUX, T6W_CLKCTRL_VPU_CLK_CTRL, 25, 0x7, vpu_mux_parents, ARRAY_SIZE(vpu_mux_parents)},
+	{CLKID_VPU, T6W_CLKCTRL_VPU_CLK_CTRL, 31, 0x1, vpu_parents, ARRAY_SIZE(vpu_parents)},
+	{CLKID_VAPB_0_MUX, T6W_CLKCTRL_VAPBCLK_CTRL, 9, 0x7, vpab_mux_parents, ARRAY_SIZE(vpab_mux_parents)},
+	{CLKID_VAPB_1_MUX, T6W_CLKCTRL_VAPBCLK_CTRL, 25, 0x7, vpab_mux_parents, ARRAY_SIZE(vpab_mux_parents)},
+	{CLKID_VAPB, T6W_CLKCTRL_VAPBCLK_CTRL, 31, 0x1, vapb_parents, ARRAY_SIZE(vapb_parents)},
 };
 
 static struct meson_div divs[] = {
-	{CLKID_SPICC_0_DIV, T6D_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_0_MUX},
-	{CLKID_SARADC_DIV, T6D_CLKCTRL_SAR_CLK_CTRL, 0, 8, CLKID_SARADC_MUX},
-	{CLKID_SD_EMMC_C_DIV, T6D_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
+	{CLKID_SPICC_0_DIV, T6W_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_0_MUX},
+	{CLKID_SARADC_DIV, T6W_CLKCTRL_SAR_CLK_CTRL, 0, 8, CLKID_SARADC_MUX},
+	{CLKID_SD_EMMC_C_DIV, T6W_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
+	{CLKID_VPU_0_DIV, T6W_CLKCTRL_VPU_CLK_CTRL, 0, 7, CLKID_VPU_0_MUX},
+	{CLKID_VPU_1_DIV, T6W_CLKCTRL_VPU_CLK_CTRL, 22, 7, CLKID_VPU_1_MUX},
+	{CLKID_VAPB_0_DIV, T6W_CLKCTRL_VAPBCLK_CTRL, 0, 7, CLKID_VAPB_0_MUX},
+	{CLKID_VAPB_1_DIV, T6W_CLKCTRL_VAPBCLK_CTRL, 22, 7, CLKID_VAPB_1_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
-	{T6D_ANACTRL_FIXPLL_CTRL0, 0, 9}, /* pm */
-	{T6D_ANACTRL_FIXPLL_CTRL0, 11, 5}, /* pn */
-	{T6D_ANACTRL_FIXPLL_CTRL0, 9, 2}, /* pod */
+	{T6W_ANACTRL_FIXPLL_CTRL0, 0, 9}, /* pm */
+	{T6W_ANACTRL_FIXPLL_CTRL0, 11, 5}, /* pn */
+	{T6W_ANACTRL_FIXPLL_CTRL0, 9, 2}, /* pod */
 };
 
 static struct parm meson_sys0_pll_parm[3] = {
-	{T6D_ANACTRL_SYS0PLL_CTRL0, 0, 9}, /* pm */
-	{T6D_ANACTRL_SYS0PLL_CTRL0, 11, 5}, /* pn */
-	{T6D_ANACTRL_SYS0PLL_CTRL0, 9, 2}, /* pod */
+	{T6W_ANACTRL_SYS0PLL_CTRL0, 0, 9}, /* pm */
+	{T6W_ANACTRL_SYS0PLL_CTRL0, 11, 5}, /* pn */
+	{T6W_ANACTRL_SYS0PLL_CTRL0, 9, 2}, /* pod */
 };
 
 static struct parm meson_gp0_pll_parm[4] = {
-	{T6D_ANACTRL_GP0PLL_CTRL0, 0, 9}, /* pm */
-	{T6D_ANACTRL_GP0PLL_CTRL0, 11, 5}, /* pn */
-	{T6D_ANACTRL_GP0PLL_CTRL0, 9, 2}, /* pod */
-	{T6D_ANACTRL_GP0PLL_CTRL1, 27, 1}, /* pdiv0p5_en */
+	{T6W_ANACTRL_GP0PLL_CTRL0, 0, 9}, /* pm */
+	{T6W_ANACTRL_GP0PLL_CTRL0, 11, 5}, /* pn */
+	{T6W_ANACTRL_GP0PLL_CTRL0, 9, 2}, /* pod */
+	{T6W_ANACTRL_GP0PLL_CTRL1, 27, 1}, /* pdiv0p5_en */
+};
+
+static struct parm meson_gp1_pll_parm[4] = {
+	{T6W_ANACTRL_GP1PLL_CTRL0, 0, 9}, /* pm */
+	{T6W_ANACTRL_GP1PLL_CTRL0, 11, 5}, /* pn */
+	{T6W_ANACTRL_GP1PLL_CTRL0, 9, 2}, /* pod */
+	{T6W_ANACTRL_GP1PLL_CTRL1, 27, 1}, /* pdiv0p5_en */
+};
+
+static struct parm meson_gp2_pll_parm[4] = {
+	{T6W_ANACTRL_GP2PLL_CTRL0, 0, 9}, /* pm */
+	{T6W_ANACTRL_GP2PLL_CTRL0, 11, 5}, /* pn */
+	{T6W_ANACTRL_GP2PLL_CTRL0, 9, 2}, /* pod */
+	{T6W_ANACTRL_GP2PLL_CTRL1, 27, 1}, /* pdiv0p5_en */
 };
 
 static int meson_clk_enable(struct clk *clk)
@@ -95,6 +136,18 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 		pn = &meson_gp0_pll_parm[1];
 		pod = &meson_gp0_pll_parm[2];
 		pdiv0p5 = &meson_gp0_pll_parm[3];
+		break;
+	case CLKID_GP1_PLL:
+		pm = &meson_gp1_pll_parm[0];
+		pn = &meson_gp1_pll_parm[1];
+		pod = &meson_gp1_pll_parm[2];
+		pdiv0p5 = &meson_gp1_pll_parm[3];
+		break;
+	case CLKID_GP2_PLL:
+		pm = &meson_gp2_pll_parm[0];
+		pn = &meson_gp2_pll_parm[1];
+		pod = &meson_gp2_pll_parm[2];
+		pdiv0p5 = &meson_gp2_pll_parm[3];
 		break;
 	default:
 		return -ENOENT;
@@ -133,6 +186,12 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		rate = meson_pll_get_rate(clk, id);
 		break;
 	case CLKID_GP0_PLL:
+		rate = meson_pll_get_rate(clk, id);
+		break;
+	case CLKID_GP1_PLL:
+		rate = meson_pll_get_rate(clk, id);
+		break;
+	case CLKID_GP2_PLL:
 		rate = meson_pll_get_rate(clk, id);
 		break;
 	case CLKID_FCLK_DIV2:
