@@ -338,7 +338,6 @@ defined(CONFIG_STORE_COMPATIBLE)
 
 #define CONFIG_FULL_RAMDUMP
 
-#define CONFIG_AML_KASLR_SEED
 
 #endif
 
