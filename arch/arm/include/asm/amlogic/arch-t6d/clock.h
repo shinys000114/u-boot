@@ -26,6 +26,11 @@
 #define T6D_ANACTRL_GP0PLL_CTRL2                        ((0x22 << 2) + 0x8000)
 #define T6D_ANACTRL_GP0PLL_CTRL3                        ((0x23 << 2) + 0x8000)
 #define T6D_ANACTRL_GP0PLL_STS                          ((0x27 << 2) + 0x8000)
+#define T6D_ANACTRL_HIFIPLL_CTRL0                       ((0x40 << 2) + 0x8000)
+#define T6D_ANACTRL_HIFIPLL_CTRL1                       ((0x41 << 2) + 0x8000)
+#define T6D_ANACTRL_HIFIPLL_CTRL2                       ((0x42 << 2) + 0x8000)
+#define T6D_ANACTRL_HIFIPLL_CTRL3                       ((0x43 << 2) + 0x8000)
+#define T6D_ANACTRL_HIFIPLL_STS                         ((0x47 << 2) + 0x8000)
 
 #include <dt-bindings/amlogic/clock/t6d-clkc.h>
 #define NR_CLKS				(CLKID_END_BASE)
