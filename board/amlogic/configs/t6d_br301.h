@@ -8,7 +8,7 @@
 
 #include <asm/amlogic/arch/cpu.h>
 
-#define CONFIG_AML_USB_BT 1
+//#define CONFIG_AML_USB_BT 1
 
 /*
  * platform power init config
