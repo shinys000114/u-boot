@@ -8,7 +8,10 @@
 
 #include <asm/amlogic/arch/cpu.h>
 
-//#define CONFIG_AML_USB_BT 1
+#define CONFIG_AML_USB_BT 1
+#ifdef CONFIG_AML_USB_BT
+#define BT_EN "GPIOD_11"
+#endif
 
 /*
  * platform power init config

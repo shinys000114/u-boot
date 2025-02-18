@@ -128,10 +128,6 @@ int board_init(void)
 #endif
 #endif // #if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
-#ifdef CONFIG_AML_USB_BT
-	// bt download firmware
-	run_command("usb bt_start", 0);
-#endif
 #ifdef CONFIG_AMLOGIC_AMFC
 	amfc_init();
 #endif
@@ -158,6 +154,11 @@ int board_late_init(void)
 
 #ifdef CONFIG_AMLOGIC_WIFI_USB2T
 	wifi_init();
+#endif
+
+#ifdef CONFIG_AML_USB_BT
+	// bt download firmware
+	run_command("usb bt_start", 0);
 #endif
 	aml_board_late_init_tail(NULL);
 	return 0;
