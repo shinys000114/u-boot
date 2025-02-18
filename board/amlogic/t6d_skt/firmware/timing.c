@@ -20,6 +20,8 @@
 #define VDDEE_VALUE_GROUP3                          0x0007000b
 #define VDDEE_VALUE_GROUP2                          0x0005000d
 #define VDDEE_VALUE_GROUP1                          0x0005000d
+/* dos 666mhz vddee_value defines */
+#define VDDEE_VALUE_DOS_666                         0x00010011
 
 board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {
@@ -179,6 +181,7 @@ __attribute__ ((section(".misc_param"))) = {
 #else
 	{ PWM_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0},
 #endif
+	{ PWM_PWM_A, VDDEE_VALUE_DOS_666, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_DOS, 0 },
 	{ PWM_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWM_MISC_REG_A,	   (0x1 << 0),	  (0x1 << 0), 0, 0, 0 },
 	{ PWM_MISC_REG_B,	   (0x1 << 0),	  (0x1 << 0), 0, 0, 0 },

@@ -34,6 +34,8 @@
 #define BL2_INIT_STAGE_VMIN_FLAG_1     0x87
 #define BL2_INIT_STAGE_VMIN_FLAG_2     0x88
 #define BL2_INIT_STAGE_VMIN_FLAG_3     0x89
+/* DOS vmin_flag */
+#define BL2_INIT_STAGE_VDDCORE_CONFIG_DOS     0x90
 
 typedef struct ddr_mrs_reg {
 	unsigned int cfg_ddr_mr[8];
