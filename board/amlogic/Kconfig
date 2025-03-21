@@ -937,7 +937,7 @@ config DDRFW_TYPE
 
 config CHIPSET_NAME
 	string "t6w CHIPSET NAME"
-	default ""
+	default "t963d5"
 
 config CHIPSET_VARIANT
 	string "t6w CHIPSET VARIANT"
@@ -945,7 +945,7 @@ config CHIPSET_VARIANT
 
 config AMLOGIC_KEY_TYPE
 	string "t6w AMLOGIC KEY TYPE"
-	default ""
+	default "device-keys"
 
 choice
 	prompt "t6w Board"
@@ -956,11 +956,52 @@ config T6W_SKT
 	help
 		Select T6W SKT(XXXX) config
 
+config T6W_BS301
+	bool "T6W_BS301"
+	select TARGET_T6W_BS301
+	help
+		Select T6W BS301(XXXX) config
+
+config T6W_BS309
+	bool "T6W_BS309"
+	select TARGET_T6W_BS309
+	help
+		Select T6W BS309(XXXX) config
+
+config T6W_BS311
+	bool "T6W_BS311"
+	select TARGET_T6W_BS311
+	help
+		Select T6W BS311(XXXX) config
+
+config T6W_BS319
+	bool "T6W_BS319"
+	select TARGET_T6W_BS319
+	help
+		Select T6W BS319(XXXX) config
+
 endchoice
 
 config TARGET_T6W_SKT
 	bool "T6W SKT board"
 	depends on T6W_SKT
+
+config TARGET_T6W_BS301
+	bool "T6W BS301 board"
+	depends on T6W_BS301
+
+config TARGET_T6W_BS309
+	bool "T6W BS309 board"
+	depends on T6W_BS309
+
+config TARGET_T6W_BS311
+	bool "T6W BS311 board"
+	depends on T6W_BS311
+
+config TARGET_T6W_BS319
+	bool "T6W BS319 board"
+	depends on T6W_BS319
+
 endif
 
 # Amlogic boards
@@ -1042,3 +1083,11 @@ source "board/amlogic/s6_bn201/Kconfig"
 source "board/amlogic/s6_bl215/Kconfig"
 
 source "board/amlogic/t6w_skt/Kconfig"
+
+source "board/amlogic/t6w_bs301/Kconfig"
+
+source "board/amlogic/t6w_bs309/Kconfig"
+
+source "board/amlogic/t6w_bs311/Kconfig"
+
+source "board/amlogic/t6w_bs319/Kconfig"

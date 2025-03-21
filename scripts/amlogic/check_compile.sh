@@ -199,7 +199,7 @@ fi
 # check bl33z for kernel ramdump
 if [ -d "./bl33z" ]; then
   cd ./bl33z
-  ./check.sh
+  ./check.sh $cfg
   cd -
 
   # print again
