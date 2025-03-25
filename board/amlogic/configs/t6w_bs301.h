@@ -241,9 +241,6 @@ defined(CONFIG_STORE_COMPATIBLE)
 /* vpu */
 #define AML_VPU_CLK_LEVEL_DFT 10
 
-/* LCD */
-#define CONFIG_AML_LCD_PXP 1
-
 /* osd */
 #define OSD_SCALE_ENABLE
 #define AML_OSD_HIGH_VERSION
