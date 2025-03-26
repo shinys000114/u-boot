@@ -945,7 +945,7 @@ config CHIPSET_VARIANT
 
 config AMLOGIC_KEY_TYPE
 	string "t6w AMLOGIC KEY TYPE"
-	default "device-keys"
+	default "dev-keys"
 
 choice
 	prompt "t6w Board"
