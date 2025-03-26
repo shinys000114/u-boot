@@ -75,7 +75,7 @@
 
 //for common env list, please maintain it in board/amlogic/env/linux.env
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"uart_base=0xfe07a000\0"\
+	"uart_base=0xfe078400\0"\
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0"\
 	"panel_type=lvds_0\0"\
 	"lcd_ctrl=0x00000000\0" \

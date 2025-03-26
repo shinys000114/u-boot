@@ -131,6 +131,8 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 	env_set("defenv_para", "-c");
+	aml_board_late_init_front(NULL);
+
 #ifdef CONFIG_PXP_EMULATOR
 	return 0;
 #endif
@@ -166,6 +168,7 @@ int board_late_init(void)
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
+	aml_board_late_init_tail(NULL);
 //	emmc_quirks();
 	return 0;
 }
