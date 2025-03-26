@@ -9,7 +9,8 @@
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe000000
 // -----------------------------------------------
 #define T6W_CLKCTRL_NAND_CLK_CTRL                      (0x005a  << 2)
-#define T6W_CLKCTRL_SPICC_CLK_CTRL                     (0x005d  << 2)
+#define T6W_CLKCTRL_SPICC_CLK_CTRL                     (0x005c  << 2)
+#define T6W_CLKCTRL_SPICC_CLK_CTRL1                    (0x005d  << 2)
 #define T6W_CLKCTRL_SAR_CLK_CTRL                       (0x005f  << 2)
 #define T6W_CLKCTRL_VPU_CLK_CTRL                       (0x003a  << 2)
 #define T6W_CLKCTRL_VAPBCLK_CTRL                       (0x003f  << 2)
