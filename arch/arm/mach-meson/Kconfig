@@ -124,6 +124,15 @@ config MESON_T6W
 	help
 		Support Amlogic Meson T6W
 
+
+config MESON_T6X
+	bool "T6X"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson T6X
+
 endchoice
 
 source "board/amlogic/Kconfig"
