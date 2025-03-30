@@ -182,8 +182,8 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PWM_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWM_MISC_REG_A,	   (0x1 << 0),	  (0x1 << 0), 0, 0, 0 },
 	{ PWM_MISC_REG_B,	   (0x1 << 0),	  (0x1 << 0), 0, 0, 0 },
-	/* set pwm a 24M,  pwm b 666M fore vddee and vddcpu. meanwhile enable them */
-	{ CLKCTRL_PWM_CLK_AB_CTRL, (0x1 << 24) | (3 << 25 ) | (0x1 << 8)   , 0xffffffff, 0, 0, 0 },
+	/* set pwm a b 24M, fore vddee and vddcpu. meanwhile enable them */
+	{ CLKCTRL_PWM_CLK_AB_CTRL, (0x1 << 24) | (0x1 << 8), 0xffffffff, 0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 drive strength to 2 ,already set by gpio owner on bl2*/
 	// { PADCTRL_GPIOE_DS,	   0xa,		  0xf,	      0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 mux to pwma pwmb */
