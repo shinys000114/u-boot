@@ -45,6 +45,8 @@
 #define RESET_LEVEL_BASE 0xFE002040
 #define PLL_REG32_4		(PHY_20_BASE + 0x10)
 
+#define TUNING_DISCONNECT_THRESHOLD 0x7f
+
 #define AMLOGIC_CTR_COUNT		(0x3)
 
 struct ctr_info {
@@ -189,6 +191,7 @@ void set_usb_pll(uint32_t phy2_pll_base)
 	uint32_t pll_val0;
 	uint32_t pll_val1;
 	u64 phy_reg_base;
+	u32 val;
 
 	phy_reg_base = phy2_pll_base;
 	pll_val0 = 0x244a0030;
@@ -214,8 +217,18 @@ __retry:
 	writel(pll_val0 | (1 << USB2_MPLL_EN_CTRL_BIT) | (1 << USBPLL_EN_BIT),
 		(phy_reg_base + 0x40));
 
+	usb_udelay(100);
+
+	writel(TUNING_DISCONNECT_THRESHOLD, (phy_reg_base + 0xC));
+	usb_udelay(100);
+
+	val = readl(phy_reg_base + 0x38);
+	val |= (3 << 27);
+	writel(val, (phy_reg_base + 0x38));
+
 	// wait for 200us
 	usb_udelay(200);
+
 	//check lock bit
 	if (readl((phy_reg_base + 0x40)) >> 31) {
 		return;
@@ -313,14 +326,24 @@ int usb2_phy_tuning(uint32_t phy2_pll_base, int port)
 	return 0;
 }
 
+static unsigned int usb_powerctrl_reg = 0xffffffff;
+
 void set_usb_power_off(void)
 {
 	unsigned int val;
-	// only off the phy21 now.
-	printf("set s7 usb phy21 off.\n");
-	val = readl(RESETCTRL_RESET0_LEVEL);
-	val &= ~(1 << PHY21_RESET_LEVEL_BIT);
+	// only off the usb phy now.
+	printf("set t6w usb phy off.\n");
+	usb_powerctrl_reg = readl(RESETCTRL_RESET0_LEVEL);
+	val = usb_powerctrl_reg;
+	val &= ~(7 << PHY20_RESET_LEVEL_BIT);
 	writel(val, RESETCTRL_RESET0_LEVEL);
+}
+
+void set_usb_power_on(void)
+{
+	// only on the usb phy now.
+	printf("set t6w usb phy on.\n");
+	writel(usb_powerctrl_reg, RESETCTRL_RESET0_LEVEL);
 }
 
 /**************************************************************/
@@ -401,248 +424,4 @@ void usb_device_mode_init(int phy_num)
 	// ------------- usb phy21 initial end ----------
 
 	//--------------------------------------------------
-}
-
-/****************************************************************/
-/*			CC config				*/
-/****************************************************************/
-#define CC_OTP_REG		0x0
-#define USB_CC_INT_CLR		0x4
-#define  CC_INT_CLEAN		BIT(0)
-#define USB_CC_ANA		0x8
-#define  CC_ANA_CTRL_EN		BIT(0)
-#define  CC_UFP_EN		BIT(1)
-#define  CC_DFP_EN		BIT(2)
-#define  CC_RP_SEL0		(BIT(5) | BIT(6) | BIT(7))
-#define USB_CC_CNT		0xC
-#define USB_CC_INT_MASK		0x10
-#define  CABLE_PLUG_IN		BIT(6)
-#define  CABLE_PLUG_OUT		BIT(7)
-#define USB_CC_CTRL		0x14
-#define  CC_TOP_ENABLE		BIT(0)
-#define  CC_FAST_ENABLE		BIT(1)
-#define  CC_VBUS_FORCE_EN	BIT(4)
-#define USB_CC_INT_STATUS	0x18
-#define  CC_UFP_CURRENT_INT	BIT(0)
-#define  CC_UFP_PLUG_IN_INT	BIT(1)
-#define  CC_UFP_PLUG_OUT_INT	BIT(2)
-#define USB_CC_FSM_STATUS	0x1C
-#define USB_CC_UFP_STATUS	0x20
-#define USB_CC_DFP_STATUS	0x24
-
-#define RESETCTRL0_OFFSET	0
-#define CC_RESET_BIT		10
-
-#define CC_REG_BASE	0xfe35e000
-
-static void aml_cc_ufp_init(void)
-{
-	u32 val;
-
-	/* reset cc */
-	val = readl(RESET_BASE + RESETCTRL0_OFFSET);
-	val = CC_RESET_BIT;
-	writel(val, RESET_BASE + RESETCTRL0_OFFSET);
-
-	usb_udelay(800);
-
-	/* set mode */
-	val = readl(CC_REG_BASE + USB_CC_ANA);
-	val &= (~(CC_ANA_CTRL_EN | CC_DFP_EN | CC_RP_SEL0));
-	val |= CC_UFP_EN;
-	writel(val, CC_REG_BASE + USB_CC_ANA);
-
-	/* enable CC */
-	val = readl(CC_REG_BASE + USB_CC_CTRL);
-	val &= ~CC_VBUS_FORCE_EN;
-	val |= CC_TOP_ENABLE;
-	writel(val, CC_REG_BASE + USB_CC_CTRL);
-}
-
-int aml_cc_get_ufp_status(u32 *val)
-{
-	u32 cnt = 0;
-
-	aml_cc_ufp_init();
-
-	do {
-		usb_udelay(20);
-		cnt++;
-
-		if (cnt > 10000)
-			break;
-
-	} while (!(readl(CC_REG_BASE + USB_CC_INT_STATUS) &
-		 (CC_UFP_CURRENT_INT | CC_UFP_PLUG_IN_INT | CC_UFP_PLUG_OUT_INT)));
-
-	*val = readl(CC_REG_BASE + USB_CC_UFP_STATUS);
-
-	/* clear INT */
-	if ((readl(CC_REG_BASE + USB_CC_INT_STATUS)) & CC_UFP_PLUG_OUT_INT)
-		writel(CC_INT_CLEAN, CC_REG_BASE + USB_CC_INT_CLR);
-
-	return 0;
-}
-
-void print_aml_cc_ufp_current_type(void)
-{
-	u32 status, cnt = 0;
-
-	aml_cc_ufp_init();
-
-	do {
-		usb_udelay(20);
-		cnt++;
-
-		if (cnt > 10000)
-			break;
-
-	} while (!(readl(CC_REG_BASE + USB_CC_INT_STATUS) &
-		 (CC_UFP_CURRENT_INT | CC_UFP_PLUG_IN_INT | CC_UFP_PLUG_OUT_INT)));
-
-	status = readl(CC_REG_BASE + USB_CC_UFP_STATUS);
-	switch (status & GENMASK(5, 3)) {
-	case 0x0:
-		printf("cc_ufp_current_type: detach\n");
-		break;
-	case 0x8:
-		printf("cc_ufp_current_type: supply <= 0.5 current\n");
-		break;
-	case 0x18:
-		printf("cc_ufp_current_type: Rp=12K, supply 1.5 current\n");
-		break;
-	case 0x38:
-		printf("cc_ufp_current_type: Rp=4.7K, supply 3.0 current\n");
-		break;
-	}
-
-	/* clear INT */
-	if ((readl(CC_REG_BASE + USB_CC_INT_STATUS)) & CC_UFP_PLUG_OUT_INT)
-		writel(CC_INT_CLEAN, CC_REG_BASE + USB_CC_INT_CLR);
-}
-
-/**************************************************************/
-/*			BC config				*/
-/**************************************************************/
-#define BC_CTRL			0x4
-#define  BC_ENABLE		BIT(0)
-#define  BC_DET_CLEAN		BIT(1)
-#define  BC_INT_CLEAN		BIT(2)
-#define  BC_DETECT_END		BIT(3)
-#define BC_DIG_STATUS		0x1C
-
-#define CFG_REG0		0
-#define  HOST_DEVICE		BIT(0)
-#define  IDPULLUP0		BIT(4)
-#define CFG_REG3		0xC
-#define  VBUSDIG_IRQ		BIT(7)
-#define  VBUSDIG_EN1		BIT(5)
-#define  VBUSDIG_EN0		BIT(4)
-
-#define BC_REG_BASE	0xfe35d000
-
-#define BC_RESET_BIT		11
-
-
-static void aml_bc_init(void)
-{
-	u32 val;
-
-	/* set phy device mode */
-	val = readl(PHY_COMP_BASE + CFG_REG0);
-	val &= ~HOST_DEVICE;
-	writel(val, PHY_COMP_BASE + CFG_REG0);
-
-	/* reset bc */
-	val = readl(RESET_BASE + RESETCTRL0_OFFSET);
-	val = BC_RESET_BIT;
-	writel(val, RESET_BASE + RESETCTRL0_OFFSET);
-
-	usb_udelay(200000);
-
-	/* enable BC */
-	val = readl(BC_REG_BASE + BC_CTRL);
-	val |= BC_ENABLE;
-	writel(val, BC_REG_BASE + BC_CTRL);
-}
-
-int aml_bc_get_port_status(u32 *val)
-{
-	u32 cnt = 0;
-
-	aml_bc_init();
-
-	do {
-		usb_udelay(20);
-		cnt++;
-
-		if (cnt > 10000) {
-			printf("BC port status detect timeout\n");
-			return -EINVAL;
-		}
-	} while (!(readl(BC_REG_BASE + BC_CTRL) & BC_DETECT_END));
-
-	*val = readl(BC_REG_BASE + BC_DIG_STATUS);
-
-	return 0;
-}
-
-void print_aml_bc_port_status(void)
-{
-	u32 status, cnt = 0;
-
-	aml_bc_init();
-
-	do {
-		usb_udelay(20);
-		cnt++;
-
-		if (cnt > 10000) {
-			printf("BC port status detect timeout\n");
-			return;
-		}
-	} while (!(readl(BC_REG_BASE + BC_CTRL) & BC_DETECT_END));
-
-	status = readl(BC_REG_BASE + BC_DIG_STATUS);
-	switch (status & GENMASK(3, 0)) {
-	case 0x0:
-		printf("BC STATUS is : default\n");
-		break;
-	case 0x1:
-		printf("BC STATUS is : SDP\n");
-		break;
-	case 0x2:
-		printf("BC STATUS is : DCP\n");
-		break;
-	case 0x3:
-		printf("BC STATUS is : CDP\n");
-		break;
-	case 0x4:
-		printf("BC STATUS is : ACA_A\n");
-		break;
-	case 0x5:
-		printf("BC STATUS is : ACA_B\n");
-		break;
-	case 0x6:
-		printf("BC STATUS is : ACA_C\n");
-		break;
-	case 0x7:
-		printf("BC STATUS is : ACA_DOCK\n");
-		break;
-	case 0x8:
-		printf("BC STATUS is : ACA GND ERROR\n");
-		break;
-	case 0x9:
-		printf("BC STATUS is : analog output error\n");
-		break;
-	case 0xA:
-		printf("BC STATUS is : VBUS remove\n");
-		break;
-	case 0xB:
-		printf("BC STATUS is : VBUS invalid\n");
-		break;
-	default:
-		printf("BC STATUS is : RESERVED\n");
-		break;
-	}
 }
