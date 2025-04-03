@@ -48,14 +48,17 @@ typedef struct efuse_cali {
 	unsigned long long eth_resctl_flag:1;
 	unsigned long long miscpzq_data:8;
 	unsigned long long miscpzq_flag:1;
-	unsigned long long p2p_vinlp_data:5;
+	unsigned long long p2p_vinlp_data:6;
 	unsigned long long p2p_vinlp_flag:1;
 	unsigned long long p2p_common_data:5;
 	unsigned long long p2p_common_flag:1;
-	unsigned long long reserved2:4;
+	unsigned long long p2p_vinlpvml_data:4;
+	unsigned long long p2p_vinlpvml_flag:1;
+	unsigned long long earctx_data:5;
+	unsigned long long earctx_flag:1;
 } efuse_cali_t;
 
-#define EFUSE_CALI_SIZE			17
+#define EFUSE_CALI_SIZE			18
 #define EFUSE_CALI_CVBS
 
 #define EFUSE_BYTES				512   /* (EFUSE_BITS/8) */
@@ -90,6 +93,8 @@ typedef enum efuse_obj_status_s {
 	EFUSE_OBJ_ERR_ACCESS		= 200,
 	EFUSE_OBJ_ERR_WRITE_PROTECTED = 201,
 
+	EFUSE_OBJ_ERR_TAG = 220,
+
 	EFUSE_OBJ_ERR_UNKNOWN		= 300,
 	EFUSE_OBJ_ERR_INTERNAL,
 } efuse_obj_status_e;
@@ -97,6 +102,7 @@ typedef enum efuse_obj_status_s {
 typedef enum efuse_obj_info_s {
 	EFUSE_OBJ_EFUSE_DATA	= 0,
 	EFUSE_OBJ_LOCK_STATUS,
+	EFUSE_OBJ_EFUSE_ENC_DATA,
 } efuse_obj_info_e;
 
 typedef struct {
@@ -104,6 +110,14 @@ typedef struct {
 	unsigned char data[32];
 	unsigned int size;
 } efuse_obj_field_t;
+
+typedef struct {
+	char name[48];
+	unsigned char data[32];
+	unsigned int size;
+	unsigned char iv[12];
+	unsigned char tag[16];
+} efuse_obj_enc_field_t;
 
 int efuse_read_usr(char *buf, size_t count, loff_t *ppos);
 int efuse_write_usr(char *buf, size_t count, loff_t *ppos);

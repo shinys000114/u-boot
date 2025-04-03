@@ -198,6 +198,8 @@ const struct t_efuse_item efusecaliitem_cfg[] = {
 	{.name = "miscpzq", .item = EFUSE_CALI_SUBITEM_MISC_PZQ},
 	{.name = "p2p_vinlp", .item = EFUSE_CALI_SUBITEM_P2P_VINLP},
 	{.name = "p2p_common", .item = EFUSE_CALI_SUBITEM_P2P_COMMON},
+	{.name = "p2p_vinlpvml", .item = EFUSE_CALI_SUBITEM_P2P_VINLPVML},
+	{.name = "earctx", .item = EFUSE_CALI_SUBITEM_EARCTX},
 };
 
 #define EFUSE_CALIITE_CNT ARRAY_SIZE(efusecaliitem_cfg)
