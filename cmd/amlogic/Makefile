@@ -111,7 +111,11 @@ else
 ifdef CONFIG_MESON_T6D
 obj-y += cmd_ddr_test_t6d.o
 else
+ifdef CONFIG_MESON_T6W
+obj-y += cmd_ddr_test_t6w.o
+else
 obj-y += cmd_ddr_test_g12.o
+endif
 endif
 endif
 endif

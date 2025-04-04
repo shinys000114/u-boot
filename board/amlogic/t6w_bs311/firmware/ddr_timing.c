@@ -1220,8 +1220,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.fast_boot = {
 			0, 0, 0, 0
 		},
-		.cfg_board_common_setting.ddr_func =
-		DDR_FUNC_CONFIG_AUTO_DET_DQ_PINMUX_FUNCTION,
+		.cfg_board_common_setting.ddr_func = DDR_FUNC_CONFIG_AUTO_DET_DQ_PINMUX_FUNCTION,
 		//DDR_FUNC_CONFIG_DFE_FUNCTION |
 		//DDR_FUNC_CONFIG_ENABLE_PZQ_DET_DRAM_TYPE_RETURN,
 		.cfg_board_common_setting.board_id = CONFIG_BOARD_ID_MASK,
@@ -1242,17 +1241,16 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
-		.cfg_board_common_setting.dram_ch0_size_MB = 0xffff,
-		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
+		.cfg_board_common_setting.DisabledDbyte[0] = 0x00,
 		//bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
-		.cfg_board_common_setting.DisabledDbyte[1] = 0xfc,
+		.cfg_board_common_setting.DisabledDbyte[1] = 0x00,
 		//bit 0 -3 ch1 cs0 ,bit 4-7 ch1
 		.cfg_board_common_setting.dram_x4x8x16_mode = CONFIG_DRAM_MODE_X16,
 		.cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
-		.cfg_board_common_setting.log_level = 0xff,
-		//.cfg_board_common_setting.log_level = 4,
+		//.cfg_board_common_setting.log_level = 0xff,
+		.cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
-		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
+		.cfg_board_common_setting.dbi_enable = 0,
 		.cfg_board_common_setting.pll_ssc_mode =
 			(1 << 20) | (1 << 8) | (2 << 4) | 0,
 		//center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
@@ -1260,13 +1258,18 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.reserve1_test = {
 			0
 		},
+#ifdef DDR4_USE_2CHANNEL
 		.cfg_board_common_setting.ddr_dmc_remap =
 		//DDR_DMC_REMAP_DDR4_16BIT_S1A,
 		//DDR_DMC_REMAP_DDR4_16BIT_2,
+		DDR_DMC_REMAP_DDR4_16BIT,
+#else
+		.cfg_board_common_setting.ddr_dmc_remap =
 		DDR_DMC_REMAP_DDR4_32BIT,
 		//DDR_DMC_REMAP_DDR4_32BIT,
 		//DDR_DMC_REMAP_DDR4_32BIT,
-#ifdef ENABLE_DDR4_16BIT
+#endif
+#ifdef ENABLE_DDR3_4_16BIT
 		//ddr4 32bit
 		.cfg_board_common_setting.dram_rank_config = CONFIG_DDR0_16BIT_CH0,
 		.cfg_board_common_setting.dram_ch0_size_MB =
@@ -1276,7 +1279,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xfc,
 		//bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
-		.cfg_board_common_setting.ddr_dmc_remap = DDR_DMC_REMAP_DDR4_16BIT_S1A,
+		.cfg_board_common_setting.ddr_dmc_remap = DDR_DMC_REMAP_DDR4_16BIT,
 #endif
 		// .cfg_board_common_setting.ac_pinmux = {
 		//2, 3, 1, 0, 5, 4, 0, 0, 0, 0, 1, 3, 5, 2, 4, 0 },
@@ -1425,6 +1428,19 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		11,	10,	3,	15,	14,	26,	27,	22,	23,	20,	21,
 		19,	16,	18,	12,	17,	24,	25,	28,	29,
 		},
+#ifdef DDR4_USE_2CHANNEL
+		.cfg_board_common_setting.ac_pinmux = {//22 -25 ddr4 cs 26-29 cke 30-33 odt 34 35 clk
+		0,	1,	2,	3,	4,	5,	6,	22,	8,	30,
+		10,	26,	28,	7,	9,	11,	12,	13,	14,	15,
+		17,	18,	19,	20,	21,	16,	24,	32,	34,	35,
+		},
+#else
+		.cfg_board_common_setting.ac_pinmux = {//22 -25 ddr4 cs 26-29 cke 30-33 odt 34 35 clk
+		0,	1,	2,	3,	4,	5,	6,	22,	8,	30,
+		10,	26,	27,	7,	9,	11,	12,	13,	14,	15,
+		17,	18,	19,	20,	21,	16,	23,	31,	34,	35,//only rank0
+		},
+#endif
 		.cfg_board_common_setting.ddr_dq_remap = {
 			34,
 			16,
@@ -1460,6 +1476,95 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			28,
 			30,
 			29,
+			31,
+			35,
+		},
+		.cfg_board_common_setting.ddr_dq_remap = {
+			0,
+			1,
+			2,
+			3,
+			4,
+			5,
+			6,
+			7,
+			32,
+			8,
+			9,
+			10,
+			11,
+			12,
+			13,
+			14,
+			15,
+			33,
+			16,
+			17,
+			18,
+			19,
+			20,
+			21,
+			22,
+			23,
+			34,
+			24,
+			25,
+			26,
+			27,
+			28,
+			29,
+			30,
+			31,
+			35,
+		},
+#ifdef DDR4_USE_2CHANNEL
+		.cfg_board_common_setting.ac_pinmux = {///T6w pinmux
+		3,	6,	5,	1,	0,	9,	13,	8,	7,	2,
+		11,	10,	4,	14,	15,	30,	31,	22,	23,	21,	18,
+		16,	20,	19,	17,	12,	26,	27,	34,	35,
+		},
+#else
+		.cfg_board_common_setting.ac_pinmux = {///T6w pinmux
+		3,	6,	5,	1,	0,	9,	13,	8,	7,	2,
+		11,	10,	4,	14,	15,	30,	30,	22,	22,	21,	18,
+		16,	20,	19,	17,	12,	26,	26,	34,	35,
+		},
+#endif
+		.cfg_board_common_setting.ddr_dq_remap = {
+			32,
+			0,
+			1,
+			3,
+			2,
+			5,
+			4,
+			7,
+			6,
+			33,
+			9,
+			8,
+			10,
+			11,
+			13,
+			12,
+			15,
+			14,
+			16,
+			18,
+			19,
+			17,
+			21,
+			20,
+			23,
+			22,
+			34,
+			26,
+			24,
+			27,
+			25,
+			28,
+			29,
+			30,
 			31,
 			35,
 		},
@@ -1566,20 +1671,66 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			35,
 	},
 
+#ifdef DDR4_USE_2CHANNEL
 		.cfg_board_common_setting.ac_pinmux = {
-		4,	6,	5,	0,	1,	8,	9,	7,	13,	2,
-		11,	10,	3,	15,	14,	26,	27,	22,	23,	20,	21,
-		19,	16,	18,	12,	17,	24,	25,	28,	29,
+		3,	6,	5,	1,	0,	9,	13,	8,	7,	2,
+		11,	10,	4,	14,	15,	30,	31,	22,	23,	21,	18,
+		16,	20,	19,	17,	12,	26,	27,	34,	35,
 		},
+#else
+		.cfg_board_common_setting.ac_pinmux = {///T6w pinmux
+		3,	6,	5,	1,	0,	9,	13,	8,	7,	2,
+		11,	10,	4,	14,	15,	30,	30,	22,	22,	21,	18,
+		16,	20,	19,	17,	12,	26,	26,	34,	35,
+		},
+#endif
 
+#if 0
+		.cfg_board_common_setting.ac_pinmux = {///T6w pinmux non-sip ddr4
+			9,	18,	7,	19,	22,	12,	5,	22,	20,	30,
+		15,	30,	13,	1,	6,	8,	21,	2,	17,	10,	14,
+		11,	0,	4,	16,	3,	26,	26,	35,	34,
+		},
+#endif
 		.cfg_board_common_setting.ddr_dq_remap = {
-			0 , 0 , 0,
-		//	12,	10,	15,	13,	9,	8,	11,	14,	33,
-		//	6,	4,	0,	2,	32,	1,	3,	5,	7,
-		//	25,	29,	26,	27,	35,	24,	28,	30,	31,
-		//	22,	34,	18,	19,	17,	21,	20,	23,	16,
+			32,
+			0,
+			1,
+			3,
+			2,
+			5,
+			4,
+			7,
+			6,
+			33,
+			9,
+			8,
+			10,
+			11,
+			13,
+			12,
+			15,
+			14,
+			16,
+			18,
+			19,
+			17,
+			21,
+			20,
+			23,
+			22,
+			34,
+			26,
+			24,
+			27,
+			25,
+			28,
+			29,
+			30,
+			31,
+			35,
 		},
-
+		.cfg_board_common_setting.ddr_dq_remap = { 0, 0, 0},
 #endif
 		//.cfg_board_common_setting.ddr_dq_remap= {
 		// 3, 0, 2, 1, 4, 6, 5, 7,  14, 12, 13, 15,
@@ -1587,14 +1738,14 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #ifdef CONFIG_BOARD_TIMMING
 		.cfg_ddr_training_delay_ps.tx_offset[0] = (0 << 7) | 0x0,
 		.cfg_ddr_training_delay_ps.rx_offset[0] = (0 << 7) | 0x0,
-		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,     //write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,     //write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,     //write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,     //write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[4] = (1 << 7) | 0x8,     //write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[5] = (1 << 7) | 0x8,     //write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[6] = (1 << 7) | 0x8,     //write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[7] = (1 << 7) | 0x8,     //write dqs
+		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x10,     //write dqs
+		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x10,     //write dqs
+		.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x10,     //write dqs
+		.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x10,     //write dqs
+		.cfg_ddr_training_delay_ps.reserve_para[4] = (1 << 7) | 0x10,     //write dqs
+		.cfg_ddr_training_delay_ps.reserve_para[5] = (1 << 7) | 0x10,     //write dqs
+		.cfg_ddr_training_delay_ps.reserve_para[6] = (1 << 7) | 0x10,     //write dqs
+		.cfg_ddr_training_delay_ps.reserve_para[7] = (1 << 7) | 0x10,     //write dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
@@ -1605,59 +1756,55 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 7] = (1 << 7) | 0x10,//read dqs
 #endif
 		//#define  AC_OFFSET  (-128) //> 1650 M use -128  or use 0
+#ifdef DDR4_USE_2CHANNEL
 		#define  AC_OFFSET  (128)
-		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[1] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[3] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[6] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[14] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[21] = 256 + AC_OFFSET,
-		//cke 128 only 1UI margin
-		.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[23] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 256 + AC_OFFSET,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 256 + AC_OFFSET,
-#ifdef CONFIG_PXP_TIMMING                                                       //t3x pxp
-#ifndef PXP_USE_REAL_PINMUX
-		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 128 + AC_OFFSET,    //pxp cs
-		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 128 + AC_OFFSET,     //pxp cs
-		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 128 + AC_OFFSET,  //ck
-		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + AC_OFFSET,  //ck
-		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 128 + AC_OFFSET,      //cke
-		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 128 + AC_OFFSET,      //cke
-		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 128 + AC_OFFSET,     //odt0
-		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 128 + AC_OFFSET,         //odt1
+		#define ac_off_1t (-128)
 #else
-		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 128 + AC_OFFSET,       // cs
-		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 128 + AC_OFFSET,      // cs
-		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + AC_OFFSET,    //ck
-		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 128 + AC_OFFSET,    //ck
-		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 128 + AC_OFFSET,     //cke
-		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 128 + AC_OFFSET,     //cke
-		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 128 + AC_OFFSET,        //odt0
-		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 128 + AC_OFFSET,       //odt1
+		#define ac_off_1t (0)
+		#define  AC_OFFSET  (128)  //non-sip
 #endif
+		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[1] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[3] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[6] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[14] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[21] = 256 + AC_OFFSET + ac_off_1t,
+		//cke 128 only 1UI margin
+		.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[23] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 256 + AC_OFFSET + ac_off_1t,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 256 + AC_OFFSET + ac_off_1t,
+#ifdef CONFIG_PXP_TIMMING                                                       //t3x pxp
+		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 128 + AC_OFFSET,       // cs
+		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 128 + AC_OFFSET,      // cs
+		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + AC_OFFSET,  //ck
+		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 128 + AC_OFFSET,    //ck
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 128 + AC_OFFSET - 0,     //cke
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 128 + AC_OFFSET - 0,     //cke
+		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 128 + AC_OFFSET,        //odt0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 128 + AC_OFFSET,       //odt1
 #else
+#if 1
 		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 128 + AC_OFFSET,       // cs
 		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 128 + AC_OFFSET,      // cs
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + AC_OFFSET,    //ck
@@ -1666,7 +1813,16 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 128 + AC_OFFSET,     //cke
 		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 128 + AC_OFFSET,        //odt0
 		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 128 + AC_OFFSET,       //odt1
-       //odt1
+#else
+		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 128 + AC_OFFSET,       // cs
+		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 128 + AC_OFFSET,      // cs1
+		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + AC_OFFSET,    //ck
+		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 128 + AC_OFFSET,    //ck
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 128 + AC_OFFSET,     //cke
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 128 + AC_OFFSET,     //cke
+		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 128 + AC_OFFSET,        //odt1
+		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 128 + AC_OFFSET,       //odt0
+#endif
 #endif
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[0] = 64 + 16,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[1] = 64 + 16,
@@ -1924,78 +2080,78 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.wdq_delay[70] = AC_OFFSET + TDQS2DQ_D4 + WL0,
 		.cfg_ddr_training_delay_ps.wdq_delay[71] = AC_OFFSET + TDQS2DQ_D4 + WL0,
 #else
-		.cfg_ddr_training_delay_ps.wdq_delay[0] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[1] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[2] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[3] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[4] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[5] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[6] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[7] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[8] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[9] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[10] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[11] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[12] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[13] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[14] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[15] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[16] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[17] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[18] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[19] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[20] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[21] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[22] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[23] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[24] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[25] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[26] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[27] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[28] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[29] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[30] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[31] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[32] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[33] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[34] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[35] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[36] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[37] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[38] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[39] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[40] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[41] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[42] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[43] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[44] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[45] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[46] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[47] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[48] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[49] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[50] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[51] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[52] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[53] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[54] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[55] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[56] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[57] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[58] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[59] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[60] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[61] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[62] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[63] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[64] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[65] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[66] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[67] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[68] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[69] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[70] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
-		.cfg_ddr_training_delay_ps.wdq_delay[71] = 192 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[0] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[1] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[2] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[3] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[4] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[5] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[6] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[7] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[8] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[9] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[10] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[11] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[12] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[13] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[14] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[15] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[16] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[17] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[18] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[19] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[20] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[21] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[22] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[23] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[24] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[25] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[26] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[27] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[28] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[29] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[30] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[31] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[32] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[33] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[34] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[35] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[36] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[37] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[38] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[39] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[40] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[41] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[42] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[43] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[44] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[45] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[46] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[47] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[48] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[49] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[50] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[51] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[52] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[53] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[54] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[55] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[56] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[57] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[58] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[59] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[60] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[61] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[62] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[63] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[64] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[65] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[66] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[67] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[68] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[69] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[70] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
+		.cfg_ddr_training_delay_ps.wdq_delay[71] = 64 + AC_OFFSET + TDQS2DQ_D4 + WL0,
 #endif
 #ifdef CONFIG_PXP_TIMMING
 		//AC_OFFSET - 256 ,old_dmc_readen_latency_offset = 2
@@ -2101,7 +2257,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[61] = 0,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[62] = 0,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[63] = 0,
-		.cfg_ddr_training_delay_ps.read_dq_delay_t[0] = 0,
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[64] = 0,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[65] = 0,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[66] = 0,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[67] = 0,
