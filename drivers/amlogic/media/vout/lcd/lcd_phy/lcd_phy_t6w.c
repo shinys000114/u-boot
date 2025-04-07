@@ -188,6 +188,10 @@ static int lcd_phy_param_get_from_reg(struct aml_lcd_drv_s *pdrv,
 	unsigned int data32, chreg, chdig, bit, i;
 	unsigned char vcm_boost_en, phase_sel;
 
+	data32 = lcd_ana_read(ANACTRL_DIF_PHY_CNTL15);
+	phy->cv_mode = (data32 >> 20) & 0x1;
+	vcm_boost_en = (data32 >> 22) & 0x1;
+
 	data32 = lcd_ana_read(ANACTRL_DIF_PHY_CNTL14);
 	if (phy->cv_mode == PHY_VMODE) {
 		phy->vswing = 0;
@@ -199,10 +203,6 @@ static int lcd_phy_param_get_from_reg(struct aml_lcd_drv_s *pdrv,
 		phy->odt = lcd_phy_get_custom_odt_cm(phy);
 	}
 	phy->ref_bias = 0;
-
-	data32 = lcd_ana_read(ANACTRL_DIF_PHY_CNTL15);
-	phy->cv_mode = (data32 >> 20) & 0x1;
-	vcm_boost_en = (data32 >> 22) & 0x1;
 
 	for (i = 0; i < phy_cfg->lane_num; i++) {
 		bit = i & 0x1 ? 16 : 0;
@@ -258,7 +258,7 @@ static void lcd_phy_common_update(struct aml_lcd_drv_s *pdrv, unsigned int cntl1
 
 	/*vm control*/
 	if (phy->cv_mode == PHY_VMODE)
-		cntl15 |= (1 << 23) | (1 << 20);
+		cntl15 |= (1 << 23) | (1 << 22) | (1 << 20);
 
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, cntl14);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, cntl15);
@@ -290,7 +290,7 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, int status)
 		chreg = reg_data;
 
 		if (status) {
-			if (phy->cv_mode == PHY_VMODE) {
+			if (phy->cv_mode == PHY_CMODE) {
 				chreg |= (phy->lane[i].preem & 0xf) << 12;
 				chreg |= (phy->lane[i].amp & 0xf) << 8;
 			} else {
