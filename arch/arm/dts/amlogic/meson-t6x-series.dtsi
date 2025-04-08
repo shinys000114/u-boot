@@ -279,7 +279,7 @@
 		};
 
 		clkc: clock-controller@0 {
-			compatible = "amlogic,t6d-clkc";
+			compatible = "amlogic,t6x-clkc";
 			#clock-cells = <1>;
 			reg = <0x0 0xfe000000 0x0 0x8380>;
 			clocks = <&xtal>;

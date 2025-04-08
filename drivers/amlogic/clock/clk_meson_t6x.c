@@ -18,12 +18,17 @@
 static struct clk *gp0_pll, *hifi_pll;
 
 static struct meson_gate gates[] = {
-	{CLKID_SPICC_0, T6D_CLKCTRL_SPICC_CLK_CTRL, 6},
-	{CLKID_SARADC, T6D_CLKCTRL_SAR_CLK_CTRL, 8},
-	{CLKID_SD_EMMC_C, T6D_CLKCTRL_NAND_CLK_CTRL, 7},
+	{CLKID_SPICC_0, T6X_CLKCTRL_SPISG_CLK_CTRL, 6},
+	{CLKID_SPICC_1, T6X_CLKCTRL_SPISG_CLK_CTRL, 22},
+	{CLKID_SPICC_2, T6X_CLKCTRL_SPISG_CLK_CTRL1, 6},
+	{CLKID_SPICC_3, T6X_CLKCTRL_SPISG_CLK_CTRL1, 22},
+	{CLKID_SPICC_4, T6X_CLKCTRL_SPISG_CLK_CTRL2, 6},
+	{CLKID_SPICC_5, T6X_CLKCTRL_SPISG_CLK_CTRL2, 22},
+	{CLKID_SARADC, T6X_CLKCTRL_SAR_CLK_CTRL, 8},
+	{CLKID_SD_EMMC_C, T6X_CLKCTRL_NAND_CLK_CTRL, 7},
 };
 
-static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK};
+static unsigned int saradc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK, CLKID_FCLK_DIV5};
 
 static unsigned int sd_emmc_parents[] = {CLKID_XTAL, CLKID_FCLK_DIV2,
 	CLKID_FCLK_DIV3, CLKID_UNREALIZED, CLKID_FCLK_DIV2P5,
@@ -34,34 +39,44 @@ static unsigned int spicc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK,
 	CLKID_FCLK_DIV5, CLKID_FCLK_DIV7, CLKID_UNREALIZED};
 
 static struct meson_mux muxes[] = {
-	{CLKID_SPICC_0_MUX, T6D_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
-	{CLKID_SARADC_MUX, T6D_CLKCTRL_SAR_CLK_CTRL, 9, 0x3, saradc_parents, ARRAY_SIZE(saradc_parents)},
-	{CLKID_SD_EMMC_C_MUX, T6D_CLKCTRL_NAND_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
+	{CLKID_SPICC_0_MUX, T6X_CLKCTRL_SPISG_CLK_CTRL, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SPICC_1_MUX, T6X_CLKCTRL_SPISG_CLK_CTRL, 23,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SPICC_2_MUX, T6X_CLKCTRL_SPISG_CLK_CTRL1, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SPICC_3_MUX, T6X_CLKCTRL_SPISG_CLK_CTRL1, 23,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SPICC_4_MUX, T6X_CLKCTRL_SPISG_CLK_CTRL2, 7,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SPICC_5_MUX, T6X_CLKCTRL_SPISG_CLK_CTRL2, 23,  0x7, spicc_parents, ARRAY_SIZE(spicc_parents)},
+	{CLKID_SARADC_MUX, T6X_CLKCTRL_SAR_CLK_CTRL, 9, 0x3, saradc_parents, ARRAY_SIZE(saradc_parents)},
+	{CLKID_SD_EMMC_C_MUX, T6X_CLKCTRL_NAND_CLK_CTRL, 9, 0x7, sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
-	{CLKID_SPICC_0_DIV, T6D_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_0_MUX},
-	{CLKID_SARADC_DIV, T6D_CLKCTRL_SAR_CLK_CTRL, 0, 8, CLKID_SARADC_MUX},
-	{CLKID_SD_EMMC_C_DIV, T6D_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
+	{CLKID_SPICC_0_DIV, T6X_CLKCTRL_SPISG_CLK_CTRL, 0, 6, CLKID_SPICC_0_MUX},
+	{CLKID_SPICC_1_DIV, T6X_CLKCTRL_SPISG_CLK_CTRL, 16, 6, CLKID_SPICC_1_MUX},
+	{CLKID_SPICC_2_DIV, T6X_CLKCTRL_SPISG_CLK_CTRL1, 0, 6, CLKID_SPICC_2_MUX},
+	{CLKID_SPICC_3_DIV, T6X_CLKCTRL_SPISG_CLK_CTRL1, 16, 6, CLKID_SPICC_3_MUX},
+	{CLKID_SPICC_4_DIV, T6X_CLKCTRL_SPISG_CLK_CTRL2, 0, 6, CLKID_SPICC_4_MUX},
+	{CLKID_SPICC_5_DIV, T6X_CLKCTRL_SPISG_CLK_CTRL2, 16, 6, CLKID_SPICC_5_MUX},
+	{CLKID_SARADC_DIV, T6X_CLKCTRL_SAR_CLK_CTRL, 0, 8, CLKID_SARADC_MUX},
+	{CLKID_SD_EMMC_C_DIV, T6X_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
-	{T6D_ANACTRL_FIXPLL_CTRL0, 0, 9}, /* pm */
-	{T6D_ANACTRL_FIXPLL_CTRL0, 11, 5}, /* pn */
-	{T6D_ANACTRL_FIXPLL_CTRL0, 9, 2}, /* pod */
+	{T6X_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
+	{T6X_ANACTRL_FIXPLL_CTRL0, 16, 5}, /* pn */
+	{T6X_ANACTRL_FIXPLL_CTRL0, 12, 3}, /* pod */
 };
 
 static struct parm meson_sys0_pll_parm[3] = {
-	{T6D_ANACTRL_SYS0PLL_CTRL0, 0, 9}, /* pm */
-	{T6D_ANACTRL_SYS0PLL_CTRL0, 11, 5}, /* pn */
-	{T6D_ANACTRL_SYS0PLL_CTRL0, 9, 2}, /* pod */
+	{T6X_ANACTRL_SYS0PLL_CTRL0, 0, 9}, /* pm */
+	{T6X_ANACTRL_SYS0PLL_CTRL0, 11, 5}, /* pn */
+	{T6X_ANACTRL_SYS0PLL_CTRL0, 9, 2}, /* pod */
 };
 
 static struct parm meson_gp0_pll_parm[4] = {
-	{T6D_ANACTRL_GP0PLL_CTRL0, 0, 9}, /* pm */
-	{T6D_ANACTRL_GP0PLL_CTRL0, 11, 5}, /* pn */
-	{T6D_ANACTRL_GP0PLL_CTRL0, 9, 2}, /* pod */
-	{T6D_ANACTRL_GP0PLL_CTRL1, 27, 1}, /* pdiv0p5_en */
+	{T6X_ANACTRL_GP0PLL_CTRL0, 0, 9}, /* pm */
+	{T6X_ANACTRL_GP0PLL_CTRL0, 16, 5}, /* pn */
+	{T6X_ANACTRL_GP0PLL_CTRL0, 10, 3}, /* pod */
+	{T6X_ANACTRL_GP0PLL_CTRL3, 26, 1}, /* pdiv0p5_en */
 };
 
 static const struct pll_params_table gp0_pll_table[] = {
@@ -70,46 +85,41 @@ static const struct pll_params_table gp0_pll_table[] = {
 };
 
 static const struct reg_sequence gp0_pll_init_regs[] = {
-	{ .reg_off = T6D_ANACTRL_GP0PLL_CTRL1,	.def = 0x09900322 },
-	{ .reg_off = T6D_ANACTRL_GP0PLL_CTRL2,	.def = 0x0 }, /* frac = 0 as default */
-	{ .reg_off = T6D_ANACTRL_GP0PLL_CTRL3,	.def = 0x6 }
+	{ .reg_off = T6X_ANACTRL_GP0PLL_CTRL1,	.def = 0x09900322 },
+	{ .reg_off = T6X_ANACTRL_GP0PLL_CTRL2,	.def = 0x0 }, /* frac = 0 as default */
+	{ .reg_off = T6X_ANACTRL_GP0PLL_CTRL3,	.def = 0x6 }
 };
 
 static const struct aml_pll_data gp0_pll_data = {
 	.en = {
-		.reg_off = T6D_ANACTRL_GP0PLL_CTRL0,
+		.reg_off = T6X_ANACTRL_GP0PLL_CTRL0,
 		.shift   = 28,
 		.width   = 1,
 	},
 	.m = {
-		.reg_off = T6D_ANACTRL_GP0PLL_CTRL0,
+		.reg_off = T6X_ANACTRL_GP0PLL_CTRL0,
 		.shift   = 0,
 		.width   = 9,
 	},
 	.n = {
-		.reg_off = T6D_ANACTRL_GP0PLL_CTRL0,
-		.shift   = 11,
+		.reg_off = T6X_ANACTRL_GP0PLL_CTRL0,
+		.shift   = 16,
 		.width   = 5,
 	},
 	.od = {
-		.reg_off = T6D_ANACTRL_GP0PLL_CTRL0,
-		.shift	 = 9,
-		.width	 = 2,
+		.reg_off = T6X_ANACTRL_GP0PLL_CTRL0,
+		.shift	 = 10,
+		.width	 = 3,
 	},
 
 	.l = {
-		.reg_off = T6D_ANACTRL_GP0PLL_CTRL0,
+		.reg_off = T6X_ANACTRL_GP0PLL_CTRL0,
 		.shift   = 31,
 		.width   = 1,
 	},
 	.rst = {
-		.reg_off = T6D_ANACTRL_GP0PLL_CTRL0,
+		.reg_off = T6X_ANACTRL_GP0PLL_CTRL0,
 		.shift   = 29,
-		.width   = 1,
-	},
-	.l_rst = {
-		.reg_off = T6D_ANACTRL_GP0PLL_CTRL0,
-		.shift   = 16,
 		.width   = 1,
 	},
 	.table = gp0_pll_table,
@@ -125,51 +135,46 @@ static const struct pll_params_table hifi_pll_table[] = {
 };
 
 static const struct reg_sequence hifi_pll_init_regs[] = {
-	{ .reg_off = T6D_ANACTRL_HIFIPLL_CTRL0, .def = 0x02520000 },
-	{ .reg_off = T6D_ANACTRL_HIFIPLL_CTRL1,	.def = 0x09900322 },
-	{ .reg_off = T6D_ANACTRL_HIFIPLL_CTRL2,	.def = 0x00004e20 },
-	{ .reg_off = T6D_ANACTRL_HIFIPLL_CTRL3,	.def = 0x6 }
+	{ .reg_off = T6X_ANACTRL_HIFIPLL_CTRL0, .def = 0x02520000 },
+	{ .reg_off = T6X_ANACTRL_HIFIPLL_CTRL1,	.def = 0x09900322 },
+	{ .reg_off = T6X_ANACTRL_HIFIPLL_CTRL2,	.def = 0x00004e20 },
+	{ .reg_off = T6X_ANACTRL_HIFIPLL_CTRL3,	.def = 0x6 }
 };
 
 static const struct aml_pll_data hifi_pll_data = {
 	.en = {
-		.reg_off = T6D_ANACTRL_HIFIPLL_CTRL0,
+		.reg_off = T6X_ANACTRL_HIFIPLL_CTRL0,
 		.shift   = 28,
 		.width   = 1,
 	},
 	.n = {
-		.reg_off = T6D_ANACTRL_HIFIPLL_CTRL0,
-		.shift   = 11,
+		.reg_off = T6X_ANACTRL_HIFIPLL_CTRL0,
+		.shift   = 16,
 		.width   = 5,
 	},
 	.m = {
-		.reg_off = T6D_ANACTRL_HIFIPLL_CTRL0,
+		.reg_off = T6X_ANACTRL_HIFIPLL_CTRL0,
 		.shift   = 0,
 		.width   = 9,
 	},
 	.od = {
-		.reg_off = T6D_ANACTRL_HIFIPLL_CTRL0,
-		.shift	 = 9,
-		.width	 = 2,
+		.reg_off = T6X_ANACTRL_HIFIPLL_CTRL0,
+		.shift	 = 10,
+		.width	 = 3,
 	},
 	.frac = {
-		.reg_off = T6D_ANACTRL_HIFIPLL_CTRL2,
+		.reg_off = T6X_ANACTRL_HIFIPLL_CTRL2,
 		.shift   = 0,
 		.width   = 19,
 	},
 	.l = {
-		.reg_off = T6D_ANACTRL_HIFIPLL_CTRL0,
+		.reg_off = T6X_ANACTRL_HIFIPLL_CTRL0,
 		.shift   = 31,
 		.width   = 1,
 	},
 	.rst = {
-		.reg_off = T6D_ANACTRL_HIFIPLL_CTRL0,
+		.reg_off = T6X_ANACTRL_HIFIPLL_CTRL0,
 		.shift   = 29,
-		.width   = 1,
-	},
-	.l_rst = {
-		.reg_off = T6D_ANACTRL_HIFIPLL_CTRL0,
-		.shift   = 16,
 		.width   = 1,
 	},
 	.table = hifi_pll_table,
@@ -367,12 +372,12 @@ static int meson_clk_probe(struct udevice *dev)
 }
 
 static const struct udevice_id meson_clk_ids[] = {
-	{ .compatible = "amlogic,t6d-clkc" },
+	{ .compatible = "amlogic,t6x-clkc" },
 	{ }
 };
 
 U_BOOT_DRIVER(meson_clk) = {
-	.name		= "meson-clk-t6d",
+	.name		= "meson-clk-t6x",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
 	.priv_auto  = sizeof(struct meson_clk),
