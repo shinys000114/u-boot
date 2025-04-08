@@ -33,7 +33,8 @@
 /* 20241108: optimize config load flow */
 /* 20241127: add lcd config json parse driver */
 /* 20250123: update lcd bootargs transfer by lrm */
-#define LCD_DRV_VERSION    "20250123"
+/* 20250422: t6x pxp bringup */
+#define LCD_DRV_VERSION    "20250422"
 
 #define CFMT_RGB565          0x05
 #define CFMT_RGB_6bit        0x06
@@ -119,6 +120,7 @@ void lcd_display_init_reg_dump(struct aml_lcd_drv_s *pdrv);
 #define LCD_CMA_PAGE_SIZE_8K (8 * 1024)
 
 /* lcd common */
+void lcd_reg_dump(struct reg_name_set_s *tbl, int cnt, unsigned int base_addr);
 int strnum_get_num(const char *str, struct num_str_s *arr, int size_arr, int dft);
 char *strnum_get_str(int num, struct num_str_s *arr, int size_arr, char *dft);
 unsigned char *lcd_init_table_load_array(char *name, unsigned char cmd_size,

@@ -153,6 +153,17 @@ static struct aml_lcd_data_s lcd_data_t6w = {
 };
 #endif
 
+__maybe_unused static struct aml_lcd_data_s lcd_data_t6x = {
+	.chip_type = LCD_CHIP_T6X,
+	.chip_name = "t6x",
+	.rev_type = 0,
+	.drv_max = 1,
+	.offset_venc = {0x0},
+	.offset_venc_if = {0x0},
+	.offset_venc_data = {0x0},
+	.dft_conf = {NULL, NULL, NULL},
+};
+
 static void lcd_chip_detect(void)
 {
 #if 1
@@ -200,6 +211,8 @@ static void lcd_chip_detect(void)
 #if defined(CONFIG_MESON_T6W)
 	case MESON_CPU_MAJOR_ID_T6W:
 		lcd_data = &lcd_data_t6w;
+	case MESON_CPU_MAJOR_ID_T6X:
+		lcd_data = &lcd_data_t6x;
 		break;
 #endif
 	default:
@@ -887,7 +900,7 @@ static int lcd_config_probe(void)
 	g_dt_addr = (char *)CONFIG_DTB_MEM_ADDR;
 #endif
 #ifdef CONFIG_AML_LCD_PXP
-	g_dt_addr = (char *)0x06000000;
+	g_dt_addr = (char *)0x09000000;
 #endif
 
 	lcd_reserved_memory_init(g_dt_addr);

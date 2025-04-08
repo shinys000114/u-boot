@@ -459,10 +459,11 @@ void lrm_handle_mem_info_to_kernel(void)
 
 	if (!lrm)
 		return;
-
 	head = &lrm->mem_list;
-	if (list_empty(head) || !lrm->pstart || !lrm->allocated_num)
+	if (!lrm->pstart) {
+		LCDERR("No lcd rsvd memory\n");
 		return;
+	}
 
 	p = (char *)lrm->pstart + lrm->size - RSVD_MEM_TAIL_SIZE;
 	memcpy(p, lrm->magic, sizeof(lrm->magic));

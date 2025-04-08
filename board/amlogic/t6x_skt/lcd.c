@@ -48,7 +48,66 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	BL_PWM_POSITIVE,BL_PWM_D,180,100,25,1,0,
 	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
+	10,10,Rsv_val
+	},
+
+	{/*public 1-region vx1 : 3840x2160@60hz 8lane */
+	"vbyone_1", LCD_VBYONE, 10,
+	/* basic timing */
+	3840, 2160, 4400, 2250, 33, 477, 0, 6, 81, 0,
+	/* clk_attr */
+	2, 0, 1, 60, 2, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	/* vbyone_attr */
+	8, 1, 4, 4, 0x7, 0x1, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	NULL, NULL,
+	/* power step */
+	lcd0_power_on_step, lcd0_power_off_step,
+	/* backlight */
+	60, 255, 10, 128, 128,
+	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	10, 10, Rsv_val
+	},
+
+	{/*public 2-region vx1 : 3840x2160@120hz 16lane */
+	"vbyone_2", LCD_VBYONE, 10,
+	/* basic timing */
+	3840, 2160, 4400, 2250, 33, 477, 0, 6, 65, 0,
+	/* clk_attr */
+	2, 0, 1, 120, 2, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	/* vbyone_attr */
+	16, 1, 4, 4, 0x7, 0x1, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	NULL, NULL,
+	/* power step */
+	lcd0_power_on_step, lcd0_power_off_step,
+	/* backlight */
+	60, 255, 10, 128, 128,
+	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	10, 10, Rsv_val},
+
+	{/*public 2-region vx1 : 3840x2160@144hz 16lane */
+	"vbyone_3", LCD_VBYONE, 10,
+	/* basic timing */
+	3840, 2160, 4096, 2235, 32, 200, 0, 6, 50, 0,
+	/* clk_attr */
+	2, 0, 1, 144, 2, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	/* vbyone_attr */
+	16, 1, 4, 4, 0x7, 0x1, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	NULL, NULL,
+	/* power step */
+	lcd0_power_on_step, lcd0_power_off_step,
+	/* backlight */
+	60, 255, 10, 128, 128,
+	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	10, 10, Rsv_val},
 };
 
 static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {

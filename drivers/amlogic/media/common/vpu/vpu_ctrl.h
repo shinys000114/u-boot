@@ -256,6 +256,11 @@ static unsigned int vpu_pwrctrl_id_table_t3[] = {
 	PM_NOC_VPU,
 	VPU_PWR_ID_END
 };
+static unsigned int vpu_pwrctrl_id_table_T6X[] = {
+	PDID_MDC_VPU,
+	PDID_VPU_HDMI,
+	VPU_PWR_ID_END
+};
 
 /* ******************************************************* */
 /*                 VPU module init table                 */

@@ -394,28 +394,80 @@ static void lcd_reg_print_lvds(struct aml_lcd_drv_s *pdrv)
 #endif
 
 #ifdef CONFIG_AML_LCD_VBYONE
+struct reg_name_set_s vx1_table_t3x_t6x[] = {
+	{VBO_CTRL             , "VBO_CTRL           "},
+	{VBO_SOFT_RST         , "VBO_SOFT_RST       "},
+	{VBO_LANES            , "VBO_LANES          "},
+	{VBO_VIN_CTRL         , "VBO_VIN_CTRL       "},
+	{VBO_ACT_VSIZE        , "VBO_ACT_VSIZE      "},
+	{VBO_LANE_SKEW_L      , "VBO_LANE_SKEW_L    "},
+	{VBO_LANE_SKEW_H      , "VBO_LANE_SKEW_H    "},
+	{VBO_STATUS_L         , "VBO_STATUS_L       "},
+	{VBO_STATUS_H         , "VBO_STATUS_H       "},
+	{VBO_LANE_OUTPUT      , "VBO_LANE_OUTPUT    "},
+	{LCD_PORT_SWAP        , "LCD_PORT_SWAP      "},
+	{VBO_TMCHK_THRD       , "VBO_TMCHK_THRD     "},
+	{VBO_FSM_HOLDER       , "VBO_FSM_HOLDER     "},
+	{VBO_INTR_STATE_CTRL  , "VBO_INTR_STATE_CTRL"},
+	{VBO_INTR_UNMASK      , "VBO_INTR_UNMASK    "},
+	{VBO_INTR_STATE       , "VBO_INTR_STATE     "},
+	{VBO_INFILTER_CTRL    , "VBO_INFILTER_CTRL  "},
+	{VBO_INSGN_CTRL       , "VBO_INSGN_CTRL     "},
+	{VBO_INFILTER_CTRL_H  , "VBO_INFILTER_CTRL_H"},
+	{VBO_SLICE_CTRL       , "VBO_SLICE_CTRL     "},
+	{VBO_RGN_CTRL         , "VBO_RGN_CTRL       "},
+	{VBO_RGN_HSIZE        , "VBO_RGN_HSIZE      "}
+};
+
+struct reg_name_set_s vx1_table[] = {
+	{VBO_STATUS_L       , "BO_STATUS_L       "},
+	{VBO_LANE_OUTPUT    , "VBO_LANE_OUTPUT   "},
+	{LCD_PORT_SWAP      , "LCD_PORT_SWAP     "},
+	{VBO_CTRL_L         , "BO_CTRL_L         "},
+	{VBO_LANES          , "BO_LANES          "},
+	{VBO_VIN_CTRL       , "BO_VIN_CTRL       "},
+	{VBO_ACT_VSIZE      , "BO_ACT_VSIZE      "},
+	{VBO_GCLK_MAIN      , "BO_GCLK_MAIN      "},
+	{VBO_FSM_HOLDER_L   , "BO_FSM_HOLDER_L   "},
+	{VBO_FSM_HOLDER_H   , "BO_FSM_HOLDER_H   "},
+	{VBO_INTR_STATE_CTRL, "BO_INTR_STATE_CTRL"},
+	{VBO_INTR_UNMASK    , "BO_INTR_UNMASK    "},
+	{VBO_INTR_STATE     , "BO_INTR_STATE     "},
+	{VBO_INFILTER_CTRL  , "BO_INFILTER_CTRL  "},
+	{VBO_INSGN_CTRL     , "BO_INSGN_CTRL     "},
+	{VBO_INFILTER_CTRL_H, "BO_INFILTER_CTRL_H"}
+};
+
 static void lcd_reg_print_vbyone(struct aml_lcd_drv_s *pdrv)
 {
-	unsigned int offset;
+	unsigned int offset, reg_cnt, i, base_addr = 0;
+	struct reg_name_set_s *regtbl;
 
 	offset = pdrv->data->offset_venc_if[pdrv->index];
-
-	struct reg_name_set_s reg_table[] = {
-		{offset + VBO_STATUS_L,        "VX1_STATUS"},
-		{offset + VBO_CTRL_L,          "VBO_CTRL_L"},
-		{offset + VBO_GCLK_MAIN,       "VBO_GCLK_MAIN"},
-		{offset + VBO_FSM_HOLDER_L,    "VBO_FSM_HOLDER_L"},
-		{offset + VBO_FSM_HOLDER_H,    "VX1_FSM_HOLDER_H"},
-		{offset + VBO_INTR_STATE_CTRL, "VX1_INTR_STATE_CTRL"},
-		{offset + VBO_INTR_UNMASK,     "VX1_INTR_UNMASK"},
-		{offset + VBO_INTR_STATE,      "VX1_INTR_STATE"},
-		{offset + VBO_INSGN_CTRL,      "VBO_INSGN_CTRL"},
-		{offset + LCD_PORT_SWAP,       "LCD_PORT_SWAP"},
-	};
+	switch (pdrv->data->chip_type) {
+	case LCD_CHIP_T3X:
+	case LCD_CHIP_T6X:
+		regtbl = vx1_table_t3x_t6x;
+		reg_cnt = ARRAY_SIZE(vx1_table_t3x_t6x);
+		base_addr = 0xff800000;
+		break;
+	default:
+		regtbl = vx1_table;
+		reg_cnt = ARRAY_SIZE(vx1_table);
+		base_addr = 0;
+	}
 
 	printf("\nvbyone registers:\n");
-	str_add_reg_sets(pdrv, LCD_REG_DBG_VC_BUS, 0, reg_table, ARRAY_SIZE(reg_table));
+	if (base_addr)
+		for (i = 0; i < reg_cnt; i++)
+			printf("%s-[0x%08x][0x%04x] = 0x%08x\n", regtbl[i].name, regtbl[i].reg,
+				(regtbl[i].reg - base_addr) >> 2, lcd_vcbus_read(regtbl[i].reg));
+	else
+		for (i = 0; i < reg_cnt; i++)
+			printf("%s-[0x%08x] = 0x%08x\n", regtbl[i].name, regtbl[i].reg,
+				lcd_vcbus_read(regtbl[i].reg));
 }
+
 #endif
 
 #ifdef CONFIG_AML_LCD_TCON
@@ -714,6 +766,7 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 #endif
 #if defined(CONFIG_MESON_T3X)
 	case LCD_CHIP_T3X:
+	case LCD_CHIP_T6X:
 		switch (pdrv->index) {
 		case 1:
 			lcd_debug_info = &lcd_debug_info_t3x_1;

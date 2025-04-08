@@ -913,7 +913,7 @@ static struct vpu_data_s vpu_data_t6x = {
 	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
 	.vpu_read_type = READ0_2,
 
-	.pwrctrl_id_table = vpu_pwrctrl_id_table,
+	.pwrctrl_id_table = vpu_pwrctrl_id_table_T6X,
 
 	.fclk_div_table = fclk_div_table_t6w,
 	.vpu_clk_table = vpu_clk_table_t6w,

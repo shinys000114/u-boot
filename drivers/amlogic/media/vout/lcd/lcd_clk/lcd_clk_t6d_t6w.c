@@ -13,7 +13,7 @@
 #include "lcd_clk_ctrl.h"
 #include "lcd_clk_utils.h"
 
-#if defined(CONFIG_MESON_T6D) || defined(CONFIG_MESON_T6W)
+#if defined(CONFIG_MESON_T6D) || defined(CONFIG_MESON_T6W) || defined(CONFIG_MESON_T6X)
 
 #define LCD_CLK_DIV_OUT_JUDGELINE 765000000
 
@@ -330,9 +330,49 @@ static void lcd_clk_set_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 	lcd_set_vid_pll_div_t6d_t6w(pdrv);
 }
 
+#if (IS_ENABLED(CONFIG_AML_LCD_PXP))
+static unsigned int pxp_fclk_div_clk[] = {
+	4, 666000000,
+	5, 500000000,
+	6, 400000000,
+	7, 285000000
+};
+
+#define pxp_abs_diff(a, b) ((a) > (b) ? ((a) - (b)) : ((b) - (a)))
+static void pxp_clk_div_gen(unsigned int pclk, unsigned int *xd, unsigned int *clk_sel)
+{
+	int i = 0, j = 0;
+	unsigned int clk_in;
+	unsigned int prox_xd = 0, prox_id = 0, prox_diff = 0xffffffff, diff;
+
+	for (j = 0; j < (sizeof(pxp_fclk_div_clk)/sizeof(unsigned int) >> 1); j++) {
+		clk_in = pxp_fclk_div_clk[(j << 1) | 1];
+		for (i = 1; i < 9; i++) {
+			diff = pxp_abs_diff(clk_in / i, pclk);
+			if (diff <= prox_diff) {
+				prox_id = j;
+				prox_xd = i;
+				prox_diff = diff;
+			}
+		}
+	}
+	*clk_sel = pxp_fclk_div_clk[(prox_id << 1 ) | 0];
+	*xd = prox_xd;
+
+	LCDPR("pxp: pclk:%d, xd:%d, clk_sel:%d, src_clk:%d real_clk:%d\n",
+		pclk, *xd, *clk_sel, pxp_fclk_div_clk[(prox_id << 1 ) | 1],
+		pxp_fclk_div_clk[(prox_id << 1 ) | 1] / *xd);
+
+}
+#endif
+
 static void lcd_set_vclk_crt_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
+		unsigned int encl_clk_sel = 8;
+#if (IS_ENABLED(CONFIG_AML_LCD_PXP))
+		unsigned int pclk = 0, xd = 1, clk_sel = 7;
+#endif
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV2)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
@@ -349,26 +389,29 @@ static void lcd_set_vclk_crt_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 	lcd_clk_setb(CLKCTRL_HDMI_VID_PLL_CLK_DIV, 0, 24, 1);
 
 #if (IS_ENABLED(CONFIG_AML_LCD_PXP))
+	pclk = pdrv->config.timing.enc_clk;
+	pxp_clk_div_gen(pclk * 2, &xd, &clk_sel);// *2 because encl use div 2
+
 	/* setup the XD divider value */
-	lcd_clk_setb(CLKCTRL_VIID_CLK0_DIV, cconf->xd, VCLK2_XD, 8);
+	lcd_clk_setb(CLKCTRL_VIID_CLK0_DIV, xd - 1, VCLK2_XD, 8);
 	udelay(5);
 	/* select vid_pll_clk */
-	if (pdrv->config.timing.act_timing.h_active == 3840)
-		lcd_clk_setb(CLKCTRL_VIID_CLK0_CTRL, 1, VCLK2_CLK_IN_SEL, 3);
-	else
-		lcd_clk_setb(CLKCTRL_VIID_CLK0_CTRL, 7, VCLK2_CLK_IN_SEL, 3);
+	lcd_clk_setb(CLKCTRL_VIID_CLK0_CTRL, clk_sel, VCLK2_CLK_IN_SEL, 3); //fclk_div3=666
+	lcd_clk_setb(CLKCTRL_VIID_CLK0_CTRL, 1, VCLK2_DIV2_EN, 1); // t6x 2ppc require
+	encl_clk_sel = 9;// t6x 2ppc require div2
 #else
 	/* setup the XD divider value */
 	lcd_clk_setb(CLKCTRL_VIID_CLK0_DIV, (cconf->xd - 1), VCLK2_XD, 8);
 	udelay(5);
 	/* select vid_pll_clk */
 	lcd_clk_setb(CLKCTRL_VIID_CLK0_CTRL, cconf->data->vclk_sel, VCLK2_CLK_IN_SEL, 3);
+	encl_clk_sel = 8; // div1
 #endif
 	lcd_clk_setb(CLKCTRL_VIID_CLK0_CTRL, 1, VCLK2_EN, 1);
 	udelay(2);
 
-	/* [15:12] encl_clk_sel, select vclk2_div1 */
-	lcd_clk_setb(CLKCTRL_VIID_CLK0_DIV, 8, ENCL_CLK_SEL, 4);
+	/* [15:12] encl_clk_sel, select vclk2_div */
+	lcd_clk_setb(CLKCTRL_VIID_CLK0_DIV, encl_clk_sel, ENCL_CLK_SEL, 4);
 	/* release vclk2_div_reset and enable vclk2_div */
 	lcd_clk_setb(CLKCTRL_VIID_CLK0_DIV, 1, VCLK2_XD_EN, 2);
 	udelay(5);
@@ -776,8 +819,11 @@ static void lcd_clk_disable_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 	lcd_clk_setb(CLKCTRL_VIID_CLK0_CTRL, 0, 0, 5);
 	lcd_clk_setb(CLKCTRL_VIID_CLK0_CTRL, 0, VCLK2_EN, 1);
 
+#ifndef CONFIG_AML_LCD_PXP
 	lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 0, 28, 1);  //disable
 	lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 1, 30, 1);  //resetn
+#endif
+
 }
 
 static void lcd_clk_reg_dump(struct aml_lcd_drv_s *pdrv)
@@ -1000,6 +1046,44 @@ static struct lcd_clk_data_s lcd_clk_data_t6w = {
 	.prbs_test = lcd_clk_prbs_test_t6w,
 };
 
+static struct lcd_clk_data_s lcd_clk_data_t6x = {
+	.pll_data[0] = &lcd_tcon_pll_data_t6w,
+
+	.xd_out_fmax = 820000000,
+	.phy_clk_location = 0,
+
+	.vclk_sel = 0,
+	.enc_clk_msr_id = 222,
+	.fifo_clk_msr_id = 86,
+
+	.xd_max = 256,
+	.phy_div_max = 256,
+
+	.ss_support = 1,
+	.ss_level_max = 60,
+	.ss_freq_max = 6,
+	.ss_mode_max = 2,
+	.ss_dep_base = 500, //ppm
+	.ss_dep_sel_max = 12,
+	.ss_str_m_max = 10,
+
+	.clk_parameter_init = NULL,
+	.clk_generate_parameter = lcd_clk_generate_dft,
+	.pll_frac_generate = lcd_pll_frac_generate_dft,
+	.set_ss = lcd_set_pll_ss_t6d_t6w,
+	.clk_ss_enable = lcd_pll_ss_enable_t6d_t6w,
+	.pll_frac_set = lcd_pll_frac_set_t6d_t6w,
+	.clk_set = lcd_clk_set_t6d_t6w,
+	.vclk_crt_set = lcd_set_vclk_crt_t6d_t6w,
+	.clk_disable = lcd_clk_disable_t6d_t6w,
+	.clktree_set = lcd_clktree_set_t6d_t6w,
+	.clk_config_init_print = lcd_clk_config_init_print_dft,
+	.clk_config_print = lcd_clk_config_print_dft,
+	.clk_reg_print = lcd_clk_reg_dump,
+	.prbs_test = lcd_clk_prbs_test_t6w,
+};
+
+
 struct lcd_clk_config_s *lcd_clk_config_chip_init_t6d(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf = NULL;
@@ -1078,6 +1162,42 @@ struct lcd_clk_config_s *lcd_clk_config_chip_init_t6w(struct aml_lcd_drv_s *pdrv
 		cconf->pll_config[1].pll_id = 1;
 		cconf->pll_config[1].pll_od_fb = cconf->data->pll_data[1]->pll_od_fb;
 	}
+	return cconf;
+}
+
+struct lcd_clk_config_s *lcd_clk_config_chip_init_t6x(struct aml_lcd_drv_s *pdrv)
+{
+	struct lcd_clk_config_s *cconf = NULL;
+	unsigned int size;
+
+	if (!pdrv)
+		return NULL;
+
+	if (!pdrv->clk_conf) {
+		cconf = (struct lcd_clk_config_s *)malloc(sizeof(struct lcd_clk_config_s));
+		if (!cconf) {
+			LCDERR("[%d]: %s: Not enough memory\n", pdrv->index, __func__);
+			return NULL;
+		}
+	} else {
+		cconf = (struct lcd_clk_config_s *)pdrv->clk_conf;
+	}
+	memset(cconf, 0, sizeof(struct lcd_clk_config_s));
+
+	cconf->pll_conf_num = 1;
+	size = cconf->pll_conf_num * sizeof(struct lcd_pll_config_s);
+	cconf->pll_config = (struct lcd_pll_config_s *)malloc(size);
+	if (!cconf->pll_config) {
+		LCDERR("[%d]: %s: Not enough memory for pll config\n", pdrv->index, __func__);
+		free(cconf);
+		return NULL;
+	}
+	memset(cconf->pll_config, 0, size);
+
+	cconf->data = &lcd_clk_data_t6x;
+	cconf->pll_config[0].pll_od_fb = lcd_tcon_pll_data_t6w.pll_od_fb;
+	cconf->pll_config[0].pll_id = 0;
+
 	return cconf;
 }
 

@@ -79,6 +79,14 @@ struct vpu_urgent_table_s {
 #ifndef PM_NOC_VPU
 #define PM_NOC_VPU             0xffff
 #endif
+
+#ifndef PDID_MDC_VPU
+#define PDID_MDC_VPU    0xffff
+#endif
+#ifndef PDID_VPU_HDMI
+#define PDID_VPU_HDMI 0xffff
+#endif
+
 #define VPU_PWR_ID_MAX         10
 
 #define VPU_REG_END            0xffff

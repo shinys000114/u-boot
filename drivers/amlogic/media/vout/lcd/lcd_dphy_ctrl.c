@@ -1189,6 +1189,9 @@ void lcd_dphy_set_data(struct aml_lcd_drv_s *pdrv, int data)
 
 void lcd_dphy_reg_print(struct aml_lcd_drv_s *pdrv)
 {
+#ifdef CONFIG_AML_LCD_PXP
+	return;
+#else
 	struct reg_name_set_s *reg_dphy_table = NULL, *reg_ctrl_table = NULL, *reg_ch_swap = NULL;
 	unsigned int size_dphy = 0, size_ctrl = 0, size_ch_swap = 0, reg_bus, reg_offset;
 
@@ -1280,4 +1283,5 @@ void lcd_dphy_reg_print(struct aml_lcd_drv_s *pdrv)
 	if (reg_ctrl_table)
 		str_add_reg_sets(pdrv, reg_bus, 0, reg_ctrl_table, size_ctrl);
 	str_add_reg_sets(pdrv, reg_bus, 0, reg_dphy_table, size_dphy);
+#endif
 }
