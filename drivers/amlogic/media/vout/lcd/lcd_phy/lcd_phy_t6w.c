@@ -31,7 +31,7 @@ static unsigned int lcd_phy_get_dft_odt_cm(void)
 {
 	int efuse_odt = 0;
 
-	efuse_odt = efuse_get_cali_item("p2p_vinlp");
+	efuse_odt = efuse_get_cali_item("p2p_vinlpcml");
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("efuse odt_cm=%#x\n", efuse_odt);
 	if (efuse_odt < 0) {
@@ -45,8 +45,13 @@ static unsigned int lcd_phy_get_dft_odt_vm(void)
 {
 	int efuse_odt = 0;
 
-	efuse_odt = PHY_DFT_ODT_VM;
-	LCDERR("TODO: odt_vm uncalibrated, use odt=%#x\n", efuse_odt);
+	efuse_odt = efuse_get_cali_item("p2p_vinlpvml");
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("efuse odt_vm=%#x\n", efuse_odt);
+	if (efuse_odt < 0) {
+		efuse_odt = PHY_DFT_ODT_VM;
+		LCDERR("odt_vm uncalibrated, use odt=%#x\n", efuse_odt);
+	}
 
 	return (unsigned int)efuse_odt;
 }
@@ -129,10 +134,13 @@ static unsigned int lcd_phy_get_custom_odt_cm(struct phy_attr_s *phy)
 
 	data32 = lcd_ana_read(ANACTRL_DIF_PHY_CNTL15);
 	read_odt = (data32 >> 24) & 0x3f;
-	cus_odt = PHY_DFT_ODT_CM + read_odt - cali_odt_cm;
-	cus_odt = cus_odt < 0 ? 0 : cus_odt;
-	cus_odt = cus_odt > 0x3f ? 0x3f : cus_odt;
-
+	if (read_odt) {
+		cus_odt = PHY_DFT_ODT_CM + read_odt - cali_odt_cm;
+		cus_odt = cus_odt < 0 ? 0 : cus_odt;
+		cus_odt = cus_odt > 0x3f ? 0x3f : cus_odt;
+	} else {
+		cus_odt = 0;
+	}
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("odt cali=0x%x, custom=0x%x\n", cali_odt_cm, cus_odt);
 	return cus_odt;
@@ -162,8 +170,12 @@ static unsigned int lcd_phy_get_final_odt_cm(struct phy_attr_s *phy)
 {
 	int odt = cali_odt_cm + phy->odt - PHY_DFT_ODT_CM;
 
-	odt = odt < 0 ? 0 : odt;
-	odt = odt > 0x3f ? 0x3f : odt;
+	if (phy->odt) {
+		odt = odt < 0 ? 0 : odt;
+		odt = odt > 0x3f ? 0x3f : odt;
+	} else {
+		odt = 0;
+	}
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("odt cali=0x%x, final=0x%x\n", cali_odt_cm, odt);
