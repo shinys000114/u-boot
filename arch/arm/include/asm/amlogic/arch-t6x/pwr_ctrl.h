@@ -9,13 +9,20 @@
 #define PWR_ON    1
 #define PWR_OFF   0
 
-#define PDID_AMFC	0
-#define PDID_DOS_HEVC	1
-#define PDID_GE2D	2
-#define PDID_VPU_HDMI	3
-#define PDID_DEMOD	4
+#define PDID_MDC_VPU    0
+#define PDID_MDC_SYS    1
+#define PDID_MDC_CPU    2
+#define PDID_DOS_HCODEC 3
+#define PDID_DOS_HEVC   4
+#define PDID_GE2D       5
+#define PDID_HDMIRX     6
+#define PDID_VPU_HDMI   7
+#define PDID_AMFC       8
+#define PDID_DMC0       9
+#define PDID_DMC1       10
+#define PDID_DEMOD      11
 
-#define PM_MAX		5
+#define PM_MAX          12
 
 #define PM_ETH		PM_MAX
 
