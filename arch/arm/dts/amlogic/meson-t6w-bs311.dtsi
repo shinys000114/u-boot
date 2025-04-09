@@ -14,6 +14,8 @@
 		spi0 = &spi_nfc;
 		spi1 = &spicc0;
 		spi2 = &spicc1;
+		spi3 = &spicc2;
+		spi4 = &spicc3;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -301,5 +303,5 @@
 &spicc1 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins_z>;
+	pinctrl-0 = <&spicc1_pins_h>;
 };

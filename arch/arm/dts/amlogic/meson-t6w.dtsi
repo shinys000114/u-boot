@@ -217,6 +217,22 @@
 	assigned-clock-rates = <0>, <500000000>;
 };
 
+&spicc2 {
+	clocks = <&clkc CLKID_SPICC_2_DIV>, <&clkc CLKID_SPICC_2>;
+	clock-names = "spi_clk", "sys_clk";
+	assigned-clocks = <&clkc CLKID_SPICC_2_MUX>, <&clkc CLKID_SPICC_2_DIV>;
+	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+	assigned-clock-rates = <0>, <500000000>;
+};
+
+&spicc3 {
+	clocks = <&clkc CLKID_SPICC_3_DIV>, <&clkc CLKID_SPICC_3>;
+	clock-names = "spi_clk", "sys_clk";
+	assigned-clocks = <&clkc CLKID_SPICC_3_MUX>, <&clkc CLKID_SPICC_3_DIV>;
+	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
+	assigned-clock-rates = <0>, <500000000>;
+};
+
 &pinctrl_periphs {
 	i2c0_pins1:i2c0_pins1 {
 		mux {
@@ -462,7 +478,7 @@
 				 "spi_ss0_a_h8",
 				 "spi_clk_a_h11";
 			function = "spi";
-			drive-strength-microamp = <3000>;
+			drive-strength-microamp = <3>;
 		};
 	};
 
@@ -473,18 +489,18 @@
 				 "spi_ss0_a_m22",
 				 "spi_clk_a_m21";
 			function = "spi";
-			drive-strength-microamp = <30000>;
+			drive-strength-microamp = <3>;
 		};
 	};
 
-	spicc1_pins_c: spicc1_pins_c {
+	spicc1_pins_h: spicc1_pins_h {
 		mux {
-			groups = "spi_mosi_b_c1",
-				 "spi_miso_b_c0",
-				 "spi_ss0_b_c3",
-				 "spi_clk_b_c2";
+			groups = "spi_mosi_b_h24",
+				 "spi_miso_b_h23",
+				 "spi_ss0_b_h22",
+				 "spi_clk_b_h25";
 			function = "spi";
-			drive-strength-microamp = <30000>;
+			drive-strength-microamp = <3>;
 		};
 	};
 
@@ -495,7 +511,62 @@
 				 "spi_ss0_b_z3",
 				 "spi_clk_b_z2";
 			function = "spi";
-			drive-strength-microamp = <30000>;
+			drive-strength-microamp = <3>;
+		};
+	};
+
+	spicc2_pins_c: spicc2_pins_c {
+		mux {
+			groups = "spi_mosi_c_c1",
+				 "spi_miso_c_c0",
+				 "spi_ss0_c_c3",
+				 "spi_clk_c_c2";
+			function = "spi";
+			drive-strength-microamp = <3>;
+		};
+	};
+
+	spicc2_pins_h: spicc2_pins_h {
+		mux {
+			groups = "spi_mosi_c_h28",
+				 "spi_miso_c_h27",
+				 "spi_ss0_c_h26",
+				 "spi_clk_c_h29";
+			function = "spi";
+			drive-strength-microamp = <3>;
+		};
+	};
+
+	spicc2_pins_m: spicc2_pins_m {
+		mux {
+			groups = "spi_mosi_c_m1",
+				 "spi_miso_c_m0",
+				 "spi_ss0_c_m3",
+				 "spi_clk_c_m2";
+			function = "spi";
+			drive-strength-microamp = <3>;
+		};
+	};
+
+	spicc3_pins_c: spicc3_pins_c {
+		mux {
+			groups = "spi_mosi_d_c1",
+				 "spi_miso_d_c0",
+				 "spi_ss0_d_c3",
+				 "spi_clk_d_c2";
+			function = "spi";
+			drive-strength-microamp = <3>;
+		};
+	};
+
+	spicc3_pins_m: spicc3_pins_m {
+		mux {
+			groups = "spi_mosi_d_m5",
+				 "spi_miso_d_m4",
+				 "spi_ss0_d_m7",
+				 "spi_clk_d_m6";
+			function = "spi";
+			drive-strength-microamp = <3>;
 		};
 	};
 

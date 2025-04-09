@@ -334,6 +334,22 @@
 			status = "disabled";
 		};
 
+		spicc2: spi@fe050200 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050200 0x0 0x38>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spicc3: spi@fe050300 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050300 0x0 0x38>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
 		spi_nfc: spi@0xfe08d000 {
 			compatible = "amlogic,spi_nfc";
 			status = "disabled";
