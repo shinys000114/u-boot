@@ -111,7 +111,7 @@
 	"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0"\
 	"dv_fw_dir=/reserved/firmware/dovi_fw.bin\0"\
 	"hdr_policy=0\0"\
-	"board=daisy_c\0"\
+	"board=daisy\0"\
 	"frac_rate_policy=1\0"\
 	"storeboot_t335="\
 		"run get_os_type;"\
