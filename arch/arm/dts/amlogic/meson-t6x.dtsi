@@ -37,7 +37,7 @@
 	};
 
 	pinctrl_periphs: pinctrl@fe004000 {
-		compatible = "amlogic,meson-t6d-periphs-pinctrl";
+		compatible = "amlogic,meson-t6x-periphs-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
@@ -48,12 +48,12 @@
 			reg-names = "mux", "gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_periphs 0 0 129>;
+			gpio-ranges = <&pinctrl_periphs 0 0 152>;
 		};
 	};
 
 	pinctrl_analog: pinctrl@fe0043cc {
-		compatible = "amlogic,meson-t6d-analog-pinctrl";
+		compatible = "amlogic,meson-t6x-analog-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;

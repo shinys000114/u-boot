@@ -129,6 +129,12 @@ int board_init(void)
 {
 	printf("board init\n");
 
+	pinctrl_devices_active(PIN_CONTROLLER_NUM);
+
+#ifdef CONFIG_PXP_EMULATOR
+	return 0;
+#endif
+
 #if 0
 	run_command("startdsp 0 0x300a0000 0", 0);
 	printf("dsp start!\n");
@@ -156,7 +162,6 @@ int board_init(void)
 	hdmitx_init();
 #endif
 #endif // #if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
-	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 #ifdef CONFIG_AMLOGIC_AMFC
 	amfc_init();
 #endif
@@ -167,11 +172,12 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 	env_set("defenv_para", "-c");
-	aml_board_late_init_front(NULL);
 
 #ifdef CONFIG_PXP_EMULATOR
 	return 0;
 #endif
+
+	aml_board_late_init_front(NULL);
 	get_stick_reboot_flag_mbx();
 
 	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_s);
