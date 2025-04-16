@@ -80,7 +80,14 @@ static void lcd_set_pll_ss_t6d_t6w(struct aml_lcd_drv_s *pdrv, unsigned int ss_f
 
 	if (ss_flag & LCD_SSC_FREQ) {
 		pll_ctrl2 &= ~(0x7 << 8); /* ss_freq */
+#if IS_ENABLED(CONFIG_MESON_T6W)
+		if (cconf->ss_freq)
+			pll_ctrl2 |= (cconf->ss_freq << 8);
+		else
+			pll_ctrl2 |= (0x3 << 8);
+#else
 		pll_ctrl2 |= (cconf->ss_freq << 8);
+#endif
 		len += sprintf(prt_str + len, "%sfreq=%d", len ? ", " : "", cconf->ss_freq);
 	}
 
