@@ -282,7 +282,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			9,	18,	7,	19,	22,	12,	5,	24,	20,	32,
 		15,	30,	13,	1,	6,	8,	21,	2,	17,	10,	14,
 		11,	0,	4,	16,	3,	26,	28,	35,	34,
-		},					
+		},
 #endif
 		.cfg_board_common_setting.ddr_dq_remap = {
 			32,
@@ -389,6 +389,12 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 #if NON_SIP_DDR4_REF
 		//ref board
+		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 256 + AC_OFFSET + ac_off_1t - 40,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 256 + AC_OFFSET + ac_off_1t - 60,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 256 + AC_OFFSET + ac_off_1t - 60,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[6] = 256 + AC_OFFSET + ac_off_1t - 60,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 256 + AC_OFFSET + ac_off_1t - 40,
+
 		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 128 + CK_OFFSET + 120 - 40,       // cs0
 		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 128 + CK_OFFSET + 140 - 40,      // cs1
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + CK_OFFSET,    //ck
@@ -409,10 +415,12 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[3] = 256 + AC_OFFSET + ac_off_1t - 60,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 256 + AC_OFFSET + ac_off_1t - 70,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 256 + AC_OFFSET + ac_off_1t - 60,
-		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 256 + AC_OFFSET + ac_off_1t - 40,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 256 + AC_OFFSET + ac_off_1t - 60,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 256 + AC_OFFSET + ac_off_1t + 40,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 256 + AC_OFFSET + ac_off_1t + 40,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 256 + AC_OFFSET + ac_off_1t + 40,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 256 + AC_OFFSET + ac_off_1t - 20,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 256 + AC_OFFSET + ac_off_1t - 20,
 		.cfg_board_SI_setting_ps.clk_drv_ohm = 40,
 		.cfg_board_SI_setting_ps.cs_drv_ohm = 40,
 		.cfg_board_SI_setting_ps.ac_drv_ohm = 40,
@@ -958,6 +966,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.RxReplicaPhase[1][4] = 0x00000000,
 		.cfg_ddr_training_delay_ps.RxReplicaPhase[2][4] = 0x00000000,
 		.cfg_ddr_training_delay_ps.RxReplicaPhase[3][4] = 0x00000000,
+
 	},
 //};
 #endif
