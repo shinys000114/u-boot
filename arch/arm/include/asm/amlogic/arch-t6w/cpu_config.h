@@ -58,7 +58,7 @@
 #define VERSION_1       0x01
 #define VERSION_2       0x02
 
-//#define CONFIG_BUILD_MESSAGE
+#define CONFIG_BUILD_MESSAGE
 #ifdef CONFIG_BUILD_MESSAGE
 #define CONFIG_BL30_VERSION_SAVE
 #define CONFIG_BL30_VERSION_RTOSSDK
@@ -84,6 +84,7 @@ typedef struct param_header {
 #define INDEX_BL31_10		10
 #define INDEX_BL31_13		11
 #define INDEX_BL31_27		12
+#define INDEX_BL31_212		13
 #define INDEX_BL33_15		30
 #define INDEX_BL33_19		31
 #define INDEX_BL33_23		32
