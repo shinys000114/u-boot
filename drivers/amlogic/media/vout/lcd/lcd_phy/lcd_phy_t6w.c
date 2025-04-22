@@ -194,15 +194,14 @@ static int lcd_phy_param_get_from_reg(struct aml_lcd_drv_s *pdrv,
 
 	data32 = lcd_ana_read(ANACTRL_DIF_PHY_CNTL14);
 	if (phy->cv_mode == PHY_VMODE) {
-		phy->vswing = 0;
 		phy->vcm = 0;
 		phy->odt = lcd_phy_get_custom_odt_vm(phy);
 	} else {
-		phy->vswing = (data32 >> 26) & 0xf;
 		phy->vcm = (data32 >> 12) & 0xf;
 		phy->odt = lcd_phy_get_custom_odt_cm(phy);
 	}
 	phy->ref_bias = 0;
+	phy->vswing = (data32 >> 26) & 0xf;
 
 	for (i = 0; i < phy_cfg->lane_num; i++) {
 		bit = i & 0x1 ? 16 : 0;
@@ -234,8 +233,10 @@ static int lcd_phy_param_get_from_reg(struct aml_lcd_drv_s *pdrv,
 
 static void lcd_phy_common_update(struct aml_lcd_drv_s *pdrv, unsigned int cntl14)
 {
-	unsigned int cntl15 = 0x30090000;
+	struct phy_config_s *phy_cfg = &pdrv->config.phy_cfg;
 	struct phy_attr_s *phy = pdrv->config.phy_cfg.act_phy;
+	unsigned int cntl15 = 0x30090000, boost_sel = 0;
+	int i;
 
 	/* vswing */
 	cntl14 &= ~(0xf << 26);
@@ -257,8 +258,16 @@ static void lcd_phy_common_update(struct aml_lcd_drv_s *pdrv, unsigned int cntl1
 		cntl15 |= (lcd_phy_get_final_odt_cm(phy)) << 24;
 
 	/*vm control*/
-	if (phy->cv_mode == PHY_VMODE)
-		cntl15 |= (1 << 23) | (1 << 22) | (1 << 20);
+	if (phy->cv_mode == PHY_VMODE) {
+		for (i = 0; i < phy_cfg->lane_num; i++) {
+			if ((phy_cfg->lane_valid & (1 << i)) == 0)
+				continue;
+			boost_sel += phy->lane[i].amp;
+		}
+		cntl15 |= (1 << 23) | (1 << 20);
+		if (boost_sel)
+			cntl15 |= (1 << 22);
+	}
 
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, cntl14);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, cntl15);
@@ -435,12 +444,6 @@ static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 
 static unsigned int lcd_phy_vswing_level_to_val_t6w(struct aml_lcd_drv_s *pdrv, unsigned int level)
 {
-	struct phy_attr_s *phy = pdrv->config.phy_cfg.act_phy;
-
-	if (phy->cv_mode == PHY_VMODE)
-		return 0;
-
-	//default cmode
 	if (level < 0xf)
 		return level;
 	LCDERR("[%d]: %s: level %d invalid\n", pdrv->index, __func__, level);
@@ -512,7 +515,6 @@ static void phy_glb_param_dft_t6w(struct aml_lcd_drv_s *pdrv)
 		case P2P_CHPI: /* low common mode */
 		case P2P_CSPI:
 		case P2P_USIT:
-			phy->vswing = 0;
 			phy->vcm = 0;
 			phy->odt = PHY_DFT_ODT_VM; /* default 400mV */
 			phy->cv_mode = PHY_VMODE;
