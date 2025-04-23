@@ -239,7 +239,8 @@ static int meson_i2c_prepare_xfer(struct meson_i2c *i2c)
 	bool write = !(i2c->msg->flags & I2C_M_RD);
 
 	if (write) {
-		writel(0x00, &i2c->regs->tx_rd_addr);
+		// must reset TX_RD_ADDR after put data for continuous TX
+		// writel(0x00, &i2c->regs->tx_rd_addr);
 		i2c->count = min(i2c->msg->len - i2c->pos, i2c->fifo_depth);
 		ret = meson_i2c_put_data(i2c, i2c->msg->buf + i2c->pos, i2c->count);
 	}
