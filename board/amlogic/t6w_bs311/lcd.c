@@ -129,6 +129,24 @@ static struct lcd_pinmux_ctrl_s lcd0_bl_pinmux_ctrl[BL_PINMUX_MAX] = {
 	},
 };
 
+#ifdef CONFIG_AML_LCD_BL_LDIM
+static struct lcd_pinmux_ctrl_s lcd_ldim_pinmux_ctrl[BL_PINMUX_MAX] = {
+	{
+		.name = "ldim_pwm_pin", /*GPIOH_12*/
+		.pinmux_set = {{0x8, 0x40000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{0x8, 0xf0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "ldim_pwm_vs_pin", //GPIOH_12
+		.pinmux_set = {{0x8, 0x30000}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x8, 0xf0000}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "invalid",
+	},
+};
+#endif
+
 /*********************************************
  * lcd default config
  ***************************************************/
@@ -143,6 +161,9 @@ static struct lcd_dft_config_s lcd_dft_conf[] = {
 
 		.bl_gpio = lcd0_bl_gpio,
 		.bl_pinmux = lcd0_bl_pinmux_ctrl,
+#ifdef CONFIG_AML_LCD_BL_LDIM
+		.ldim_pinmux = lcd_ldim_pinmux_ctrl,
+#endif
 	},
 };
 
