@@ -14,6 +14,10 @@
 		spi0 = &spi_nfc;
 		spi1 = &spicc0;
 		spi2 = &spicc1;
+		spi3 = &spicc2;
+		spi4 = &spicc3;
+		spi5 = &spicc4;
+		spi6 = &spicc5;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -300,8 +304,8 @@
 	pinctrl-0 = <&spicc0_pins_h>;
 };
 
-&spicc1 {
-	status = "disabled";
+&spicc1 {	//for UWB/LocalDimm
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc1_pins_z>;
 };
