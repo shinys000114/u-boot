@@ -263,21 +263,6 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
 	return 0;
 }
 
-static int meson_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
-			  int nmsgs)
-{
-	struct meson_i2c *i2c = dev_get_priv(bus);
-	int i, ret = 0;
-
-	for (i = 0; i < nmsgs; i++) {
-		ret = meson_i2c_xfer_msg(i2c, msg + i, i == nmsgs - 1);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-
 static int meson_i2c_set_speed(struct meson_i2c *i2c)
 {
 	unsigned long clk_rate = MESON_I2C_CLK_RATE;
@@ -327,11 +312,27 @@ static void meson_i2c_init(struct meson_i2c *i2c)
 	 * enable irq, we must enable phy done irq at least.
 	 */
 	writel(0x9b, &i2c->regs->cfg_irq_en);
-	//set fifo depth
-	clrsetbits_le32(&i2c->regs->cfg_i2c, I2C_RX_THR | I2C_TX_THR, 16 << 16 | 16 << 8);
+	//set fifo depth and should clear dma mode avoid tcon set DMA before
+	clrsetbits_le32(&i2c->regs->cfg_i2c, I2C_DMA | I2C_RX_THR | I2C_TX_THR, 16 << 16 | 16 << 8);
 	i2c->fifo_depth = 16;
 	meson_i2c_reset_fifo(i2c);
 	meson_i2c_set_speed(i2c);
+}
+
+static int meson_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+			  int nmsgs)
+{
+	struct meson_i2c *i2c = dev_get_priv(bus);
+	int i, ret = 0;
+
+	meson_i2c_init(i2c);//must init i2c in every xfer
+	for (i = 0; i < nmsgs; i++) {
+		ret = meson_i2c_xfer_msg(i2c, msg + i, i == nmsgs - 1);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
 static int meson_i2c_probe(struct udevice *bus)
@@ -339,7 +340,6 @@ static int meson_i2c_probe(struct udevice *bus)
 	struct meson_i2c *i2c = dev_get_priv(bus);
 
 	i2c->data = (struct meson_i2c_data *)dev_get_driver_data(bus);
-	meson_i2c_init(i2c);
 
 	return 0;
 }
