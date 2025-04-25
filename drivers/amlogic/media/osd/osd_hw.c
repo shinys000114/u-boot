@@ -1501,7 +1501,8 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6D ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6W)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6W ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6X)
 		postbld_src3_sel = 4;
 
 	/* for s5_display, OSDx to din(x+1) */
@@ -4905,7 +4906,8 @@ void osd_init_hw_viux(u32 index)
 		osd_reg_write(hw_osd_reg_array[index].osd_ctrl_stat2, data32);
 
 		if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
-			osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
+			osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
+			osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6X)
 			osd_hw.path_ctrl_independ = 1;
 
 		if (is_vpp1(index)) {
@@ -5028,7 +5030,8 @@ void osd_init_hw_viux(u32 index)
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6W ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S6)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S6 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6X)
 		osd_hw.mif_linear = 1;
 }
 #else
@@ -5322,7 +5325,8 @@ void osd_init_hw(u32 index)
 		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
 		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
 		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6D ||
-		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6W)
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6W ||
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6X)
 		osd_hw.path_ctrl_independ = 1;
 
 #ifdef AML_S5_DISPLAY
@@ -5540,7 +5544,8 @@ void osd_init_hw(u32 index)
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S7D ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S6 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6D ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6W)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6W ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T6X)
 		osd_hw.mif_linear = 1;
 
 	return;
