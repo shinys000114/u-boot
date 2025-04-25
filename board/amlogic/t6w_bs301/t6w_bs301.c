@@ -29,6 +29,12 @@
 #ifdef CONFIG_AMLOGIC_AMFC
 #include <amlogic/amfc.h>
 #endif
+#ifdef CONFIG_RX_RTERM
+#include <amlogic/aml_hdmirx.h>
+#endif
+#ifdef CONFIG_CVBS_CALI
+#include <amlogic/aml_tvafe.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -146,6 +152,12 @@ int board_late_init(void)
 
 	aml_board_display_init(0x01);
 
+#ifdef CONFIG_RX_RTERM
+	rx_set_phy_rterm();
+#endif
+#ifdef CONFIG_CVBS_CALI
+	cvbs_dac_cfg();
+#endif
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
 
