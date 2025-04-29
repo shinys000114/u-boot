@@ -157,7 +157,7 @@ static void lcd_pll_ss_enable_t6d_t6w(struct aml_lcd_drv_s *pdrv, int status)
 static void lcd_set_pll_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
-	unsigned int pll_ctrl0, pll_ctrl3, pll_ctrl4;
+	unsigned int pll_ctrl0, pll_ctrl1, pll_ctrl3, pll_ctrl4;
 #if (IS_ENABLED(CONFIG_MESON_T6W))
 	unsigned int pll_ctrl2;
 #endif
@@ -173,8 +173,12 @@ static void lcd_set_pll_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 		return;
 
 	tcon_div_sel = cconf->pll_tcon_div_sel;
-	pll_ctrl0 = (0x2 << 16) | (1 << 13) | (cconf->pll_m << 0);
-	pll_ctrl3 = (0x7 << 7) |
+	pll_ctrl0 = 0x22000 | (cconf->pll_m << 0);
+	if (cconf->pll_fvco < 4750000000ULL && cconf->pll_fvco > 4250000000ULL)
+		pll_ctrl1 = 0x12301635;
+	else
+		pll_ctrl1 = 0x12301535;
+	pll_ctrl3 = 0x280 |
 		(cconf->pll_od1_sel << 10) |
 		(cconf->pll_od2_sel << 14) |
 		(cconf->pll_od3_sel << 12) |
@@ -197,16 +201,15 @@ static void lcd_set_pll_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 
 	do {
 		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL0, pll_ctrl0);
-		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL1, 0x12301635);
+		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL1, pll_ctrl1);
 		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL2, 0x02000000);
 		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL3, pll_ctrl3);
 		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL4, pll_ctrl4);
 		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 1, 28, 1);
 		udelay(10);
-		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 1, 18, 1);
+		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 1, 30, 1);
 		udelay(80);
-		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 0, 18, 1);
-		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 3, 29, 2);
+		lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 1, 29, 1);
 		ret = lcd_pll_wait_lock(cconf->pll_id, ANACTRL_TCON_PLL0_STS, 31);
 	} while (ret && ++cnt < PLL_RETRY_MAX);
 
