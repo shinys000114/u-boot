@@ -331,17 +331,15 @@ static unsigned int usb_powerctrl_reg = 0xffffffff;
 void set_usb_power_off(void)
 {
 	unsigned int val;
-	// only off the usb phy now.
 	printf("set t6w usb phy off.\n");
 	usb_powerctrl_reg = readl(RESETCTRL_RESET0_LEVEL);
 	val = usb_powerctrl_reg;
-	val &= ~(7 << PHY20_RESET_LEVEL_BIT);
+	val &= ~(7 << PHY20_RESET_LEVEL_BIT | BIT(0) | BIT(2) | BIT(4));
 	writel(val, RESETCTRL_RESET0_LEVEL);
 }
 
 void set_usb_power_on(void)
 {
-	// only on the usb phy now.
 	printf("set t6w usb phy on.\n");
 	writel(usb_powerctrl_reg, RESETCTRL_RESET0_LEVEL);
 }
