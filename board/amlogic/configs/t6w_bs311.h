@@ -94,6 +94,7 @@
 	"panel_type=lvds_0\0"\
 	"lcd_ctrl=0x00000000\0" \
 	"ddr_resume=0\0"\
+	"scramble_reg=0xfe02e030\0"\
 	"model_name=FHD2HDMI\0" \
 	"lcd_debug=0x00000000\0" \
 	"display_on_smp=1\0"\

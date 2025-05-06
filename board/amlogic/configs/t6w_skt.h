@@ -65,6 +65,7 @@
 	"uart_base=0xfe078400\0"\
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0"\
 	"panel_type=lvds_0\0"\
+	"scramble_reg=0xfe02e030\0"\
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
 	"outputmode=1080p60hz\0"\
