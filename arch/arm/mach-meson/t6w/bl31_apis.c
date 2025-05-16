@@ -187,6 +187,7 @@ const struct t_efuse_item efusecaliitem_cfg[] = {
 	{.name = "sensor0", .item = EFUSE_CALI_SUBITEM_SENSOR0},
 	{.name = "sensor1", .item = EFUSE_CALI_SUBITEM_SENSOR1},
 	{.name = "hdmirx", .item = EFUSE_CALI_SUBITEM_HDMIRX},
+	{.name = "cec_io", .item = EFUSE_CALI_SUBITEM_CEC_IO},
 	{.name = "usbphy", .item = EFUSE_CALI_SUBITEM_USBPHY},
 	{.name = "odio33", .item = EFUSE_CALI_SUBITEM_ODIO33},
 	{.name = "cvbsdac", .item = EFUSE_CALI_SUBITEM_CVBS},

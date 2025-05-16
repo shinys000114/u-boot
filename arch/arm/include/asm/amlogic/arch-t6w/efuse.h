@@ -18,7 +18,7 @@ struct efuse_hal_api_arg {
 	unsigned long retcnt_phy;
 };
 
-typedef struct efuse_cali {
+typedef struct __attribute__((__packed__)) efuse_cali {
 	unsigned long long who_burn:4;
 	unsigned long long cali_version:4;
 	unsigned long long tsensor0_data:15;
@@ -27,7 +27,7 @@ typedef struct efuse_cali {
 	unsigned long long tsensor1_flag:1;
 	unsigned long long hdmirx20_data:4;
 	unsigned long long hdmirx20_flag:1;
-	unsigned long long reserved0:1;
+	unsigned long long cec_io:1;
 	unsigned long long usbphy_data:6;
 	unsigned long long usbphy_flag:1;
 	unsigned long long odio33_data:2;
