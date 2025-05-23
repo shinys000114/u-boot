@@ -132,12 +132,10 @@ uint32_t __ddr_parameter_reg_index[] __attribute__ ((section(".ddr_2acs_index"))
 #define CONFIG_BOARD_TIMMING
 
 ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
-//{{0,}},
-//ddr_set_ps0_only_t __attribute__ ((aligned(8))) ddr_set_t_default[] = {
+
 #if DDR4_SKT
 //s7 signoff with 3200MBPS
 #define  CACLU_CLK_D4   1584// 600 //1200 //1792//600 //1200 //(1900)// (1440)//(1008)
-//ddr_set_ps0_only_t __attribute__ ((aligned(8))) ddr_set_t_default_ddr4 = {
 	{
 		.cfg_board_common_setting.timming_magic = 0,
 		.cfg_board_common_setting.timming_max_valid_configs = 1,
@@ -177,8 +175,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//bit 0 -3 ch1 cs0 ,bit 4-7 ch1
 		.cfg_board_common_setting.dram_x4x8x16_mode = CONFIG_DRAM_MODE_X16,
 		.cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
-		//.cfg_board_common_setting.log_level = 0xff,
-		.cfg_board_common_setting.log_level = 4,
+		.cfg_board_common_setting.log_level = 0xff,
+		// .cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
 		.cfg_board_common_setting.pll_ssc_mode =
