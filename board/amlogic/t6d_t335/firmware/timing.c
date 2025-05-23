@@ -197,7 +197,7 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PADCTRL_PIN_MUX_REGD,	   (0x11 << 0),	  (0xff << 0), 0, 0, 0 },
 	//{ PWM_TEE_ONLY_A,          (0x1 << 0),	  (0xffffffff << 0), 0, 0, 0 },
 	//{ PWM_TEE_ONLY_B,          (0x1 << 0),	  (0xffffffff << 0), 0, 0, 0 },
-	{ PADCTRL_GPIOD_PULL_UP,   (0x1 << 2),	  (0x1 << 2), 0, 0, 0 },
+	{ PADCTRL_GPIOD_PULL_UP,   (0x1 << 2) | (1 << 8),	  (0x1 << 2) | (1 << 8), 0, 0, 0 },
 #ifdef CONFIG_NOVERBOSE_BUILD
 	/* use acs flag to disable uart print in each blx
 	 * reg must be UART_B_WFIFO, flags: 1 --> disable uart print, 0: enable
