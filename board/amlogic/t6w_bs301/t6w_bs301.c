@@ -29,6 +29,7 @@
 #ifdef CONFIG_AMLOGIC_AMFC
 #include <amlogic/amfc.h>
 #endif
+#include <amlogic/aml_profile.h>
 #ifdef CONFIG_AML_CVBS
 #include <amlogic/media/vout/aml_cvbs.h>
 #endif
@@ -178,6 +179,8 @@ int board_late_init(void)
 #endif
 	get_stick_reboot_flag_mbx();
 
+	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_s);
+
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -205,34 +208,8 @@ int board_late_init(void)
 #ifdef VOUT_DISPLAY_CMD
 	run_command(VOUT_DISPLAY_CMD, 0);
 #endif
-	run_command("amlsecurecheck", 0);
-	run_command("update_tries", 0);
 
-	unsigned char chipid[16];
-
-	memset(chipid, 0, 16);
-
-	if (get_chip_id(chipid, 16) != -1) {
-		char chipid_str[32];
-		int i, j;
-		char buf_tmp[4];
-
-		memset(chipid_str, 0, 32);
-
-		char *buff = &chipid_str[0];
-
-		for (i = 0, j = 0; i < 12; ++i) {
-			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
-			if (strcmp(buf_tmp, "00") != 0) {
-				sprintf(buff + j, "%02x", chipid[15 - i]);
-				j = j + 2;
-			}
-		}
-		env_set("cpu_id", chipid_str);
-		printf("buff: %s\n", buff);
-	} else {
-		env_set("cpu_id", "1234567890");
-	}
+	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_e);
 	aml_board_late_init_tail(NULL);
 //	emmc_quirks();
 	return 0;
