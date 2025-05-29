@@ -84,7 +84,7 @@ int dram_init(void)
 /* secondary_boot_func
  * this function should be write with asm, here, is only for compiling pass
  */
-void secondary_boot_func(void)
+__weak void secondary_boot_func(void)
 {
 }
 

@@ -19,7 +19,7 @@
 #define CONFIG_PDVFS_ENABLE
 
 /* SMP definitions */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+// #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
@@ -84,6 +84,7 @@
 	"connector0_type=LVDS-A\0" \
 	"hdmimode=1080p60hz\0"\
 	"colorattribute=444,8bit\0"\
+	"display_on_smp=1\0"\
 	"cvbsmode=576cvbs\0"\
 	"vout_projector_mux=disable\0" \
 	"cvbs_drv=0\0"\

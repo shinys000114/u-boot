@@ -87,6 +87,7 @@
 	"model_name=FHD2HDMI\0" \
 	"lcd_debug=0x00000000\0" \
 	"outputmode=1080p60hz\0"\
+	"display_on_smp=1\0"\
 	"connector0_type=LVDS-A\0" \
 	"colorattribute=444,8bit\0"\
 	"vout_projector_mux=disable\0" \

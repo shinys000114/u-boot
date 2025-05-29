@@ -19,7 +19,7 @@
 #define CONFIG_PDVFS_ENABLE
 
 /* SMP definitions */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+// #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
@@ -80,6 +80,7 @@
 	"ddr_resume=0\0"\
 	"model_name=FHD2HDMI\0" \
 	"lcd_debug=0x00000000\0" \
+	"display_on_smp=1\0"\
 	"outputmode=1080p60hz\0"\
 	"connector0_type=LVDS-A\0" \
 	"hdmimode=1080p60hz\0"\

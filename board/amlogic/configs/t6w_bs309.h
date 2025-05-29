@@ -19,7 +19,7 @@
 #define CONFIG_PDVFS_ENABLE
 
 /* SMP definitions */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+// #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
@@ -81,6 +81,7 @@
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
 	"outputmode=1080p60hz\0"\
+	"display_on_smp=1\0"\
 	"connector0_type=LVDS-A\0" \
 	"hdmimode=1080p60hz\0"\
 	"colorattribute=444,8bit\0"\
