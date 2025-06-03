@@ -351,6 +351,7 @@ defined(CONFIG_STORE_COMPATIBLE)
 #define CONFIG_RX_RTERM		1
 #define CONFIG_CMD_HDMIRX   1
 #define CONFIG_CMD_CEC		1
+#define CONFIG_CEC_TRIM_VAL	1
 #define CONFIG_CVBS_CALI	1
 
 /* support secure boot */
