@@ -48,6 +48,9 @@
 #ifdef CONFIG_RX_RTERM
 #include <amlogic/aml_hdmirx.h>
 #endif
+#ifdef CONFIG_AMLOGIC_WIFI_USB2T
+#include "wifi.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -193,6 +196,9 @@ int board_late_init(void)
 	lcd_probe();
 #endif
 	run_command("run init_display", 0);
+#ifdef CONFIG_AMLOGIC_WIFI_USB2T
+	wifi_init();
+#endif
 
 	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_e);
 	aml_board_late_init_tail(NULL);
