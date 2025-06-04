@@ -426,7 +426,7 @@ static void lcd_clktree_set_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 #endif
 }
 
-static void lcd_prbs_config_clk_t6d_t6w(struct aml_lcd_drv_s *pdrv, unsigned int lcd_prbs_mode,
+static void lcd_prbs_config_clk_t6d(struct aml_lcd_drv_s *pdrv, unsigned int lcd_prbs_mode,
 				    unsigned int *encl_clk, unsigned int *fifo_clk)
 {
 	struct lcd_clk_config_s *cconf = get_lcd_clk_config(pdrv);
@@ -458,7 +458,45 @@ static void lcd_prbs_config_clk_t6d_t6w(struct aml_lcd_drv_s *pdrv, unsigned int
 		LCDPR("[%d]: %s ok\n", pdrv->index, __func__);
 }
 
-static int lcd_clk_prbs_test_t6d_t6w(struct aml_lcd_drv_s *pdrv,
+static void lcd_prbs_config_clk_t6w(struct aml_lcd_drv_s *pdrv, unsigned int lcd_prbs_mode,
+				    unsigned int *encl_clk, unsigned int *fifo_clk)
+{
+	struct lcd_clk_config_s *cconf = get_lcd_clk_config(pdrv);
+	unsigned long long bit_rate = 0;
+
+	if (!cconf)
+		return;
+
+	if (lcd_prbs_mode == LCD_PRBS_MODE_LVDS) {
+		bit_rate = 519750000ULL;
+		*encl_clk = lcd_do_div(bit_rate * 2, 7);
+		*fifo_clk = lcd_do_div(bit_rate, 7);
+	} else if (lcd_prbs_mode == LCD_PRBS_MODE_VX1) {
+		bit_rate = 2970000000ULL;
+		*encl_clk = lcd_do_div(bit_rate, 5);
+		*fifo_clk = lcd_do_div(bit_rate, 10);
+	} else if (lcd_prbs_mode == LCD_PRBS_MODE_FREQ) {
+		bit_rate = lcd_prbs_freq * 1000000ULL;
+		*encl_clk = lcd_do_div(bit_rate, 5);
+		*fifo_clk = lcd_do_div(bit_rate, 10);
+	} else {
+		LCDERR("[%d]: %s: unsupport lcd_prbs_mode %d\n",
+		       pdrv->index, __func__, lcd_prbs_mode);
+		return;
+	}
+
+	lcd_clk_generate_prbs_clk(pdrv, *encl_clk, bit_rate);
+	if (cconf->pll_config[0].done == 0)
+		return;
+
+	lcd_clk_set_t6d_t6w(pdrv);
+	lcd_set_vclk_crt_t6d_t6w(pdrv);
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("[%d]: %s ok\n", pdrv->index, __func__);
+}
+
+static int lcd_clk_prbs_test_t6d(struct aml_lcd_drv_s *pdrv,
 				 unsigned int ms, unsigned int mode_flag)
 {
 	struct lcd_clk_config_s *cconf = get_lcd_clk_config(pdrv);
@@ -504,7 +542,7 @@ static int lcd_clk_prbs_test_t6d_t6w(struct aml_lcd_drv_s *pdrv,
 		clk_err_cnt = 0;
 		lcd_prbs_mode = (1 << i);
 		LCDPR("[%d]: lcd_prbs_mode: 0x%x\n", pdrv->index, lcd_prbs_mode);
-		lcd_prbs_config_clk_t6d_t6w(pdrv, lcd_prbs_mode, &lcd_encl_clk_check_std,
+		lcd_prbs_config_clk_t6d(pdrv, lcd_prbs_mode, &lcd_encl_clk_check_std,
 					&lcd_fifo_clk_check_std);
 		udelay(500);
 
@@ -570,6 +608,135 @@ lcd_prbs_test_err_t3:
 	lcd_clk_set_t6d_t6w(pdrv);
 	lcd_set_vclk_crt_t6d_t6w(pdrv);
 	lcd_ana_write(reg_phy_tx_ctrl1, 0xc3000000);
+	lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 1, 19, 1);
+
+	return 0;
+}
+
+static int lcd_clk_prbs_test_t6w(struct aml_lcd_drv_s *pdrv,
+				 unsigned int ms, unsigned int mode_flag)
+{
+	struct lcd_clk_config_s *cconf = get_lcd_clk_config(pdrv);
+	unsigned int reg_phy_tx_ctrl1;
+	int encl_msr_id, fifo_msr_id;
+	unsigned int lcd_prbs_mode, lcd_prbs_cnt;
+	unsigned int val, timeout;
+	unsigned int clk_err_cnt = 0;
+	unsigned int lcd_encl_clk_check_std = 0, lcd_fifo_clk_check_std = 0;
+	int i, j, bit;
+	unsigned int chdig_reg[6] = {
+		ANACTRL_DIF_PHY_CNTL8, ANACTRL_DIF_PHY_CNTL9,
+		ANACTRL_DIF_PHY_CNTL10, ANACTRL_DIF_PHY_CNTL11,
+		ANACTRL_DIF_PHY_CNTL12, ANACTRL_DIF_PHY_CNTL13,
+	};
+	unsigned char is_mlvds = pdrv->config.basic.lcd_type == LCD_MLVDS;
+
+	if (!cconf)
+		return -1;
+
+	switch (pdrv->index) {
+	case 0:
+		reg_phy_tx_ctrl1 = ANACTRL_LVDS_TX_PHY_CNTL1;
+		break;
+	default:
+		LCDERR("[%d]: %s: invalid drv_index\n", pdrv->index, __func__);
+		return -1;
+	}
+
+	encl_msr_id = cconf->data->enc_clk_msr_id;
+	fifo_msr_id = cconf->data->fifo_clk_msr_id;
+	timeout = (ms > 1000) ? 1000 : ms;
+	LCDPR("[%d]: ms:%d, mode_flag:0x%x, timeout:%d\n", pdrv->index, ms, mode_flag, timeout);
+
+	for (i = 0; i < LCD_PRBS_MODE_MAX; i++) {
+		if ((mode_flag & (1 << i)) == 0)
+			continue;
+
+		lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 0, 19, 1);
+		lcd_ana_write(reg_phy_tx_ctrl1, 0);
+
+		lcd_prbs_cnt = 0;
+		clk_err_cnt = 0;
+		lcd_prbs_mode = (1 << i);
+		LCDPR("[%d]: lcd_prbs_mode: 0x%x\n", pdrv->index, lcd_prbs_mode);
+		lcd_prbs_config_clk_t6w(pdrv, lcd_prbs_mode, &lcd_encl_clk_check_std,
+					&lcd_fifo_clk_check_std);
+		udelay(500);
+
+		for (j = 0; j < 12; j++) {
+			bit = j & 0x1 ? 16 : 0;
+			lcd_ana_setb(chdig_reg[j >> 1], 3, bit + 6, 2);
+			lcd_ana_setb(chdig_reg[j >> 1], 3, bit + 14, 2);
+		}
+
+		lcd_ana_write(reg_phy_tx_ctrl1, 0x3000000);
+		lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 1, 19, 1);
+		if (lcd_prbs_mode & LCD_PRBS_MODE_LVDS)
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 0, 16, 2);
+		else if (lcd_prbs_mode & LCD_PRBS_MODE_VX1)
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 3, 16, 2);
+
+		while (lcd_prbs_cnt++ < timeout) {
+			udelay(1000);
+			if (lcd_prbs_clk_check(lcd_encl_clk_check_std, encl_msr_id,
+					       lcd_fifo_clk_check_std, fifo_msr_id,
+					       lcd_prbs_cnt))
+				clk_err_cnt++;
+			else
+				clk_err_cnt = 0;
+			if (clk_err_cnt >= 100) {
+				LCDERR("[%d]: prbs check error 1(clkmsr), cnt: %d\n",
+				       pdrv->index, lcd_prbs_cnt);
+				goto lcd_prbs_test_err_t3;
+			}
+			val = lcd_ana_getb(reg_phy_tx_ctrl1, 0, 12);
+			if (val != 0xfff) {
+				LCDERR("[%d]: prbs check error 2(prbs), val:%d\n",
+				       pdrv->index, val);
+				goto lcd_prbs_test_err_t3;
+			}
+		}
+		if (lcd_prbs_mode == LCD_PRBS_MODE_LVDS) {
+			lcd_prbs_performed |= LCD_PRBS_MODE_LVDS;
+			lcd_prbs_err &= ~(LCD_PRBS_MODE_LVDS);
+			LCDPR("[%d]: lvds prbs check ok\n", pdrv->index);
+		} else if (lcd_prbs_mode == LCD_PRBS_MODE_VX1) {
+			lcd_prbs_performed |= LCD_PRBS_MODE_VX1;
+			lcd_prbs_err &= ~(LCD_PRBS_MODE_VX1);
+			LCDPR("[%d]: vx1 prbs check ok\n", pdrv->index);
+		} else if (lcd_prbs_mode == LCD_PRBS_MODE_FREQ) {
+			lcd_prbs_performed |= LCD_PRBS_MODE_FREQ;
+			lcd_prbs_err &= ~(LCD_PRBS_MODE_FREQ);
+			LCDPR("[%d]: freq %dMHz prbs check ok\n", pdrv->index, lcd_prbs_freq);
+		} else {
+			LCDPR("[%d]: prbs check: unsupport mode\n", pdrv->index);
+		}
+		continue;
+
+lcd_prbs_test_err_t3:
+		if (lcd_prbs_mode == LCD_PRBS_MODE_LVDS) {
+			lcd_prbs_performed |= LCD_PRBS_MODE_LVDS;
+			lcd_prbs_err |= LCD_PRBS_MODE_LVDS;
+		} else if (lcd_prbs_mode == LCD_PRBS_MODE_VX1) {
+			lcd_prbs_performed |= LCD_PRBS_MODE_VX1;
+			lcd_prbs_err |= LCD_PRBS_MODE_VX1;
+		} else if (lcd_prbs_mode == LCD_PRBS_MODE_FREQ) {
+			lcd_prbs_performed |= LCD_PRBS_MODE_FREQ;
+			lcd_prbs_err |= LCD_PRBS_MODE_FREQ;
+		}
+	}
+	for (j = 0; j < 12; j++) {
+		bit = j & 0x1 ? 16 : 0;
+		lcd_ana_setb(chdig_reg[j >> 1],
+			     0x8400 | ((is_mlvds ? 0xff : 0) << 2),
+			     bit, 16);
+	}
+	lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 0, 19, 1);
+	lcd_ana_write(reg_phy_tx_ctrl1, 0);
+	lcd_clk_generate_parameter(pdrv);
+	lcd_clk_set_t6d_t6w(pdrv);
+	lcd_set_vclk_crt_t6d_t6w(pdrv);
+	lcd_ana_write(reg_phy_tx_ctrl1, 0x03000000);
 	lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 1, 19, 1);
 
 	return 0;
@@ -727,7 +894,7 @@ static struct lcd_clk_data_s lcd_clk_data_t6d = {
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.clk_reg_print = lcd_clk_reg_dump,
-	.prbs_test = lcd_clk_prbs_test_t6d_t6w,
+	.prbs_test = lcd_clk_prbs_test_t6d,
 };
 
 static struct lcd_pll_data_s lcd_tcon_pll_data_t6w = {
@@ -809,7 +976,7 @@ static struct lcd_clk_data_s lcd_clk_data_t6w = {
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_dft,
 	.clk_reg_print = lcd_clk_reg_dump,
-	.prbs_test = lcd_clk_prbs_test_t6d_t6w,
+	.prbs_test = lcd_clk_prbs_test_t6w,
 };
 
 struct lcd_clk_config_s *lcd_clk_config_chip_init_t6d(struct aml_lcd_drv_s *pdrv)
