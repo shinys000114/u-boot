@@ -577,14 +577,14 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 0 + CK_OFFSET + WL0,
 		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 0 + CK_OFFSET + WL0,
 #else
-		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 200 + CK_OFFSET + WL0,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 200 + CK_OFFSET + WL0,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 300 + CK_OFFSET + WL0,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 300 + CK_OFFSET + WL0,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 0 + CK_OFFSET + WL0,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 0 + CK_OFFSET + WL0,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 0 + CK_OFFSET + WL0,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 0 + CK_OFFSET + WL0,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 456 + CK_OFFSET + WL0,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 456 + CK_OFFSET + WL0,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 556 + CK_OFFSET + WL0,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 556 + CK_OFFSET + WL0,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 256 + CK_OFFSET + WL0,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 256 + CK_OFFSET + WL0,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 256 + CK_OFFSET + WL0,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 256 + CK_OFFSET + WL0,
 #endif
 
 		.cfg_ddr_training_delay_ps.write_wck_delay[0] = 0x00000200,
