@@ -23,7 +23,9 @@
 #include "meson_gx_mmc.h"
 #include <amlogic/pm.h>
 #include <amlogic/cpu_id.h>
-#include "../drivers/mmc/mmc_private.h"
+#include "../../drivers/mmc/mmc_private.h"
+#include <asm/amlogic/arch/register.h>
+#include <version.h>
 
 struct aml_pattern aml_pattern_table[] = {
 	AML_PATTERN_ELEMENT(MMC_PATTERN_NAME, CALI_PATTERN),
@@ -78,6 +80,13 @@ static void meson_mmc_config_clock(struct meson_host *host)
 
 	if (!mmc->clock)
 		return;
+
+	if (host->jump_bl33 == 1) {
+		meson_mmc_clk = meson_read(mmc, MESON_SD_EMMC_CLOCK);
+		meson_mmc_clk &= 0x7fffffff;
+		meson_write(mmc, meson_mmc_clk, MESON_SD_EMMC_CLOCK);
+		return;
+	}
 
 	/* TOFIX This should use the proper clock taken from DT */
 
@@ -241,11 +250,14 @@ static int meson_dm_mmc_set_ios(struct udevice *dev)
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	u32 meson_mmc_cfg;
 
-	if (!mmc->clock) {
+	if (host->jump_bl33 == 1) {
+		;
+	} else if (!mmc->clock) {
 		meson_write(mmc, 0, MESON_SD_EMMC_DELAY1);
 		meson_write(mmc, 0, MESON_SD_EMMC_DELAY2);
 		meson_write(mmc, 0, MESON_SD_EMMC_ADJUST);
 	}
+
 	meson_mmc_config_clock(host);
 
 	meson_mmc_cfg = meson_read(mmc, MESON_SD_EMMC_CFG);
@@ -1023,6 +1035,9 @@ int meson_execute_tuning(struct udevice *dev, uint opcode)
 	if (!host->blk_test)
 		return -EINVAL;
 
+	if (host->jump_bl33 == 1)
+		return 0;
+
 	printf("%s: tuning start:\n", mmc->cfg->name);
 	meson_write(mmc, 0, MESON_SD_EMMC_ADJUST);
 	old_dly = meson_read(mmc, MESON_SD_EMMC_DELAY1);
@@ -1147,7 +1162,7 @@ tuning:
 	adj |= (1 << CFG_ADJ_EN);
 	meson_write(mmc, adj, MESON_SD_EMMC_ADJUST);
 	meson_write(mmc, old_dly, MESON_SD_EMMC_DELAY1);
-	mmc_print_reg(dev);
+
 #ifdef MMC_HS200_MODE
 	for (n = 0; n < clk_div; n++) {
 		if (n == clk_div - 1) {
@@ -1191,7 +1206,6 @@ tuning:
 		}
 	}
 
-	mmc_print_reg(dev);
 #endif
 	host->is_tuning = 0;
 
@@ -1714,9 +1728,13 @@ static int meson_mmc_of_to_plat(struct udevice *dev)
 	struct meson_mmc_plat *pdata = dev_get_plat(dev);
 	struct meson_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &pdata->cfg;
+	struct mmc *mmc = &pdata->mmc;
 	fdt_addr_t addr;
 	int ret = 0;
+	union sd_emmc_setup s_setup;
+	u32 val;
 
+	host->jump_bl33 = 0;
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
@@ -1751,6 +1769,25 @@ static int meson_mmc_of_to_plat(struct udevice *dev)
 					   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 		if (ret)
 			return ret;
+	}
+
+	if (IS_ENABLED(CONFIG_AML_JUMP_BL33)) {
+		if (aml_card_type_mmc(host))
+			host->jump_bl33 = 1;
+	}
+
+	if (host->jump_bl33 == 1) {
+		val = readl(SYSCTRL_SEC_STATUS_REG5);
+		pr_info(" setup 0x%x\n", val);
+		s_setup = (union sd_emmc_setup)val;
+		if (val != 0 && s_setup.b.sd == 0) {
+			s_setup = (union sd_emmc_setup)val;
+			mmc->high_capacity = s_setup.b.hcs ? 1 : 0;
+			mmc->rca = s_setup.b.rca ? 1 : 0;
+			mmc->version = MMC_VERSION_5_1;
+		} else {
+			host->jump_bl33 = 0;
+		}
 	}
 
 	clk_get_by_name(dev, "clkin", &host->div2);

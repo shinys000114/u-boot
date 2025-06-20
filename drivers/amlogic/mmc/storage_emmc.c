@@ -16,6 +16,7 @@
 #include <asm/amlogic/arch/efuse.h>
 #include "../../../cmd/amlogic/ini/ini_io.h"
 #include "../../drivers/mmc/mmc_private.h"
+#include "meson_gx_mmc.h"
 
 #if IS_ENABLED(CONFIG_EFUSE_OBJ_API)
 extern efuse_obj_field_t efuse_field;
@@ -1327,6 +1328,7 @@ int emmc_probe(uint32_t init_flag)
 {
 	char ret = 0;
 	struct mmc *mmc;
+	struct meson_host *host;
 
 	mmc = find_mmc_device(STORAGE_EMMC);
 	if (!mmc) {
@@ -1339,6 +1341,11 @@ int emmc_probe(uint32_t init_flag)
 		printf("mmc init failed ret:%x\n", ret);
 	else
 		printf("emmc probe success\n");
+
+	host = dev_get_priv(mmc->dev);
+
+	if (host->jump_bl33 == 1)
+		mmc_switch_part(mmc, 0);
 
 	return ret;
 }
