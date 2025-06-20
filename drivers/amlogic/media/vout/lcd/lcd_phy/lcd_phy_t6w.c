@@ -309,6 +309,7 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, int status)
 			continue;
 		bit = i & 0x1 ? 16 : 0;
 		chreg = reg_data;
+		chdig = 0;
 
 		if (status) {
 			if (phy->cv_mode == PHY_CMODE) {
@@ -335,7 +336,7 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, int status)
 					LCDERR("[%d]: err lane[%d].phase_sel=%#x\n",
 					       pdrv->index, i, phy_cfg->ch_ctrl[i].phase_sel);
 				} else {
-					chdig |= (sel & 0x1) << 0;
+					chdig |= (sel & 0x3) << 0;
 				}
 				break;
 			default:
