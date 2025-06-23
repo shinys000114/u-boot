@@ -112,9 +112,6 @@ void board_init_mem(void) {
 int board_init(void)
 {
 	printf("board init\n");
-#ifdef CONFIG_ZAPPER_IRDETO_BOOT
-	run_command("zapper_board_init_led_set", 0);
-#endif
 
 #ifdef CONFIG_AML_HDMITX21
 		hdmitx21_chip_type_init(MESON_CPU_ID_S1A);
@@ -146,14 +143,8 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
-#ifdef CONFIG_ZAPPER_IRDETO_BOOT
-	run_command("zapper_led_init_led_set", 0);
-#endif
 	env_set("defenv_para", "-c");
 #ifdef CONFIG_PXP_EMULATOR
-#ifdef CONFIG_ZAPPER_IRDETO_BOOT
-	run_command("zapper_board_late_init_led_set", 0);
-#endif
 	return 0;
 #else
 	get_stick_reboot_flag_mbx();
@@ -209,9 +200,6 @@ int board_late_init(void)
 	//run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
 	run_command("get_cpuid", 0);
-#ifdef CONFIG_ZAPPER_IRDETO_BOOT
-	run_command("zapper_board_late_init_led_set", 0);
-#endif
 	return 0;
 #endif
 }
@@ -381,93 +369,6 @@ int get_aml_partition_count(void)
 /* partition table */
 /* partition table for spinand flash */
 #if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND))
-#ifdef CONFIG_ZAPPER_IRDETO_BOOT
-static const struct mtd_partition spinand_partitions[] = {
-	{
-		.name = "factory",
-		.offset = 0,
-		.size = 3 * SZ_1M,
-		/* MESON_IGNORE_ERASE_CHIP will ignore store erase.chip */
-		.mask_flags = MESON_IGNORE_ERASE_CHIP,
-	},
-	{
-		.name = "tee",
-		.offset = 0,
-		.size = 3 * SZ_1M,
-	},
-	{
-		.name = "logo",
-		.offset = 0,
-		.size = 1 * SZ_256K,
-	},
-	{
-		.name = "recovery",
-		.offset = 0,
-		.size = 18 * SZ_1M,
-	},
-	{
-		.name = "boot",
-		.offset = 0,
-		.size = 12 * SZ_1M,
-	},
-	{
-		.name = "system",
-		.offset = 0,
-		.size = 48 * SZ_1M,
-	},
-	{
-		.name = "casecure",
-		.offset = 0,
-		.size = 4 * SZ_1M,
-	},
-	{
-		.name = "caverify",
-		.offset = 0,
-		.size = SZ_128K,
-	},
-	{
-		.name = "ldflag",
-		.offset = 0,
-		.size = SZ_128K,
-	},
-	{
-		.name = "hwconfig",
-		.offset = 0,
-		.size = SZ_128K,
-	},
-	{
-		.name = "ldsec",
-		.offset = 0,
-		.size = SZ_128K,
-	},
-	{
-		.name = "cadata",
-		.offset = 0,
-		.size = 4 * SZ_1M,
-	},
-	{
-		.name = "ccaconfig",
-		.offset = 0,
-		.size = SZ_128K,
-	},
-	{
-		.name = "rescuelist",
-		.offset = 0,
-		.size = SZ_128K,
-	},
-	{
-		.name = "rescuelist_bk",
-		.offset = 0,
-		.size = SZ_128K,
-	},
-	/* last partition get the rest capacity */
-	{
-		.name = "data",
-		.offset = MTDPART_OFS_APPEND,
-		.size = MTDPART_SIZ_FULL,
-	},
-};
-#else
 static const struct mtd_partition spinand_partitions[] = {
 	{
 		.name = "factory",
@@ -513,7 +414,6 @@ static const struct mtd_partition spinand_partitions[] = {
 		.size = MTDPART_SIZ_FULL,
 	},
 };
-#endif
 const struct mtd_partition *get_spinand_partition_table(int *partitions)
 {
 	*partitions = ARRAY_SIZE(spinand_partitions);
