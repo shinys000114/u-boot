@@ -104,8 +104,18 @@ static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 		.pinmux_clr = {{0x7, 0xff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
+		.name = "lcd_minilvds_pin", //GPIOH_0~6
+		.pinmux_set = {{7, 0x01111111}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{7, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
 		.name = "lcd_p2p_pin", //GPIOH_0~6
 		.pinmux_set = {{7, 0x01111112}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{7, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "lcd_p2p_usit_pin", //GPIOH_0~6
+		.pinmux_set = {{7, 0x01111113}, {LCD_PINMUX_END, 0x0}},
 		.pinmux_clr = {{7, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
