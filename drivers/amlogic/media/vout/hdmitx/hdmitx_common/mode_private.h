@@ -118,6 +118,7 @@ extern "C" {
 #ifdef CONFIG_S7D_ODROIDC5
 #define MODE_1920x720P60HZ              "1920x720p60hz"
 #define MODE_800x480P60HZ               "800x480p60hz"
+#define MODE_1024x600P60HZ               "1024x600p60hz"
 #endif
 /*
  * lcd mode
@@ -233,6 +234,7 @@ static const char* DISPLAY_MODE_LIST[] = {
 #ifdef CONFIG_S7D_ODROIDC5
     MODE_1920x720P60HZ,
     MODE_800x480P60HZ,
+	MODE_1024x600P60HZ,
 #endif
     /*
      * non hdmi solution
@@ -270,6 +272,7 @@ static const char* MODE_RESOLUTION_FIRST[] = {
 #ifdef CONFIG_S7D_ODROIDC5
     MODE_1920x720P60HZ,
     MODE_800x480P60HZ,
+	MODE_1024x600P60HZ,
 #endif
     /*
      * for hdmi compatibility not choose 8k as preferred mode
@@ -349,6 +352,7 @@ static const char* MODE_FRAMERATE_FIRST[] = {
 #ifdef CONFIG_S7D_ODROIDC5
     MODE_1920x720P60HZ,
     MODE_800x480P60HZ,
+	MODE_1024x600P60HZ,
 #endif
     /*
      * for hdmi compatibility not choose 8k as preferred mode
