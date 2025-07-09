@@ -33,3 +33,10 @@ config VIDEO_BRIDGE_ANALOGIX_ANX6345
 	help
 	 The Analogix ANX6345 is RGB-to-DP converter. It enables an eDP LCD
 	 panel to be connected to an parallel LCD interface.
+
+config VIDEO_BRIDGE_LT8619C_QC4011
+	tristate "Support LT8619c HDMI to LVDS Converter"
+	depends on VIDEO_BRIDGE
+	select DM_I2C
+	help
+	  lt8619c chip driver
