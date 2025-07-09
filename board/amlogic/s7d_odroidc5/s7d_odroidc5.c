@@ -147,6 +147,16 @@ int eth_get_efuse_mac(struct udevice *dev) {
 	return 0;
 }
 
+#if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
+int vu7c_init(void)
+{
+	int ret = 0;
+	run_command("i2c dev 3", 0);
+	ret = run_command("i2c probe 0x32", 0);
+	return ret;
+}
+#endif
+
 int board_init(void)
 {
 	printf("board init\n");
@@ -246,7 +256,20 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPP
 	vpp_init();
 #endif
+
+#if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
+	if (vu7c_init() == 0) {
+		env_set("user_colorattribute", "rgb,8bit");
+		env_set("colorattribute", "rgb,8bit");
+	}
+#endif
+
 	run_command("showlogo", 0);
+
+#if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
+	/* vu7c backlight on */
+	run_command("gpio set GPIOX_6", 0);
+#endif
 
 	memset(chipid, 0, 16);
 	env_set("cpu_id", "1234567890");
