@@ -13,13 +13,13 @@
 
 /* board vmin_value defines */
 #define VMIN_FF_VALUE                           770
-#define VMIN_TT_VALUE                           800
-#define VMIN_SS_VALUE                           810
+#define VMIN_TT_VALUE                           810
+#define VMIN_SS_VALUE                           840
 /* board vddee_value defines */
-/* SS/TT/FF = 0.87V */
-#define VDDEE_FF_VALUE                          0x000c0006
-#define VDDEE_TT_VALUE                          0x000c0006
-#define VDDEE_SS_VALUE                          0x000c0006
+/* SS/TT/FF = 0.87/0.85/0.81V */
+#define VDDEE_FF_VALUE                          0x000b0007
+#define VDDEE_TT_VALUE                          0x0007000b
+#define VDDEE_SS_VALUE                          0x0005000d
 
 board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {
