@@ -7,7 +7,7 @@
 
 #define INVALID_HDMI_TIMING (&hdmi_timing_all[0])
 
-const static struct hdmi_timing hdmi_timing_all[] = {
+static struct hdmi_timing hdmi_timing_all[] = {
 	{HDMI_0_UNKNOWN, "invalid", NULL},
 	{HDMI_1_640x480p60_4x3, "640x480p60hz", NULL, 1, 31469, 59940, 25175,
 		800, 160, 16, 96, 48, 640, 525, 45, 10, 2, 33, 480, 1, 0, 0, 4, 3, 1, 1},
@@ -327,6 +327,7 @@ const static struct hdmi_timing hdmi_timing_all[] = {
 		1056, 256, 44, 88, 124, 800, 535, 55, 3, 6, 46, 480, 1, 1, 1, 5, 3, 1, 1},
 	{HDMI_252_1024x600p60_17x10, "1024x600p60hz", NULL,	1, 38095, 59993, 51200,
 		1344, 320, 8, 144, 168, 1024, 635, 35, 3, 6, 26, 600, 1, 1, 1, 17, 10, 1, 1},
+	{HDMI_ODROID_CUSTOM_VIDEO, },
 #endif
 };
 

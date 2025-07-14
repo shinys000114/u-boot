@@ -185,7 +185,7 @@ int board_init(void)
 	return 0;
 }
 
-static int load_from_mmc(unsigned long addr, int devnum, int partnum, char *filename)
+int load_from_mmc(unsigned long addr, int devnum, int partnum, const char *filename)
 {
 	int ret;
 	char buf[16];

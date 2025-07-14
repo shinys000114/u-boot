@@ -76,6 +76,18 @@ static bool is_dv_prefer(struct meson_policy_in *input) {
 }
 
 static bool is_hdr_prefer(struct meson_policy_in *input) {
+#if defined(CONFIG_S7D_ODROIDC5)
+	int vic;
+	char *mode = env_get("displaymode");
+	if (!mode)
+		mode = env_get("hdmimode");
+	if (mode) {
+		vic = hdmitx_edid_vic_tab_map_vic(mode);
+		if (vic == HDMI_ODROID_CUSTOM_VIDEO)
+			return false;
+	}
+#endif
+
     /*
      * check input param
      */

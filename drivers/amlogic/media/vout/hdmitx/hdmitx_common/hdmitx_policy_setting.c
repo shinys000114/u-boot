@@ -26,6 +26,18 @@ static bool is_best_policy(void) {
 	char *hdmimode = env_get("hdmimode");
 	char *is_bestmode = env_get("is.bestmode");
 
+#if defined(CONFIG_S7D_ODROIDC5)
+	int vic;
+	char *mode = env_get("displaymode");
+	if (!mode)
+		mode = hdmimode;
+	if (mode) {
+		vic = hdmitx_edid_vic_tab_map_vic(mode);
+		if (vic == HDMI_ODROID_CUSTOM_VIDEO)
+			return false;
+	}
+#endif
+
 	if (!hdmimode || !strstr(hdmimode, "hz")) {
 		//if hdmimode is empty or no resolution is saved to enable the auto to best strategy
 		return true;
@@ -343,6 +355,11 @@ bool hdmi_sink_disp_mode_sup(struct hdmitx_dev *hdev, const char *disp_mode)
 		return false;
 
 	vic = hdmitx_edid_vic_tab_map_vic(disp_mode);
+
+#if defined(CONFIG_S7D_ODROIDC5)
+	if (vic == HDMI_ODROID_CUSTOM_VIDEO)
+		return true;
+#endif
 
 	if (hdmitx_mode_validate_y420_vic(vic)) {
 		if (hdmitx_chk_mode_attr_sup(hdev, disp_mode, "420,8bit"))
