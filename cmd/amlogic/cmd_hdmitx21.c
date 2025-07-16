@@ -1863,6 +1863,9 @@ static int _do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const 
 	else
 		memcpy(tmp_sel_hdmimode, sel_hdmimode, sizeof(tmp_sel_hdmimode));
 	hdev->para = hdmitx21_get_fmtpara(tmp_sel_hdmimode, env_get("colorattribute"));
+	if (!hdev->para)
+		return -1;
+
 	hdev->vic = hdev->para->timing.vic;
 	/*
 	 * update the hdr/hdr10+/dv capabilities in the end of scene_process.

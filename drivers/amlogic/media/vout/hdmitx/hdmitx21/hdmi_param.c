@@ -484,7 +484,7 @@ const struct hdmi_timing *hdmitx21_gettiming_from_name(const char *name)
 
 	timing = hdmitx21_get_timing_para0();
 	for (i = 0; i < hdmitx21_timing_size(); i++) {
-		if (strncmp(timing->name, name, strlen(timing->name)) == 0)
+		if (timing->name && strncmp(timing->name, name, strlen(timing->name)) == 0)
 			break;
 		timing++;
 	}
