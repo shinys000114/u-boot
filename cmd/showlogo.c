@@ -14,6 +14,15 @@
 #include <mmc.h>
 #include <vsprintf.h>
 
+#include <amlogic/media/vout/hdmitx21/hdmitx.h>
+
+extern const struct hdmi_timing *load_hdmi_timing_from_env(const char *modeline, const char *mode);
+extern const struct hdmi_timing *load_hdmi_timing_from_dt(struct blk_desc *dev_desc, const char *displaymode);
+extern const struct hdmi_timing *lookup_hdmi_timing_by_name(const char *mode);
+extern const struct hdmi_timing *hdmitx21_gettiming_from_name(const char *name);
+extern void hdmi_timing_printdebug(const struct hdmi_timing *ht);
+extern struct blk_desc *amlogic_get_bootdev(void);
+
 static int init_hdmi(const char* mode, bool bestmode) {
 	/*
 	 * TODO reboot mode
@@ -84,7 +93,7 @@ static int load_boot_logo(void)
 	return 0;
 }
 
-static int display_logo(const char* mode, const char* bmp_width, const char* bmp_height)
+static int display_logo_(const char* mode, int width, int height, int bpp)
 {
 	int ret = 0;
 	int bmp_load = false;
@@ -99,21 +108,12 @@ static int display_logo(const char* mode, const char* bmp_width, const char* bmp
 	env_set("bootlogo_addr", env_get("loadaddr"));
 
 	bmp_load = load_boot_logo();
-
 	if (bmp_load) {
 		/* color */
-		env_set("display_bpp", "24");
-		env_set("display_color_index", "24");
-
-		/* frame buffer */
-
-		// option. fb size from disp size
-		// env_set("fb_width", env_get("display_width"));
-		// env_set("fb_height", env_get("display_height"));
-
-		// else. fb size from bmp size
-		env_set("fb_width", bmp_width);
-		env_set("fb_height", bmp_height);
+		env_set_ulong("display_bpp", bpp);
+		env_set_ulong("display_color_index", bpp);
+		env_set_ulong("fb_width", width);
+		env_set_ulong("fb_height", height);
 
 		/* osd, bmp */
 		run_command("osd open; osd clear", 0);
@@ -122,25 +122,46 @@ static int display_logo(const char* mode, const char* bmp_width, const char* bmp
 	}
 
 	run_command("vout output $outputmode", 0);
+
 	return 0;
+}
+
+static int display_logo(const char* mode, const char* bmp_width, const char* bmp_height)
+{
+	return display_logo_(mode,
+			simple_strtoul(bmp_width, NULL, 10),
+			simple_strtoul(bmp_height, NULL, 10),
+			24);
 }
 
 static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
 		char *const argv[])
 {
-	char *mode;
+	const struct hdmi_timing *ht;
 
-	if (argc <= 1) {
-		mode = env_get("hdmimode");
-		/* ODROID default logo size 1280x720 */
-		display_logo((NULL == mode ? "none" : mode), "1280", "720");
-	} else if (argc == 4) {
-		display_logo(argv[1], argv[2], argv[3]);
-	} else {
-		display_logo(argv[1], "1280", "720");
+	if (argc >= 2) {
+		if (argc >= 4)
+			return display_logo(argv[1], argv[2], argv[3]);
+
+		ht = lookup_hdmi_timing_by_name(argv[1]);
+		if (!ht)
+			return -EINVAL;
+
+		return display_logo_(argv[1],
+				ht->h_active, ht->v_active, 24);
 	}
 
-	return 0;
+	ht = lookup_hdmi_timing_by_name(env_get("displaymode"));
+	if (!ht)
+		ht = lookup_hdmi_timing_by_name(env_get("hdmimode"));
+	if (!ht)
+		ht = lookup_hdmi_timing_by_name("1920x1080p60hz");
+	if (!ht)
+		return -EINVAL;
+
+	env_set("hdmimode", ht->name);
+
+	return display_logo_(ht->name, ht->h_active, ht->v_active, 24);
 }
 
 U_BOOT_CMD(

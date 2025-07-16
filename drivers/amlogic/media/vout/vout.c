@@ -241,6 +241,16 @@ static const struct vout_set_s *vout_find_mode_by_vout_idx(uint8_t vout_idx)
 		vset++;
 	}
 
+#if defined(CONFIG_S7D_ODROIDC5)
+	width = env_get_ulong("fb_width", 10, 0);
+	height = env_get_ulong("fb_height", 10, 0);
+	if ((width > 0) && (height > 0)) {
+		vout_sets_full[vout_idx].width = width;
+		vout_sets_full[vout_idx].height = height;
+		vout_sets_full[vout_idx].field_height = height;
+		return &vout_sets_full[vout_idx];
+	}
+#endif
 	vout_log("mode: %s not found\n", outputmode);
 	return NULL;
 }

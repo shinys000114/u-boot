@@ -53,6 +53,7 @@ DECLARE_GLOBAL_DATA_PTR;
 extern int cc_statue, bc_status;
 
 int mmc_get_env_dev(void);
+struct blk_desc *amlogic_get_bootdev(void);
 
 /*
  * Internal function in 'drivers/amlogic/media/vout/hdmitx/hdmitx21/hdmi_param.c'
@@ -206,18 +207,13 @@ int load_from_mmc(unsigned long addr, int devnum, int partnum, const char *filen
 	return ret;
 }
 
-int load_odroid_bios(void)
+int load_odroid_bios(struct blk_desc *dev_desc)
 {
 	const char *bootcmd = "cramfsload $loadaddr boot.scr; source $loadaddr";
 	unsigned long addr;
 	int n;
 	int ret;
-	struct blk_desc *dev_desc;
-	struct mmc *mmc = find_mmc_device(mmc_get_env_dev());
-	if (!mmc)
-		return -EIO;
 
-	dev_desc = mmc_get_blk_desc(mmc);
 	if (!dev_desc)
 		return -EIO;
 
@@ -242,9 +238,37 @@ int load_odroid_bios(void)
 	return -EIO;
 }
 
+static int load_boot_config(struct blk_desc *dev_desc, const char *config)
+{
+	char buf[128];
+	int ret = -EINVAL;
+	unsigned long loadaddr = env_get_ulong("loadaddr", 16, 0);
+
+	ret = load_from_mmc(loadaddr, dev_desc->devnum, 1,
+			config ? config : "config.ini");
+	if (ret) {
+		ret = load_from_mmc(loadaddr, dev_desc->devnum, 2,
+				config ? config : "config.ini");
+	}
+	if (ret)
+		return ret;
+
+	run_command("ini generic $loadaddr", 0);
+
+	char *overlay_profile = env_get("overlay_profile");
+	if (overlay_profile) {
+		snprintf(buf, sizeof(buf), "ini overlay_%s $loadaddr", overlay_profile);
+		run_command(buf, 0);
+	}
+
+	return 0;
+}
+
 int board_late_init(void)
 {
 	unsigned char chipid[16];
+	struct blk_desc *dev_desc = amlogic_get_bootdev();
+	int ret;
 
 	board_init_mem();
 
@@ -256,6 +280,15 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPP
 	vpp_init();
 #endif
+
+	if (dev_desc) {
+		if (load_odroid_bios(dev_desc) != 0) {
+			env_set("mmc_list",
+					(dev_desc->devnum == 0) ? "0 1" : "1 0");
+		}
+
+		ret = load_boot_config(dev_desc, "config.ini");
+	}
 
 #if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
 	if (vu7c_init() == 0) {
@@ -291,11 +324,6 @@ int board_late_init(void)
 		}
 		env_set("cpu_id", chipid_str);
 		printf("buff: %s\n", buff);
-	}
-
-	if (load_odroid_bios() != 0) {
-		env_set("mmc_list",
-				(mmc_get_env_dev() == 0) ? "0 1" : "1 0");
 	}
 
 	return 0;
@@ -447,4 +475,16 @@ int get_boot_device(void)
 int mmc_get_env_dev(void)
 {
 	return (get_boot_device() == BOOT_ID_SDCARD) ? 1 : 0;
+}
+
+struct blk_desc *amlogic_get_bootdev(void)
+{
+	struct mmc *mmc = find_mmc_device(mmc_get_env_dev());
+	if (mmc) {
+		struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
+		if (dev_desc)
+			return dev_desc;
+	}
+
+	return NULL;
 }
