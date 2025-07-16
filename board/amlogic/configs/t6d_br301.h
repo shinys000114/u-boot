@@ -72,7 +72,21 @@
 #define CONFIG_KERNEL_LOGLEVEL "loglevel=7"
 #endif
 
-#define VOUT_OSD_LOGO_CMD  "osd open; osd clear; run load_bmp_logo; bmp scale;"
+#define VOUT_OSD_LOGO_CMD \
+	"if test -n ${jpg_logo} = true; then\0"\
+		"setenv dislay_bpp 32;\0"\
+		"setenv display_color_index 32;\0"\
+		"watermark_init;\0"\
+		"osd open;\0"\
+		"osd clear;\0"\
+		"run load_jpg_logo;\0"\
+	"else\0"\
+		"watermark_init;\0"\
+		"osd open;\0"\
+		"osd clear;\0"\
+		"run load_bmp_logo;\0"\
+	"fi;\0"\
+	"bmp scale;\0"\
 
 #define VOUT_DISPLAY_CMD   "vout boot_display; "
 
