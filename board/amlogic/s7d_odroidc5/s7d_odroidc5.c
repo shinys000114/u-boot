@@ -287,6 +287,10 @@ int board_late_init(void)
 					(dev_desc->devnum == 0) ? "0 1" : "1 0");
 		}
 
+		/* Remove saved env values */
+		env_set("video-timing", NULL);
+		env_set("displaymode", NULL);
+
 		ret = load_boot_config(dev_desc, "config.ini");
 	}
 
