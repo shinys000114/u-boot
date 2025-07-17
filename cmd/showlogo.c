@@ -105,7 +105,7 @@ static int display_logo_(const char* mode, int width, int height, int bpp)
 		return -1;
 	}
 
-	env_set("bootlogo_addr", env_get("loadaddr"));
+	env_set("bootlogo_addr", "0x1f800000");
 
 	bmp_load = load_boot_logo();
 	if (bmp_load) {
