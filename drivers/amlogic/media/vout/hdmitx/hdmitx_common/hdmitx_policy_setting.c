@@ -27,15 +27,9 @@ static bool is_best_policy(void) {
 	char *is_bestmode = env_get("is.bestmode");
 
 #if defined(CONFIG_S7D_ODROIDC5)
-	int vic;
 	char *mode = env_get("displaymode");
-	if (!mode)
-		mode = hdmimode;
-	if (mode) {
-		vic = hdmitx_edid_vic_tab_map_vic(mode);
-		if (vic == HDMI_ODROID_CUSTOM_VIDEO)
-			return false;
-	}
+	if (mode)
+		return false;
 #endif
 
 	if (!hdmimode || !strstr(hdmimode, "hz")) {
