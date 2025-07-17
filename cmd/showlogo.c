@@ -22,6 +22,7 @@ extern const struct hdmi_timing *lookup_hdmi_timing_by_name(const char *mode);
 extern const struct hdmi_timing *hdmitx21_gettiming_from_name(const char *name);
 extern void hdmi_timing_printdebug(const struct hdmi_timing *ht);
 extern struct blk_desc *amlogic_get_bootdev(void);
+extern int load_from_mmc(unsigned long addr, int devnum, int partnum, const char *filename);
 
 static int init_hdmi(const char* mode, bool bestmode) {
 	/*
@@ -55,39 +56,35 @@ static int init_hdmi(const char* mode, bool bestmode) {
 static int load_boot_logo(void)
 {
 	const char *logofiles[] = {
+		NULL,
 #ifdef CONFIG_VIDEO_BMP_GZIP
 		"boot-logo.bmp.gz",
 #endif
 		"boot-logo.bmp"
 	};
 
-	char *dev_type = "mmc";
-	char dev_part[16];
-	int bootdev = mmc_get_env_dev();
-	int i, j;
+	const char *bootlogo;
+	struct blk_desc *dev_desc = amlogic_get_bootdev();
+	int i;
 	int ret;
-	loff_t len;
 	ulong addr;
 
 	addr = simple_strtoull(env_get("bootlogo_addr"), NULL, 0);
 	if (!addr)
 		return 0;
 
-	/* check boot device */
+	logofiles[0] = env_get("bootlogo");
 
-	for (i = 1; i <= 3; i++) {
-		sprintf(dev_part, "%d:%d", bootdev, i);
+	for (i = 0; i < ARRAY_SIZE(logofiles); i++) {
+		bootlogo = logofiles[i];
+		if (!bootlogo)
+			continue;
 
-		for (j = 0; j < ARRAY_SIZE(logofiles); j++) {
-			if (file_exists(dev_type, dev_part, logofiles[j], FS_TYPE_ANY)) {
-				fs_set_blk_dev(dev_type, dev_part, FS_TYPE_ANY);
-				ret = fs_read(logofiles[j], addr, 0, 0, &len);
-				if (ret < 0) {
-					return 0;
-				}
-					return 1;
-			}
-		}
+		ret = load_from_mmc(addr, dev_desc->devnum, 1, bootlogo);
+		if (ret)
+			ret = load_from_mmc(addr, dev_desc->devnum, 2, bootlogo);
+		if (ret == 0)
+			return 1;
 	}
 
 	return 0;

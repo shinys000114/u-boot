@@ -291,6 +291,7 @@ int board_late_init(void)
 		env_set("video-timing", NULL);
 		env_set("displaymode", NULL);
 		env_set("displaymode_option", NULL);
+		env_set("bootlogo", NULL);
 
 		ret = load_boot_config(dev_desc, "config.ini");
 	}
