@@ -298,6 +298,7 @@ int board_late_init(void)
 	if (vu7c_init() == 0) {
 		env_set("user_colorattribute", "rgb,8bit");
 		env_set("colorattribute", "rgb,8bit");
+		env_set("displaymode", "1024x600p60hz");
 	}
 #endif
 
