@@ -1049,7 +1049,7 @@ config DDRFW_TYPE
 
 config CHIPSET_NAME
 	string "T6X CHIPSET NAME"
-	default ""
+	default "t966d5"
 
 config CHIPSET_VARIANT
 	string "T6X CHIPSET VARIANT"
@@ -1068,11 +1068,32 @@ config T6X_SKT
 	help
 		Select T6X SKT config
 
+config T6X_BU301
+	bool "T6X_BU301"
+	select TARGET_T6X_BU301
+	help
+		Select T6X BU301 config
+
+config T6X_BU309
+	bool "T6X_BU309"
+	select TARGET_T6X_BU309
+	help
+		Select T6X BU309 config
+
 endchoice
 
 config TARGET_T6X_SKT
 	bool "T6X SKT board"
 	depends on T6X_SKT
+
+config TARGET_T6X_BU301
+	bool "T6X BU301 board"
+	depends on T6X_BU301
+
+config TARGET_T6X_BU309
+	bool "T6X BU309 board"
+	depends on T6X_BU309
+
 endif
 
 # Amlogic boards
@@ -1168,4 +1189,8 @@ source "board/amlogic/t6w_bs311/Kconfig"
 source "board/amlogic/t6w_bs319/Kconfig"
 
 source "board/amlogic/t6x_skt/Kconfig"
+
+source "board/amlogic/t6x_bu301/Kconfig"
+
+source "board/amlogic/t6x_bu309/Kconfig"
 
