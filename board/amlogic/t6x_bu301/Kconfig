@@ -15,7 +15,7 @@ config DTB_BIND_KERNEL
 
 config BL30_SELECT
 	string "t6X BL30 board config"
-		default "t6X_bu301"
+		default "t6x_bu301"
 
 config CMD_PLLTEST
         bool "support plltest command"
