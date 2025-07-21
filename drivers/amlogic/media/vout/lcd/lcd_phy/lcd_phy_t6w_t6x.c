@@ -238,7 +238,7 @@ static int lcd_phy_param_get_from_reg(struct aml_lcd_drv_s *pdrv,
 				      struct phy_config_s *phy_cfg, struct phy_attr_s *phy)
 {
 	unsigned int data32, chreg, chdig, bit, i;
-	unsigned char vcm_boost_en, phase_sel;
+	unsigned char vcm_boost_en, phase_sel, pn_swap;
 
 	data32 = lcd_ana_read(ANACTRL_DIF_PHY_CNTL15);
 	phy->cv_mode = (data32 >> 20) & 0x1;
@@ -276,6 +276,14 @@ static int lcd_phy_param_get_from_reg(struct aml_lcd_drv_s *pdrv,
 		}
 
 		phase_sel = (chdig >> 0) & 0x3;
+#if IS_ENABLED(CONFIG_MESON_T6W)
+		pn_swap = (chdig >> 4) & 0x3;
+		phy_cfg->ch_ctrl[i].pn_swap =
+			(pn_swap == 0x3) ? 1 : 0;
+#else
+		pn_swap = (chdig >> 3) & 0x1;
+		phy_cfg->ch_ctrl[i].pn_swap = pn_swap;
+#endif
 		phy_cfg->ch_ctrl[i].phase_sel =
 			lcd_phy_get_phase(phy_cfg, PHY_GET_PHASE_SEL_BY_REG, phase_sel);
 	}
@@ -369,14 +377,17 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, int status)
 #if IS_ENABLED(CONFIG_MESON_T6X)
 			if (phy->cv_mode == PHY_CMODE)
 				chdig |= 3 << 4;
+			if (phy_cfg->ch_ctrl[i].pn_swap && phy_cfg->ch_ctrl[i].pn_swap != 0xff)
+				chdig |= 1 << 3;
+#else
+			if (phy_cfg->ch_ctrl[i].pn_swap && phy_cfg->ch_ctrl[i].pn_swap != 0xff)
+				chdig |= 0x3 << 4;
 #endif
 			switch (pdrv->config.basic.lcd_type) {
 			case LCD_LVDS:
 				chdig |= 1 << 10;   //clk inv
 				break;
 			case LCD_MLVDS:
-				chdig |= 0x3 << 4;  //pn swap
-
 				// check lane phase select
 				sel = lcd_phy_get_phase(phy_cfg, PHY_GET_PHASE_REG_BY_SEL,
 							phy_cfg->ch_ctrl[i].phase_sel);
@@ -627,6 +638,29 @@ static unsigned char lcd_phy_lane_phase_sel_def(struct aml_lcd_drv_s *pdrv, unsi
 	return phase_sel_tbl[lane];
 }
 
+static unsigned char lcd_phy_lane_pn_swap_def(struct aml_lcd_drv_s *pdrv, unsigned int lane)
+{
+	unsigned char pn_swap = 0;
+
+#if IS_ENABLED(CONFIG_MESON_T6X)
+	if (lane >= 16)
+#else
+	if (lane >= 12)
+#endif
+		return 0xff;
+
+	switch (pdrv->config.basic.lcd_type) {
+	case LCD_MLVDS:
+		pn_swap = 1;
+		break;
+	default:
+		pn_swap = 0;
+		break;
+	}
+
+	return pn_swap;
+}
+
 static struct lcd_phy_ctrl_s lcd_phy_ctrl_t6w_t6x = {
 #if IS_ENABLED(CONFIG_MESON_T6X)
 	.lane_num = 16,
@@ -639,6 +673,7 @@ static struct lcd_phy_ctrl_s lcd_phy_ctrl_t6w_t6x = {
 	.phy_rterm_dft_val = lcd_phy_rterm_dft_t6w_t6x,
 	.phy_glb_param_dft_val = phy_glb_param_dft_t6w_t6x,
 	.phy_lane_phase_sel_def = lcd_phy_lane_phase_sel_def,
+	.phy_lane_pn_swap_dft = lcd_phy_lane_pn_swap_def,
 	.phy_param_get = lcd_phy_param_get_from_reg,
 	.phy_reg_dump = lcd_phy_reg_dump,
 

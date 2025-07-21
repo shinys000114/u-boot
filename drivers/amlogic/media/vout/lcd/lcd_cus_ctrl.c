@@ -1060,7 +1060,9 @@ static int lcd_cus_ctrl_attr_parse_tuning_attr_ini(struct aml_lcd_drv_s *pdrv,
 		sprintf(key_str, "ch%u_phase", i);
 		phy_cfg->ch_ctrl[i].phase_sel = lcd_ini_get_val(inip, tuning_sec, key_str, 0xff);
 
-		phy_cfg->ch_ctrl[i].pn_swap = 0; //reversed
+		sprintf(key_str, "ch%u_pn_swap", i);
+		phy_cfg->ch_ctrl[i].pn_swap =
+			lcd_ini_get_val(inip, tuning_sec, key_str, phy_cfg->ch_ctrl[i].pn_swap);
 
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDPR("%s: lane[%d]: sel=0x%x, pn_swap=%d, phase_sel=0x%x\n",
