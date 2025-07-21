@@ -112,11 +112,41 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 
 static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 	{
+		.name = "lcd_vbyone_pin", //GPIOH_0/1
+		.pinmux_set = {{0x7, 0x44}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x7, 0xff}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "lcd_minilvds_pin", //GPIOH_0~6
+		.pinmux_set = {{7, 0x01111111}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{7, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "lcd_p2p_pin", //GPIOH_0~6
+		.pinmux_set = {{7, 0x01111112}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{7, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "lcd_p2p_usit_pin", //GPIOH_0~6
+		.pinmux_set = {{7, 0x01111113}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{7, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
 		.name = "invalid",
 	},
 };
 
 static struct lcd_pinmux_ctrl_s lcd0_bl_pinmux_ctrl[BL_PINMUX_MAX] = {
+	{
+		.name = "bl_pwm_on_pin", /*GPIOH_12*/
+		.pinmux_set = {{0x8, 0x40000}, {LCD_PINMUX_END, 0x0} },
+		.pinmux_clr = {{0x8, 0xf0000}, {LCD_PINMUX_END, 0x0} },
+	},
+	{
+		.name = "bl_pwm_vs_on_pin", //GPIOH_12
+		.pinmux_set = {{0x8, 0x30000}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x8, 0xf0000}, {LCD_PINMUX_END, 0x0}},
+	},
 	{
 		.name = "invalid",
 	},

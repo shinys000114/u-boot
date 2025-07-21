@@ -29,6 +29,12 @@ static void lcd_lane_map_chip_init(struct aml_lcd_drv_s *pdrv, struct phy_config
 		}
 		break;
 #endif
+#if defined(CONFIG_MESON_T6X)
+	case LCD_CHIP_T6X:
+		phy_cfg->lane_offset = 0;
+		phy_cfg->lane_mask = 0xffff;
+		break;
+#endif
 	default: //common 12lane
 		phy_cfg->lane_offset = 0;
 		phy_cfg->lane_mask = 0xfff;
@@ -277,6 +283,7 @@ static void lcd_lvds_lane_swap(struct aml_lcd_drv_s *pdrv, unsigned int *map0, u
 		break;
 
 	case LCD_CHIP_T3X:
+	case LCD_CHIP_T6X:
 		if (lcd_bits == 30) {
 			valid_port0_s = 0;
 			valid_port0_e = 5;
@@ -481,6 +488,7 @@ __maybe_unused static void lcd_lane_map_set(struct aml_lcd_drv_s *pdrv)
 	switch (pdrv->data->chip_type) {
 #if defined(CONFIG_MESON_T3X)
 	case LCD_CHIP_T3X: /* reg P2P_CH_SWAP can't readback, so print value when write reg */
+	case LCD_CHIP_T6X:
 		lcd_vcbus_write(P2P_CH_SWAP0 + offset, pdrv->config.phy_cfg.ch_swap0);
 		lcd_vcbus_write(P2P_CH_SWAP1 + offset, pdrv->config.phy_cfg.ch_swap1);
 		LCDPR("[%d]: %s: P2P_CH_SWAP0=0x%x, P2P_CH_SWAP1=0x%x\n",
@@ -656,6 +664,7 @@ void lcd_lvds_dphy_set(struct aml_lcd_drv_s *pdrv, unsigned char on_off)
 #if defined(CONFIG_MESON_T6W) || defined(CONFIG_MESON_T6D)
 	case LCD_CHIP_T6D:
 	case LCD_CHIP_T6W:
+	case LCD_CHIP_T6X:
 		if (on_off) {
 			lcd_ana_write(ANACTRL_LVDS_TX_PHY_CNTL1, 0x03000000);
 			lcd_lane_map_set(pdrv);
@@ -781,6 +790,7 @@ void lcd_vbyone_dphy_set(struct aml_lcd_drv_s *pdrv, unsigned char on_off)
 #endif
 #if defined(CONFIG_MESON_T6W)
 	case LCD_CHIP_T6W:
+	case LCD_CHIP_T6X:
 		if (on_off) {
 			lcd_ana_write(ANACTRL_LVDS_TX_PHY_CNTL1, 0x03000000);
 			// lane_swap_set
@@ -874,6 +884,7 @@ void lcd_mlvds_dphy_set(struct aml_lcd_drv_s *pdrv, unsigned char on_off)
 		break;
 	case LCD_CHIP_T6D:
 	case LCD_CHIP_T6W:
+	case LCD_CHIP_T6X:
 		if (on_off) {
 			lcd_ana_write(ANACTRL_LVDS_TX_PHY_CNTL1, 0x03000000);
 			// lane_swap_set
@@ -927,6 +938,7 @@ void lcd_p2p_dphy_set(struct aml_lcd_drv_s *pdrv, unsigned char on_off)
 
 	switch (pdrv->data->chip_type) {
 	case LCD_CHIP_T6W:
+	case LCD_CHIP_T6X:
 		if (on_off) {
 			lcd_ana_write(ANACTRL_LVDS_TX_PHY_CNTL1, 0x03000000);
 			// lane_swap_set
@@ -1240,6 +1252,7 @@ void lcd_dphy_reg_print(struct aml_lcd_drv_s *pdrv)
 	case LCD_CHIP_T5M:
 	case LCD_CHIP_T6D:
 	case LCD_CHIP_T6W:
+	case LCD_CHIP_T6X:
 		reg_ch_swap = ch_swap_reg_dft;
 		size_ch_swap = ARRAY_SIZE(ch_swap_reg_dft);
 		reg_dphy_table = &dphy_reg_t5m[0];

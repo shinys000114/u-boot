@@ -10,11 +10,13 @@
 #include "lcd_phy_config.h"
 #include "../lcd_common.h"
 
-#ifdef CONFIG_MESON_T6W
+#if defined(CONFIG_MESON_T6W) || defined(CONFIG_MESON_T6X)
 #define PHY_DFT_ODT_CM  0x30
 #define PHY_DFT_ODT_VM  0x9
 #define PHY_DFT_BIAS    0x10
 static unsigned int cali_bias, cali_odt_cm, cali_odt_vm;
+
+#if IS_ENABLED(CONFIG_MESON_T6W)
 static unsigned int chreg_reg[6] = {
 	ANACTRL_DIF_PHY_CNTL1, ANACTRL_DIF_PHY_CNTL2,
 	ANACTRL_DIF_PHY_CNTL3, ANACTRL_DIF_PHY_CNTL4,
@@ -26,6 +28,21 @@ static unsigned int chdig_reg[6] = {
 	ANACTRL_DIF_PHY_CNTL10, ANACTRL_DIF_PHY_CNTL11,
 	ANACTRL_DIF_PHY_CNTL12, ANACTRL_DIF_PHY_CNTL13
 };
+#else
+static unsigned int chreg_reg[8] = {
+	ANACTRL_DIF_PHY_CNTL1, ANACTRL_DIF_PHY_CNTL2,
+	ANACTRL_DIF_PHY_CNTL3, ANACTRL_DIF_PHY_CNTL4,
+	ANACTRL_DIF_PHY_CNTL6, ANACTRL_DIF_PHY_CNTL7,
+	ANACTRL_DIF_PHY_CNTL16, ANACTRL_DIF_PHY_CNTL17
+};
+
+static unsigned int chdig_reg[8] = {
+	ANACTRL_DIF_PHY_CNTL8, ANACTRL_DIF_PHY_CNTL9,
+	ANACTRL_DIF_PHY_CNTL10, ANACTRL_DIF_PHY_CNTL11,
+	ANACTRL_DIF_PHY_CNTL12, ANACTRL_DIF_PHY_CNTL13,
+	ANACTRL_DIF_PHY_CNTL18, ANACTRL_DIF_PHY_CNTL19
+};
+#endif
 
 static unsigned int lcd_phy_get_dft_odt_cm(void)
 {
@@ -72,6 +89,7 @@ static unsigned int lcd_phy_get_dft_bias(void)
 
 static void lcd_phy_reg_dump(struct aml_lcd_drv_s *pdrv)
 {
+#if IS_ENABLED(CONFIG_MESON_T6W)
 	struct reg_name_set_s reg_table[] = {
 		{ANACTRL_DIF_PHY_CNTL1,  "PHY_CNTL1"},
 		{ANACTRL_DIF_PHY_CNTL2,  "PHY_CNTL2"},
@@ -88,7 +106,29 @@ static void lcd_phy_reg_dump(struct aml_lcd_drv_s *pdrv)
 		{ANACTRL_DIF_PHY_CNTL14, "PHY_CNTL14"},
 		{ANACTRL_DIF_PHY_CNTL15, "PHY_CNTL15"}
 	};
+#else
+	struct reg_name_set_s reg_table[] = {
+		{ANACTRL_DIF_PHY_CNTL1,  "PHY_CNTL1"},
+		{ANACTRL_DIF_PHY_CNTL2,  "PHY_CNTL2"},
+		{ANACTRL_DIF_PHY_CNTL3,  "PHY_CNTL3"},
+		{ANACTRL_DIF_PHY_CNTL4,  "PHY_CNTL4"},
+		{ANACTRL_DIF_PHY_CNTL6,  "PHY_CNTL6"},
+		{ANACTRL_DIF_PHY_CNTL7,  "PHY_CNTL7"},
+		{ANACTRL_DIF_PHY_CNTL8,  "PHY_CNTL8"},
+		{ANACTRL_DIF_PHY_CNTL9,  "PHY_CNTL9"},
+		{ANACTRL_DIF_PHY_CNTL10, "PHY_CNTL10"},
+		{ANACTRL_DIF_PHY_CNTL11, "PHY_CNTL11"},
+		{ANACTRL_DIF_PHY_CNTL12, "PHY_CNTL12"},
+		{ANACTRL_DIF_PHY_CNTL13, "PHY_CNTL13"},
+		{ANACTRL_DIF_PHY_CNTL14, "PHY_CNTL14"},
+		{ANACTRL_DIF_PHY_CNTL15, "PHY_CNTL15"},
+		{ANACTRL_DIF_PHY_CNTL16, "PHY_CNTL16"},
+		{ANACTRL_DIF_PHY_CNTL17, "PHY_CNTL17"},
+		{ANACTRL_DIF_PHY_CNTL18, "PHY_CNTL18"},
+		{ANACTRL_DIF_PHY_CNTL19, "PHY_CNTL19"}
+	};
 
+#endif
 	str_add_reg_sets(pdrv, LCD_REG_DBG_ANA_BUS, 0,
 			 reg_table, ARRAY_SIZE(reg_table));
 }
@@ -300,7 +340,11 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, int status)
 		reg_data = 1 << 0;
 	} else {
 		reg_data = 0;
+#if IS_ENABLED(CONFIG_MESON_T6X)
+		lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, 0x1140d100);
+#else
 		lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, 0x1300d100);
+#endif
 		lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, 0x30800000);
 	}
 
@@ -322,6 +366,10 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, int status)
 			}
 
 			chdig |= 1 << 15;
+#if IS_ENABLED(CONFIG_MESON_T6X)
+			if (phy->cv_mode == PHY_CMODE)
+				chdig |= 3 << 4;
+#endif
 			switch (pdrv->config.basic.lcd_type) {
 			case LCD_LVDS:
 				chdig |= 1 << 10;   //clk inv
@@ -365,8 +413,11 @@ static void lcd_phy_init_off(void)
 
 static void lcd_lvds_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 {
+#if IS_ENABLED(CONFIG_MESON_T6X)
+	unsigned int cntl14 = 0x1158d107;
+#else
 	unsigned int cntl14 = 0x1310d107;
-
+#endif
 	if (status) {
 		lcd_phy_common_update(pdrv, cntl14);
 		lcd_phy_cntl_set(pdrv, status);
@@ -379,7 +430,11 @@ static void lcd_lvds_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 
 static void lcd_vbyone_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 {
-	unsigned int cntl14 = 0x1310d107;
+#if IS_ENABLED(CONFIG_MESON_T6X)
+	unsigned int cntl14 = 0x1198a107;
+#else
+	unsigned int cntl14 = 0x1310a107;
+#endif
 
 	if (status) {
 		cntl14 |= (3 << 16); //div10
@@ -394,7 +449,11 @@ static void lcd_vbyone_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 
 static void lcd_mlvds_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 {
+#if IS_ENABLED(CONFIG_MESON_T6X)
+	unsigned int cntl14 = 0x1158d107;
+#else
 	unsigned int cntl14 = 0x1310d107;
+#endif
 
 	if (status) {
 		if (pdrv->config.timing.act_timing.lcd_bits == 18)
@@ -416,7 +475,11 @@ static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 {
 	struct p2p_config_s *p2p_conf;
 	unsigned int p2p_type;
+#if IS_ENABLED(CONFIG_MESON_T6X)
+	unsigned int cntl14 = 0x1198d107;
+#else
 	unsigned int cntl14 = 0x1310d107;
+#endif
 
 	p2p_conf = &pdrv->config.control.p2p_cfg;
 	if (status) {
@@ -455,7 +518,7 @@ static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 	}
 }
 
-static unsigned int lcd_phy_vswing_level_to_val_t6w(struct aml_lcd_drv_s *pdrv, unsigned int level)
+static unsigned int lcd_phy_vswing_level_to_val_t6w_t6x(struct aml_lcd_drv_s *pdrv, unsigned int level)
 {
 	if (level < 0xf)
 		return level;
@@ -463,7 +526,7 @@ static unsigned int lcd_phy_vswing_level_to_val_t6w(struct aml_lcd_drv_s *pdrv, 
 	return 0;
 }
 
-static unsigned int lcd_phy_preem_level_to_val_t6w(struct aml_lcd_drv_s *pdrv, unsigned int level)
+static unsigned int lcd_phy_preem_level_to_val_t6w_t6x(struct aml_lcd_drv_s *pdrv, unsigned int level)
 {
 	struct phy_attr_s *phy = pdrv->config.phy_cfg.act_phy;
 	unsigned int phy_cmode_preem[8] = {0x0, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xf};
@@ -480,7 +543,7 @@ static unsigned int lcd_phy_preem_level_to_val_t6w(struct aml_lcd_drv_s *pdrv, u
 	return 0;
 }
 
-static unsigned int lcd_phy_amp_dft_t6w(struct aml_lcd_drv_s *pdrv)
+static unsigned int lcd_phy_amp_dft_t6w_t6x(struct aml_lcd_drv_s *pdrv)
 {
 	if (pdrv->config.basic.lcd_type == LCD_VBYONE)
 		return 0x4;
@@ -488,7 +551,7 @@ static unsigned int lcd_phy_amp_dft_t6w(struct aml_lcd_drv_s *pdrv)
 	return 0x0;
 }
 
-static unsigned int lcd_phy_rterm_dft_t6w(struct aml_lcd_drv_s *pdrv)
+static unsigned int lcd_phy_rterm_dft_t6w_t6x(struct aml_lcd_drv_s *pdrv)
 {
 	struct phy_attr_s *phy = pdrv->config.phy_cfg.act_phy;
 
@@ -498,7 +561,7 @@ static unsigned int lcd_phy_rterm_dft_t6w(struct aml_lcd_drv_s *pdrv)
 	return 0x0;
 }
 
-static void phy_glb_param_dft_t6w(struct aml_lcd_drv_s *pdrv)
+static void phy_glb_param_dft_t6w_t6x(struct aml_lcd_drv_s *pdrv)
 {
 	struct phy_attr_s *phy = pdrv->config.phy_cfg.act_phy;
 
@@ -564,14 +627,17 @@ static unsigned char lcd_phy_lane_phase_sel_def(struct aml_lcd_drv_s *pdrv, unsi
 	return phase_sel_tbl[lane];
 }
 
-static struct lcd_phy_ctrl_s lcd_phy_ctrl_t6w = {
+static struct lcd_phy_ctrl_s lcd_phy_ctrl_t6w_t6x = {
+#if IS_ENABLED(CONFIG_MESON_T6X)
+	.lane_num = 16,
+#else
 	.lane_num = 12,
-
-	.phy_vswing_level_to_val = lcd_phy_vswing_level_to_val_t6w,
-	.phy_preem_level_to_val = lcd_phy_preem_level_to_val_t6w,
-	.phy_amp_dft_val = lcd_phy_amp_dft_t6w,
-	.phy_rterm_dft_val = lcd_phy_rterm_dft_t6w,
-	.phy_glb_param_dft_val = phy_glb_param_dft_t6w,
+#endif
+	.phy_vswing_level_to_val = lcd_phy_vswing_level_to_val_t6w_t6x,
+	.phy_preem_level_to_val = lcd_phy_preem_level_to_val_t6w_t6x,
+	.phy_amp_dft_val = lcd_phy_amp_dft_t6w_t6x,
+	.phy_rterm_dft_val = lcd_phy_rterm_dft_t6w_t6x,
+	.phy_glb_param_dft_val = phy_glb_param_dft_t6w_t6x,
 	.phy_lane_phase_sel_def = lcd_phy_lane_phase_sel_def,
 	.phy_param_get = lcd_phy_param_get_from_reg,
 	.phy_reg_dump = lcd_phy_reg_dump,
@@ -583,7 +649,7 @@ static struct lcd_phy_ctrl_s lcd_phy_ctrl_t6w = {
 	.phy_set_mipi = NULL,
 };
 
-struct lcd_phy_ctrl_s *lcd_phy_config_init_t6w(struct aml_lcd_data_s *pdata)
+struct lcd_phy_ctrl_s *lcd_phy_config_init_t6w_t6x(struct aml_lcd_data_s *pdata)
 {
 	cali_odt_cm = lcd_phy_get_dft_odt_cm();
 	cali_odt_vm = lcd_phy_get_dft_odt_vm();
@@ -591,6 +657,6 @@ struct lcd_phy_ctrl_s *lcd_phy_config_init_t6w(struct aml_lcd_data_s *pdata)
 
 	lcd_phy_init_off();
 
-	return &lcd_phy_ctrl_t6w;
+	return &lcd_phy_ctrl_t6w_t6x;
 }
 #endif

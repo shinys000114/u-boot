@@ -282,9 +282,10 @@ int lcd_phy_config_init(struct aml_lcd_data_s *pdata)
 		lcd_phy_ctrl = lcd_phy_config_init_t6d(pdata);
 		break;
 #endif
-#ifdef CONFIG_MESON_T6W
+#if IS_ENABLED(CONFIG_MESON_T6W) || IS_ENABLED(CONFIG_MESON_T6X)
 	case LCD_CHIP_T6W:
-		lcd_phy_ctrl = lcd_phy_config_init_t6w(pdata);
+	case LCD_CHIP_T6X:
+		lcd_phy_ctrl = lcd_phy_config_init_t6w_t6x(pdata);
 		break;
 #endif
 	default:
