@@ -400,7 +400,10 @@ int checkhw(char *name)
 					((readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4);
 
 	switch (ddr_size) {
-	case 0x100000000UL:
+	case 0xC0000000UL:
+		strcpy(dtb_name, "t6w_t966d5_bu301-3g\0");
+		break;
+	case 0xE0000000UL:
 		strcpy(dtb_name, "t6w_t966d5_bu301-4g\0");
 		break;
 	case 0x180000000UL:
