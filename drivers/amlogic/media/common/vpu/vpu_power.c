@@ -91,7 +91,8 @@ void vpu_module_init_config(void)
 	    vpu_conf.data->chip_type == VPU_CHIP_T5W ||
 		vpu_conf.data->chip_type == VPU_CHIP_T5M ||
 		vpu_conf.data->chip_type == VPU_CHIP_T6D ||
-		vpu_conf.data->chip_type == VPU_CHIP_T6W)
+		vpu_conf.data->chip_type == VPU_CHIP_T6W ||
+		vpu_conf.data->chip_type == VPU_CHIP_T6X)
 		viu_init_psci_smc(0);
 #endif
 	/* S5 new add registers */

@@ -2289,6 +2289,7 @@ static struct num_str_s p2p_type_name[] = {
 	{P2P_CHPI, "CHPI"},
 	{P2P_CSPI, "CSPI"},
 	{P2P_USIT, "USIT"},
+	{P2P_CSPI_NEW, "CSPI_NEW"},
 	{P2P_MAX,  "Invalid"}
 };
 
@@ -2660,6 +2661,7 @@ static int lcd_panel_parse_interface(struct json_parse_s *jsp, struct aml_lcd_dr
 		str = json_get_obj_str(jsp, parent, "protocol", "Invalid");
 		p2p->p2p_type = strnum_get_num(str, p2p_type_name, ARRAY_SIZE(p2p_type_name),
 					       P2P_MAX);
+		p2p->cspi_alpha = json_get_obj_u32(jsp, parent, "cspi_alpha", 80);
 		break;
 	case LCD_MLVDS:
 		mlvds = &cfg->mlvds_cfg;
@@ -3335,6 +3337,7 @@ static int lcd_config_load_from_ini(struct aml_lcd_drv_s *pdrv)
 		pctrl->p2p_cfg.bit_swap = lcd_ini_get_val(inip, psec, "if_attr_7", 0);
 		pctrl->p2p_cfg.phy_vswing = lcd_ini_get_val(inip, psec, "if_attr_8", 0);
 		pctrl->p2p_cfg.phy_preem = lcd_ini_get_val(inip, psec, "if_attr_9", 0);
+		pctrl->p2p_cfg.cspi_alpha = lcd_ini_get_val(inip, psec, "cspi_alpha", 80);
 
 		phy_cfg->vswing_level = pctrl->p2p_cfg.phy_vswing & 0xf;
 		phy_cfg->ext_pullup = (pctrl->p2p_cfg.phy_vswing >> 4) & 0x3;

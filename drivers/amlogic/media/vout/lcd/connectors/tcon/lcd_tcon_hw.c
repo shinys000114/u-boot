@@ -84,6 +84,7 @@ void tcon_lut_dma_deinit(struct aml_lcd_drv_s *pdrv, struct lcd_tcon_dma_ops_s *
 	case LCD_CHIP_T5M:
 	case LCD_CHIP_T3X:
 	case LCD_CHIP_T6W:
+	case LCD_CHIP_T6X:
 		lcd_tcon_setb(0x367, 0, 16, 1); // disable tcon intr
 		lcd_tcon_setb(0x207, 0, 31, 1); // disable dma clk
 		break;
@@ -244,7 +245,7 @@ static void lcd_tcon_core_reg_set(struct aml_lcd_drv_s *pdrv,
 	struct lcd_tcon_reg_skip_s *skip_range = NULL;
 	unsigned char *table8;
 	unsigned int *table32;
-	unsigned int len, offset;
+	unsigned int len, offset, p2p_type, cspi_alpha;
 	int i, j, ret;
 
 	if (!tcon_conf || !mm_table || !core_reg_table) {
@@ -264,6 +265,8 @@ static void lcd_tcon_core_reg_set(struct aml_lcd_drv_s *pdrv,
 		}
 	}
 
+	p2p_type = pdrv->config.control.p2p_cfg.p2p_type & 0x1f;
+	cspi_alpha = pdrv->config.control.p2p_cfg.cspi_alpha;
 	len = mm_table->core_reg_table_size;
 	offset = tcon_conf->core_reg_start;
 	if (tcon_conf->core_reg_width == 8) {
@@ -291,6 +294,12 @@ static void lcd_tcon_core_reg_set(struct aml_lcd_drv_s *pdrv,
 			for (i = offset; i < len; i++)
 				lcd_tcon_write(i, table8[i]);
 		}
+	}
+
+	if (p2p_type == P2P_CSPI_NEW) {
+		lcd_tcon_setb(0x496, cspi_alpha, 21, 8);
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+			LCDPR("%s: set cspi new coding array_len=%#x\n", __func__, cspi_alpha);
 	}
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)

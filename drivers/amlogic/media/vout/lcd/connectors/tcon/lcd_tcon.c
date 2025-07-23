@@ -2041,6 +2041,39 @@ static struct lcd_tcon_config_s tcon_data_t6w = {
 	.tcon_check = lcd_tcon_setting_check_t5m,
 };
 
+static struct lcd_tcon_config_s tcon_data_t6x = {
+	.tcon_valid = 0,
+
+	.core_reg_ver = 1, /* new version with header */
+	.core_reg_width = LCD_TCON_CORE_REG_WIDTH_T5,
+	.reg_table_width = LCD_TCON_TABLE_WIDTH_T5,
+	.reg_table_len = LCD_TCON_TABLE_LEN_T6W,
+	.core_reg_start = TCON_CORE_REG_START_T6W,
+	.reg_skip_tbl = tcon_skip_reg_tbl_t6w,
+	.reg_skip_tbl_len = ARRAY_SIZE(tcon_skip_reg_tbl_t6w),
+
+	.axi_bank = LCD_TCON_AXI_BANK_T3X,
+
+	.rsv_mem_size    = 0x00a02840,
+	.axi_size        = 0x00a00000, /* 10M */
+	.bin_path_size   = 0x00002800, /* 10K */
+	.secure_cfg_size = 0x00000040, /* 64byte */
+
+	.init_pre_setting = lcd_tcon_init_pre_setting_t6w,
+	.axi_tbl_len = ARRAY_SIZE(axi_mem_cfg_tbl_t3x),
+	.axi_mem_cfg_tbl = (axi_mem_cfg_tbl_t3x),
+	.lut_dma_ops = &lcd_tcon_dma_ops_t6w,
+
+	.tcon_init_table_pre_proc = lcd_tcon_init_table_pre_proc,
+	.tcon_lut_post_proc = lcd_tcon_lut_post_proc,
+	.tcon_global_reset = lcd_tcon_global_reset_t5m,
+	.tcon_top_init = lcd_tcon_top_set_t6d,
+	.tcon_enable = lcd_tcon_enable_t5m,
+	.tcon_disable = lcd_tcon_disable_t5m,
+	.tcon_forbidden_check = lcd_tcon_forbidden_check_4k,
+	.tcon_check = lcd_tcon_setting_check_t5m,
+};
+
 int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *pdrv, int load_id)
 {
 	int ret = 0;
@@ -2062,6 +2095,9 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *pdrv, int load_id)
 		break;
 	case LCD_CHIP_T6W:
 		lcd_tcon_conf = &tcon_data_t6w;
+		break;
+	case LCD_CHIP_T6X:
+		lcd_tcon_conf = &tcon_data_t6x;
 		break;
 	default:
 		break;

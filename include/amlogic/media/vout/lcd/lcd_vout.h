@@ -430,6 +430,7 @@ enum p2p_type_e {
 	P2P_CHPI = 0x10, /* low common mode */
 	P2P_CSPI,
 	P2P_USIT,
+	P2P_CSPI_NEW,  /* CSPI New Coding */
 	P2P_MAX,
 };
 
@@ -442,6 +443,9 @@ struct p2p_config_s {
 	unsigned int bit_swap; /* MSB/LSB reverse */
 	unsigned int phy_vswing;
 	unsigned int phy_preem;
+
+	// cspi new coding: adjust phy bitrate using alpha value
+	unsigned int cspi_alpha;
 };
 
 #define PHY_BIT_VSWING      BIT(0)

@@ -545,6 +545,7 @@ void lcd_p2p_bit_rate_config(struct aml_lcd_drv_s *pdrv)
 	struct lcd_config_s *pconf = &pdrv->config;
 	unsigned int p2p_type, lcd_bits, lane_num, clk_mode;
 	unsigned long long bit_rate, band_width;
+	unsigned long long cspi_alpha = 0, frame_rate = 0, vtt = 0;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
@@ -554,6 +555,9 @@ void lcd_p2p_bit_rate_config(struct aml_lcd_drv_s *pdrv)
 	lane_num = pconf->control.p2p_cfg.lane_num;
 	band_width = pconf->timing.act_timing.pixel_clk;
 	p2p_type = pconf->control.p2p_cfg.p2p_type & 0x1f;
+	cspi_alpha = pconf->control.p2p_cfg.cspi_alpha;
+	frame_rate = pconf->timing.act_timing.frame_rate;
+	vtt = pconf->timing.act_timing.v_period;
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		LCDPR("clk_mode=%d (%s)\n", clk_mode,
 			(clk_mode == LCD_BIT_RATE_ADAPT) ? "adapt" : "fixed");
@@ -578,6 +582,9 @@ void lcd_p2p_bit_rate_config(struct aml_lcd_drv_s *pdrv)
 			/* 8/9 coding */
 			band_width = lcd_do_div((band_width * lcd_bits * 9), 8);
 		}
+		break;
+	case P2P_CSPI_NEW: /* cspi new coding */
+		band_width = frame_rate * vtt * 108 * cspi_alpha * lane_num;
 		break;
 	case P2P_USIT: /*9to10*/
 		if (clk_mode == LCD_BIT_RATE_FIXED)
