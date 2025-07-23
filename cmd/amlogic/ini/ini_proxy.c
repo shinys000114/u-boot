@@ -120,6 +120,15 @@ void ini_list_section(void)
 	_ini_list_section(_g_handler_data);
 }
 
+int ini_section_exist(const char *section)
+{
+	if (!_g_handler_data) {
+		ALOGE("%s, ini load file error!\n", __func__);
+		return -1;
+	}
+	return _ini_section_exist(section, _g_handler_data);
+}
+
 const char *ini_get_string(const char *section, const char *key, const char *def_value)
 {
 	if (!_g_handler_data)

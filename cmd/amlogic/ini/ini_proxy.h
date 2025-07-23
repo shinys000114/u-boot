@@ -23,6 +23,7 @@ int ini_set_save_file_name(const char *filename);
 void ini_parser_free(void);
 void ini_print_all(void);
 void ini_list_section(void);
+int ini_section_exist(const char *section);
 const char *ini_get_string(const char *section, const char *key, const char *def_value);
 int ini_set_string(const char *section, const char *key, const char *value);
 int ini_save_to_file(const char *filename);

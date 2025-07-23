@@ -258,6 +258,19 @@ void _ini_list_section(INI_HANDLER_DATA *pHandlerData)
 		printf("  %s\n", pSec->Name);
 }
 
+int _ini_section_exist(const char *section, INI_HANDLER_DATA *pHandlerData)
+{
+	INI_SECTION *pSec = NULL;
+	int ret = 0;
+
+	for (pSec = pHandlerData->mpFirstSection; pSec != NULL; pSec = pSec->pNext) {
+		if (strcmp(pSec->Name, section) == 0)
+			ret = 1;
+	}
+
+	return ret;
+}
+
 static INI_SECTION *_get_section(const char *section, INI_HANDLER_DATA *pHandlerData)
 {
 	INI_SECTION *pSec = NULL;
