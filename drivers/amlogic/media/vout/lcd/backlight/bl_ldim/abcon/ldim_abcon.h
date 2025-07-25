@@ -86,8 +86,9 @@ struct abcon_s {
 	unsigned char chip_type;
 	unsigned char seg_row;
 	unsigned char seg_col;
-	unsigned char act_lane;
-	unsigned int lane_ch[4];
+	unsigned char act_lane_num;
+	unsigned int act_lane;
+	unsigned int lane_ch[12];
 	unsigned int max_lane_dim;
 	unsigned int max_lane_ch;
 	unsigned int tot_ch_num;
