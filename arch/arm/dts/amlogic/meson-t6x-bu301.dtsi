@@ -236,8 +236,8 @@
 &usb30_phy_v2 {
 	status = "okay";
 	portnum = <0>;
-	gpio-vbus-power = "GPIOC_10";
-	gpios = <&gpio GPIOC_10 GPIO_ACTIVE_HIGH>;
+	//gpio-vbus-power = "GPIOC_10";
+	//gpios = <&gpio GPIOC_10 GPIO_ACTIVE_HIGH>;
 };
 
 &crg1 {
