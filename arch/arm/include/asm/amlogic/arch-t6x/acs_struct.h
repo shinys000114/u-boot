@@ -1,7 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0 */
 /*
-* Copyright (C) 2025 Amlogic, Inc. All rights reserved.
+* Copyright (c) 2025 Amlogic, Inc. All rights reserved.
 *
+* This source code is subject to the terms and conditions defined in the
+* file 'LICENSE' which is part of this source code package.
 */
 
 #ifndef __ACS_STRUCT_H__
