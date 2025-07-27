@@ -17,9 +17,9 @@
 #define VMIN_SS_VALUE                           810
 /* board vddee_value defines */
 /* SS/TT/FF = 0.87V */
-#define VDDEE_FF_VALUE                          0x0005000d
-#define VDDEE_TT_VALUE                          0x0005000d
-#define VDDEE_SS_VALUE                          0x0005000d
+#define VDDEE_FF_VALUE                          0x00020010
+#define VDDEE_TT_VALUE                          0x00020010
+#define VDDEE_SS_VALUE                          0x00020010
 
 board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {
@@ -111,50 +111,44 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 /* VDDEE PWM table */
-#if   (VDDEE_VAL == 729)
-#define PWM_CONSTANT_OUT
-#define VDDEE_VAL_REG	0x00140000
-#elif (VDDEE_VAL == 739)
+#if   (VDDEE_VAL == 710)
 #define VDDEE_VAL_REG   0x00120000
-#elif (VDDEE_VAL == 749)
+#elif (VDDEE_VAL == 720)
 #define VDDEE_VAL_REG   0x00110001
-#elif (VDDEE_VAL == 759)
+#elif (VDDEE_VAL == 730)
 #define VDDEE_VAL_REG   0x00100002
-#elif (VDDEE_VAL == 769)
+#elif (VDDEE_VAL == 740)
 #define VDDEE_VAL_REG   0x000f0003
-#elif (VDDEE_VAL == 779)
+#elif (VDDEE_VAL == 750)
 #define VDDEE_VAL_REG   0x000e0004
-#elif (VDDEE_VAL == 789)
+#elif (VDDEE_VAL == 760)
 #define VDDEE_VAL_REG   0x000d0005
-#elif (VDDEE_VAL == 799)
+#elif (VDDEE_VAL == 770)
 #define VDDEE_VAL_REG   0x000c0006
-#elif (VDDEE_VAL == 809)
+#elif (VDDEE_VAL == 780)
 #define VDDEE_VAL_REG   0x000b0007
-#elif (VDDEE_VAL == 819)
+#elif (VDDEE_VAL == 790)
 #define VDDEE_VAL_REG   0x000a0008
-#elif (VDDEE_VAL == 829)
+#elif (VDDEE_VAL == 800)
 #define VDDEE_VAL_REG   0x00090009
-#elif (VDDEE_VAL == 839)
+#elif (VDDEE_VAL == 810)
 #define VDDEE_VAL_REG   0x0008000a
-#elif (VDDEE_VAL == 849)
+#elif (VDDEE_VAL == 820)
 #define VDDEE_VAL_REG   0x0007000b
-#elif (VDDEE_VAL == 859)
+#elif (VDDEE_VAL == 830)
 #define VDDEE_VAL_REG   0x0006000c
-#elif (VDDEE_VAL == 869)
+#elif (VDDEE_VAL == 840)
 #define VDDEE_VAL_REG   0x0005000d
-#elif (VDDEE_VAL == 879)
+#elif (VDDEE_VAL == 850)
 #define VDDEE_VAL_REG   0x0004000e
-#elif (VDDEE_VAL == 889)
+#elif (VDDEE_VAL == 860)
 #define VDDEE_VAL_REG   0x0003000f
-#elif (VDDEE_VAL == 899)
+#elif (VDDEE_VAL == 870)
 #define VDDEE_VAL_REG   0x00020010
-#elif (VDDEE_VAL == 909)
+#elif (VDDEE_VAL == 880)
 #define VDDEE_VAL_REG   0x00010011
-#elif (VDDEE_VAL == 919)
+#elif (VDDEE_VAL == 890)
 #define VDDEE_VAL_REG   0x00000012
-#elif (VDDEE_VAL == 929)
-#define PWM_CONSTANT_OUT
-#define VDDEE_VAL_REG	0x00000014
 #else
 #error "VDDEE val out of range\n"
 #endif
