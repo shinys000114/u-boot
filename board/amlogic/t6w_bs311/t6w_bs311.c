@@ -136,7 +136,7 @@ int board_init(void)
 	clrsetbits_le32(PADCTRL_PIN_MUX_REGB, 0xf << 20, 0x1 << 20);//set GPIOD_5 pinmux as IR_IN
 
 	printf("board init\n");
-
+	run_command("gpio clr GPIOC_10", 0);
 #if 0
 	run_command("startdsp 0 0x300a0000 0", 0);
 	printf("dsp start!\n");
