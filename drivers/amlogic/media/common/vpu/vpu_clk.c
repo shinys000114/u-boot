@@ -201,6 +201,29 @@ int change_vpu_clk(struct vpu_conf_s *vconf, unsigned int vclk)
 	return 0;
 }
 
+/*
+* bit31   bit8
+* 0        0       A
+* 0        1       B
+* 1        0       A
+* 1        1       A
+*/
+static void t6x_set_def_vpu_div_clk(unsigned int reg, int sel, int div)
+{
+	unsigned int reg_val;
+
+	reg_val = vpu_hiu_read(reg);
+	if (reg_val & (1 << 31) || !(reg_val & (1 << 8))) {
+		vpu_hiu_write(reg, (reg_val & ~((0x7 << 9) | (1 << 8) | (0x7f << 0))) |
+			(sel << 9) | (1 << 8) | (div << 0));
+		vpu_hiu_write(reg, vpu_hiu_read(reg) & ~(1 << 31));
+	} else {
+		vpu_hiu_write(reg, (reg_val & ~((0x7 << 25) | (1 << 24) | (0x7f << 16))) |
+			(sel << 25) | (1 << 24) | (div << 16));
+		vpu_hiu_write(reg, vpu_hiu_read(reg) | (1 << 31));
+	}
+}
+
 static int adjust_vpu_clk(struct vpu_conf_s *vconf, unsigned int clk_level)
 {
 	struct vpu_clk_s *clk_table;
@@ -227,9 +250,14 @@ static int adjust_vpu_clk(struct vpu_conf_s *vconf, unsigned int clk_level)
 	clk_reg = vconf->data->vpu_clk_reg;
 	vapb_reg = vconf->data->vapb_clk_reg;
 
+	/* mux a */
 	vpu_hiu_setb(clk_reg, 0, 8, 1);
 	vpu_hiu_write(clk_reg, ((mux << 9) | (div << 0)));
 	vpu_hiu_setb(clk_reg, 1, 8, 1);
+
+	/* t6x A channel depends on B channel */
+	if (vpu_conf.data->chip_type == VPU_CHIP_T6X)
+		t6x_set_def_vpu_div_clk (clk_reg, mux, div);
 
 	/* vapb clk */
 	if (vapb_reg != VPU_REG_END && vpu_hiu_getb(vapb_reg, 8, 1) == 0) {
