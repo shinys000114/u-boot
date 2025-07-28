@@ -400,16 +400,16 @@ int checkhw(char *name)
 
 	switch (ddr_size) {
 	case 0xC0000000UL:
-		strcpy(dtb_name, "t6w_t966d5_bu301-3g\0");
+		strcpy(dtb_name, "t6x_t966d5_bu301-3g\0");
 		break;
 	case 0xE0000000UL:
-		strcpy(dtb_name, "t6w_t966d5_bu301-4g\0");
+		strcpy(dtb_name, "t6x_t966d5_bu301-4g\0");
 		break;
 	case 0x180000000UL:
-		strcpy(dtb_name, "t6w_t966d5_bu301-6g\0");
+		strcpy(dtb_name, "t6x_t966d5_bu301-6g\0");
 		break;
 	default:
-		strcpy(dtb_name, "t6w_t966d5_bu301-unsupport\0");
+		strcpy(dtb_name, "t6x_t966d5_bu301-unsupport\0");
 		break;
 	}
 
