@@ -9,7 +9,7 @@
 #include <ddr_timing.c>
 
 /* board clk defines */
-#define CPU_CLK                                 1800
+#define CPU_CLK                                 1500
 
 /* board vmin_value defines */
 #define VMIN_FF_VALUE                           770
@@ -24,7 +24,7 @@
 board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {
 	/* clock settings for bl2 */
-	.cpu_clk	= CPU_CLK / 24 * 24,
+	.cpu_clk	= CPU_CLK / 12 * 12,
 #ifdef CONFIG_PXP_DDR
 	.pxp = 1,
 #else
