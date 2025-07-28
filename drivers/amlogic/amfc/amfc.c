@@ -55,6 +55,7 @@ int amfc_init(void)
 
 	case MESON_CPU_MAJOR_ID_T6D:
 	case MESON_CPU_MAJOR_ID_T6W:
+	case MESON_CPU_MAJOR_ID_T6X:
 		// 666MHz
 		writel(0 | (1 << 8) | (1 << 9), CLKCTRL_AMFC_CLK_CTRL);
 		break;
