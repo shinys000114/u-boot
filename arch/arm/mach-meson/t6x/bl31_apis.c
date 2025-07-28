@@ -186,18 +186,26 @@ struct t_efuse_item {
 const struct t_efuse_item efusecaliitem_cfg[] = {
 	{.name = "sensor0", .item = EFUSE_CALI_SUBITEM_SENSOR0},
 	{.name = "sensor1", .item = EFUSE_CALI_SUBITEM_SENSOR1},
-	{.name = "hdmirx", .item = EFUSE_CALI_SUBITEM_HDMIRX},
+	{.name = "hdmirx20", .item = EFUSE_CALI_SUBITEM_HDMIRX},
 	{.name = "usbphy", .item = EFUSE_CALI_SUBITEM_USBPHY},
 	{.name = "odio33", .item = EFUSE_CALI_SUBITEM_ODIO33},
 	{.name = "cvbsdac", .item = EFUSE_CALI_SUBITEM_CVBS},
+	{.name = "p2p_vinlpcml", .item = EFUSE_CALI_SUBITEM_P2P_VINLP},
+	{.name = "p2p_common", .item = EFUSE_CALI_SUBITEM_P2P_COMMON},
+	{.name = "p2p_vinlpvml", .item = EFUSE_CALI_SUBITEM_P2P_VINLPVML},
+	{.name = "upctx_io", .item = EFUSE_CALI_SUBITEM_UPCTX_IO},
+	{.name = "upctx_bootst", .item = EFUSE_CALI_SUBITEM_UPCTX_BOOTST},
+	{.name = "upcreg_dcha", .item = EFUSE_CALI_SUBITEM_UPCREG_DCHA},
+	{.name = "hdmirx21", .item = EFUSE_CALI_SUBITEM_HDMIRX21},
+
 	{.name = "saradc_vref", .item = EFUSE_CALI_SUBITEM_SARADC_VREF},
 	{.name = "saradc_min", .item = EFUSE_CALI_SUBITEM_SARADC_MIN},
 	{.name = "saradc_max", .item = EFUSE_CALI_SUBITEM_SARADC_MAX},
 	{.name = "eth_txamp", .item = EFUSE_CALI_SUBITEM_ETH_TXAMP},
 	{.name = "eth_resctl", .item = EFUSE_CALI_SUBITEM_ETH_RESCTL},
 	{.name = "miscpzq", .item = EFUSE_CALI_SUBITEM_MISC_PZQ},
-	{.name = "p2p_vinlp", .item = EFUSE_CALI_SUBITEM_P2P_VINLP},
-	{.name = "p2p_common", .item = EFUSE_CALI_SUBITEM_P2P_COMMON},
+	{.name = "earctx", .item = EFUSE_CALI_SUBITEM_EARCTX},
+
 };
 
 #define EFUSE_CALIITE_CNT ARRAY_SIZE(efusecaliitem_cfg)

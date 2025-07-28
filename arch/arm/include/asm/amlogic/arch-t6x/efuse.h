@@ -18,7 +18,7 @@ struct efuse_hal_api_arg {
 	unsigned long retcnt_phy;
 };
 
-typedef struct efuse_cali {
+typedef struct __attribute__((__packed__)) efuse_cali {
 	unsigned long long who_burn:4;
 	unsigned long long cali_version:4;
 	unsigned long long tsensor0_data:15;
@@ -27,17 +27,31 @@ typedef struct efuse_cali {
 	unsigned long long tsensor1_flag:1;
 	unsigned long long hdmirx20_data:4;
 	unsigned long long hdmirx20_flag:1;
-	unsigned long long reserved0:1;
-	unsigned long long usbphy_data:6;
+	unsigned long long reserved1:3;
+	unsigned long long usbphy_data:4;
 	unsigned long long usbphy_flag:1;
 	unsigned long long odio33_data:2;
 	unsigned long long odio33_flag:1;
 	unsigned long long cvbs_data:7;
 	unsigned long long cvbs_flag:1;
+	unsigned long long p2p_vinlp_data:6;
+	unsigned long long p2p_vinlp_flag:1;
+	unsigned long long p2p_common_data:5;
+	unsigned long long p2p_common_flag:1;
+	unsigned long long p2p_vinlpvml_data:4;
+	unsigned long long p2p_vinlpvml_flag:1;
+	unsigned long long upctx_io_data:6;
+	unsigned long long upctx_io_flag:1;
+	unsigned long long upctx_bootst_data:4;
+	unsigned long long upctx_bootst_flag:1;
+	unsigned long long upcreg_dcha_data:4;
+	unsigned long long upcreg_dcha_flag:1;
+	unsigned long long hdmirx21_data:4;
+	unsigned long long hdmirx21_flag:1;
 	//Cali info2
 	unsigned long long saradc_vref_data:6;
 	unsigned long long saradc_vref_flag:1;
-	unsigned long long reserved1:1;
+	unsigned long long reserved2:1;
 	unsigned long long saradc_min_data:11;
 	unsigned long long saradc_min_flag:1;
 	unsigned long long saradc_max_data:11;
@@ -48,14 +62,13 @@ typedef struct efuse_cali {
 	unsigned long long eth_resctl_flag:1;
 	unsigned long long miscpzq_data:8;
 	unsigned long long miscpzq_flag:1;
-	unsigned long long p2p_vinlp_data:5;
-	unsigned long long p2p_vinlp_flag:1;
-	unsigned long long p2p_common_data:5;
-	unsigned long long p2p_common_flag:1;
-	unsigned long long reserved2:4;
+	unsigned long long earctx_data:5;
+	unsigned long long earctx_flag:1;
+	unsigned long long reserved3:2;
 } efuse_cali_t;
 
-#define EFUSE_CALI_SIZE			17
+
+#define EFUSE_CALI_SIZE			21
 #define EFUSE_CALI_CVBS
 
 #define EFUSE_BYTES				512   /* (EFUSE_BITS/8) */
