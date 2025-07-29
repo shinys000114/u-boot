@@ -81,17 +81,15 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"uart_base=0xfe078400\0"\
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0"\
-	"panel_type=lvds_0\0"\
+	"panel_type=vbyone_1\0"\
 	"scramble_reg=0xfe02e030\0"\
 	"ddr_resume=0\0"\
-	"model_name=FHD2HDMI\0" \
+	"model_name=UHD_1RG\0" \
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
-	"outputmode=1080p60hz\0"\
-	"connector0_type=LVDS-A\0" \
+	"outputmode=2160p60hz\0"\
+	"connector0_type=VBYONE-A\0" \
 	"display_on_smp=1\0"\
-	"hdmimode=1080p60hz\0"\
-	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0"\
 	"vout_projector_mux=disable\0" \
 	"cvbs_drv=0\0"\
@@ -103,7 +101,6 @@
 	"display_color_fg=0xffff\0"\
 	"display_color_bg=0\0"\
 	"dtb_mem_addr=0x01000000\0"\
-	"hdmichecksum=0x00000000\0"\
 	"fb_addr=0x00300000\0"\
 	"fb_width=1920\0"\
 	"fb_height=1080\0"\
