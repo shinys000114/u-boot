@@ -136,18 +136,21 @@ static void setup_internal_phy(struct udevice *dev)
 	if (mc_val != 0xffffffff)
 		setbits_le32(eth_top.start, mc_val);
 
+	/* mii_clk_sel */
+	setbits_le32(eth_top.start + 0x28, 0x3);
 	/* configure pll */
-	writel(0x00510630, eth_cfg.start + AML_ETH_PLL_CTL0);
-	writel(0x222210a0, eth_cfg.start + AML_ETH_PLL_CTL1);
-	writel(0x00518630, eth_cfg.start + AML_ETH_PLL_CTL0);
+	writel(0x07d21003, eth_cfg.start + AML_ETH_PLL_CTL0);
+	writel(0x000008c0, eth_cfg.start + AML_ETH_PLL_CTL1);
 	udelay(200);
-	writel(0x222200a0, eth_cfg.start + AML_ETH_PLL_CTL1);
+	writel(0x07d21007, eth_cfg.start + AML_ETH_PLL_CTL0);
 	udelay(200);
-	writel(0x00118630, eth_cfg.start + AML_ETH_PLL_CTL0);
+	writel(0x07d21006, eth_cfg.start + AML_ETH_PLL_CTL0);
+	udelay(200);
+	writel(0x07d21004, eth_cfg.start + AML_ETH_PLL_CTL0);
 	udelay(800);
-	writel(0xa8860000, eth_cfg.start + AML_ETH_PLL_CTL3);
+	writel(0xa9860000, eth_cfg.start + AML_ETH_PLL_CTL3);
 	writel(0x00004001, eth_cfg.start + AML_ETH_PLL_CTL6);
-	writel(0x20000000, eth_cfg.start + AML_ETH_PLL_CTL5);
+	writel(0x10800000, eth_cfg.start + AML_ETH_PLL_CTL5);
 	writel(0x00003623, eth_cfg.start + AML_ETH_PLL_CTL7);
 
 	/* configure phy control */
@@ -251,6 +254,7 @@ int aml_phy_resume(void *pm_ops)
 	unsigned int phy_setting;
 
 	printf("recover analog %s\n", pm->name);
+#if 0
 	writel(0x00510630, p_aml_phy_dev->phy_cfg + 0x44);
 	writel(0x222210a0, p_aml_phy_dev->phy_cfg + 0x48);
 	writel(0x00518630, p_aml_phy_dev->phy_cfg + 0x44);
@@ -258,6 +262,16 @@ int aml_phy_resume(void *pm_ops)
 	writel(0x222200a0, p_aml_phy_dev->phy_cfg + 0x48);
 	udelay(200);
 	writel(0x00118630, p_aml_phy_dev->phy_cfg + 0x44);
+#endif
+	writel(0x07d21003, p_aml_phy_dev->phy_cfg + AML_ETH_PLL_CTL0);
+	writel(0x000008c0, p_aml_phy_dev->phy_cfg + AML_ETH_PLL_CTL1);
+	udelay(200);
+	writel(0x07d21007, p_aml_phy_dev->phy_cfg + AML_ETH_PLL_CTL0);
+	udelay(200);
+	writel(0x07d21006, p_aml_phy_dev->phy_cfg + AML_ETH_PLL_CTL0);
+	udelay(200);
+	writel(0x07d21004, p_aml_phy_dev->phy_cfg + AML_ETH_PLL_CTL0);
+
 	udelay(1000);
 	writel(0x12804008, p_aml_phy_dev->phy_cfg + 0x8);
 
@@ -365,8 +379,8 @@ void DM_network_interface_setup_final(struct phy_device *phydev)
 
 	if (internal_phy) {
 		phy_tst_write(phydev, 0x18, 0x8);
-		phy_tst_write(phydev, 0x16, 0x8400);
-		phy_tst_write(phydev, 0x15, 0x4408);
+		phy_tst_write(phydev, 0x16, 0x8406);
+		phy_tst_write(phydev, 0x15, 0x2408);
 	}
 
 	reg_val = phy_tst_read(phydev, 20);
@@ -378,6 +392,15 @@ void DM_network_interface_setup_final(struct phy_device *phydev)
 	reg_val = phy_tst_read(phydev, 23);
 	printf("A6_CONFIG=0x%X\n", reg_val);
 #endif
+	if (internal_phy) {
+		printf("disable eee\n");
+		phy_write(phydev, MDIO_DEVAD_NONE, 13, 0x7);
+		phy_write(phydev, MDIO_DEVAD_NONE, 14, 0x3c);
+		phy_write(phydev, MDIO_DEVAD_NONE, 13, 0x4007);
+		phy_write(phydev, MDIO_DEVAD_NONE, 14, 0x0);
+		printf("restart auto-neg\n");
+		genphy_restart_aneg(phydev);
+	}
 }
 
 void __iomem *DM_network_interface_remove(void)
