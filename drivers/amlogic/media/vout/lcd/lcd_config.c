@@ -2652,6 +2652,7 @@ static int lcd_panel_parse_interface(struct json_parse_s *jsp, struct aml_lcd_dr
 		//vx1->vx1_isr     = json_get_obj_u32(jsp, parent, "vx1_isr", 1);
 		vx1->hw_filter_time = json_get_obj_u32(jsp, parent, "filter_time", 0);
 		vx1->hw_filter_cnt  = json_get_obj_u32(jsp, parent, "filter_cnt", 0);
+		vx1->slice = pdrv->config.timing.ppc ? pdrv->config.timing.ppc : 1;
 		break;
 	case LCD_P2P:
 		p2p = &cfg->p2p_cfg;
