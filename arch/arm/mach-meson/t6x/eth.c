@@ -99,6 +99,8 @@ void setup_tx_amp(struct udevice *dev)
 static void setup_internal_phy(struct udevice *dev)
 {
 	u32 mc_val = 0xffffffff;
+	int phy_mii_clk_sel;
+	int ephy_clk_gate;
 	int chip_num = 0;
 	int ret = 0;
 	struct resource eth_top, eth_cfg;
@@ -107,6 +109,12 @@ static void setup_internal_phy(struct udevice *dev)
 		printf("missing mc_val\n");
 	else
 		printf("mc_val=0x%x\n", mc_val);
+
+	if (dev_read_u32(dev, "phy-mii-clk-sel", &phy_mii_clk_sel) < 0)
+		phy_mii_clk_sel = -1;
+
+	if (dev_read_u32(dev, "ephy_clk_gate", &ephy_clk_gate) < 0)
+		ephy_clk_gate = -1;
 
 	if (dev_read_u32(dev, "chip_num", &chip_num) < 0)
 		printf("missing chip_num, use 0 as default\n");
@@ -137,7 +145,8 @@ static void setup_internal_phy(struct udevice *dev)
 		setbits_le32(eth_top.start, mc_val);
 
 	/* mii_clk_sel */
-	setbits_le32(eth_top.start + 0x28, 0x3);
+	if (phy_mii_clk_sel != -1)
+		setbits_le32(eth_top.start + 0x28, phy_mii_clk_sel);
 	/* configure pll */
 	writel(0x07d21003, eth_cfg.start + AML_ETH_PLL_CTL0);
 	writel(0x000008c0, eth_cfg.start + AML_ETH_PLL_CTL1);
@@ -161,6 +170,9 @@ static void setup_internal_phy(struct udevice *dev)
 	writel(0x260, eth_cfg.start + AML_ETH_PHY_CNTL2);
 	writel(0x42074147, eth_cfg.start + AML_ETH_PHY_CNTL1);
 
+	/* ephy_clk_gate */
+	if (ephy_clk_gate != -1)
+		setbits_le32(eth_cfg.start + 0x144, ephy_clk_gate);
 }
 
 static void setup_external_phy(struct udevice *dev)
