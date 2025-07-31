@@ -309,5 +309,5 @@
 &spicc1 {	//for UWB/LocalDimm
 	status = "okay";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins_z>;
+	pinctrl-0 = <&spicc1_pins_h>;
 };
