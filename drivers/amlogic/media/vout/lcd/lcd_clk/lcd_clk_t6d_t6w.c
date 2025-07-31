@@ -273,6 +273,7 @@ static void lcd_set_pll_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 		cnt = 0;
 		ret = 0;
 		do {
+#if IS_ENABLED(CONFIG_MESON_T6W)
 			pll_ctrl0 = 0x22530000 |
 				((cconf->pll_config[1].pll_od1_sel & 0x3) << 9) |
 				(cconf->pll_config[1].pll_m & 0x1ff) |
@@ -289,6 +290,25 @@ static void lcd_set_pll_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 			lcd_ana_setb(ANACTRL_GP2PLL_CTRL0, 0, 16, 1);
 			ret = lcd_pll_wait_lock(cconf->pll_config[1].pll_id,
 						ANACTRL_GP2PLL_STS, 31);
+#else
+			pll_ctrl0 = 0x20000000 |
+				((cconf->pll_config[1].pll_od1_sel & 0x3) << 10) |
+				(cconf->pll_config[1].pll_m & 0x1ff) |
+				((cconf->pll_config[1].pll_n & 0x1f) << 16);
+			pll_ctrl1 = 0x03a00000 |
+				(cconf->pll_config[1].pll_frac & 0x7ffff);
+			lcd_ana_write(ANACTRL_GP2PLL_CTRL0, pll_ctrl0);
+			lcd_ana_setb(ANACTRL_GP2PLL_CTRL0, 1, 28, 1);
+			lcd_ana_write(ANACTRL_GP2PLL_CTRL1, pll_ctrl1);
+			lcd_ana_write(ANACTRL_GP2PLL_CTRL2, 0x00040000);
+			lcd_ana_write(ANACTRL_GP2PLL_CTRL3, 0x0b0da000);
+			udelay(20);
+			lcd_ana_setb(ANACTRL_GP2PLL_CTRL0, 0, 29, 1);
+			udelay(20);
+			lcd_ana_setb(ANACTRL_GP2PLL_CTRL3, 1, 9, 1);
+			ret = lcd_pll_wait_lock(cconf->pll_config[1].pll_id,
+						ANACTRL_GP2PLL_CTRL0, 31);
+#endif
 		} while (ret && ++cnt < PLL_RETRY_MAX);
 	}
 
@@ -1101,7 +1121,7 @@ static struct lcd_clk_data_s lcd_clk_data_t6x = {
 	.ss_str_m_max = 10,
 
 	.clk_parameter_init = NULL,
-	.clk_generate_parameter = lcd_clk_generate_dft,
+	.clk_generate_parameter = lcd_clk_generate_t6w,
 	.pll_frac_generate = lcd_pll_frac_generate_dft,
 	.set_ss = lcd_set_pll_ss_t6d_t6w,
 	.clk_ss_enable = lcd_pll_ss_enable_t6d_t6w,

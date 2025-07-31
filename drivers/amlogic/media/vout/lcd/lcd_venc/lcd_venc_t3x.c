@@ -310,17 +310,10 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 		lcd_vcbus_setb(ENCL_VIDEO_VSO_PRE_LN_RNG + offset, vso_ln_bgn, 16, 16);
 		lcd_vcbus_setb(ENCL_VIDEO_VSO_PRE_LN_RNG + offset, vso_ln_end, 0, 16);
 	} else if (pconf->basic.lcd_type == LCD_LVDS) {
-#if IS_ENABLED(CONFIG_MESON_T6X)
-		lcd_vcbus_setb(LCD_POL_CNTL_ADDR + offset, 1, 0, 3);
-		// refs to lcd_lvds.c@lcd_lvds_enable
-		if (pconf->timing.act_timing.vsync_pol == pconf->timing.act_timing.hsync_pol)
-			lcd_vcbus_setb(LCD_POL_CNTL_ADDR + offset, 1, 1, 1);
-#else
 		lcd_vcbus_setb(LCD_LCD_IF_CTRL + offset, 1, 28, 3);//rgb pol
 		// refs to lcd_lvds.c@lcd_lvds_enable
 		if (pconf->timing.act_timing.vsync_pol == pconf->timing.act_timing.hsync_pol)
 			lcd_vcbus_setb(LCD_LCD_IF_CTRL + offset, 1, 29, 1);
-#endif
 	}
 
 	if (pdrv->data->chip_type == LCD_CHIP_T6X) {
