@@ -145,6 +145,9 @@ int board_init(void)
 		;
 #endif
 
+	run_command("gpio clear GPIOC_10", 0);
+	run_command("gpio clear GPIOP_11", 0);
+
 #if !defined(CONFIG_PXP_DDR)	//bypass below operations for pxp
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init,

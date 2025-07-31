@@ -135,6 +135,10 @@ int board_init(void)
 	return 0;
 #endif
 
+	run_command("gpio clear GPIOP_0", 0);
+	run_command("gpio clear GPIOP_10", 0);
+	run_command("gpio clear GPIOP_11", 0);
+
 #if 0
 	run_command("startdsp 0 0x300a0000 0", 0);
 	printf("dsp start!\n");
