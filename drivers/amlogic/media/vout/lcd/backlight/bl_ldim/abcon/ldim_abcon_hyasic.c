@@ -181,7 +181,6 @@ void ldim_abcon_hyasic_broadcast(unsigned int regaddr, unsigned int value)
 {
 	unsigned int temp = 0;
 
-	ABCONPR("broadcast reg:0x%x val:0x%08x, ln=%d\n", regaddr, value, abcon->act_lane);
 	bl_abcon_hyasic->sop_type = sop_broadcast;
 
 	//sw reset
@@ -215,7 +214,10 @@ void ldim_abcon_hyasic_broadcast(unsigned int regaddr, unsigned int value)
 		break;
 	}
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 	//reg_abcon_crc_value
 	abcon_wr_reg_bits(0x10, 0x9a9a, 16, 16);
 
@@ -246,7 +248,6 @@ void ldim_abcon_hyasic_address(void)
 {
 	unsigned int temp = 0;
 
-	ABCONPR("begin to send hyasic address!\n");
 	bl_abcon_hyasic->sop_type = sop_address;
 
 	//sw reset
@@ -279,7 +280,10 @@ void ldim_abcon_hyasic_address(void)
 		break;
 	}
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 	//reg_abcon_crc_value
 	abcon_wr_reg_bits(0x10, 0x959f, 16, 16);
 
@@ -310,7 +314,6 @@ void ldim_abcon_hyasic_dimming(void)
 {
 	unsigned int temp = 0;
 
-	ABCONPR("begin dimming data packet\n");
 	bl_abcon_hyasic->sop_type = sop_dimming;
 	//reg_abcon_dix_mode
 	abcon_wr_reg_bits(0x03, 1, 5, 1);/*0:dis, 1:dip*/
@@ -335,7 +338,10 @@ void ldim_abcon_hyasic_dimming(void)
 		break;
 	}
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 	//reg_abcon_crc_value
 	abcon_wr_reg_bits(0x10, 0x999f, 16, 16);
 
@@ -437,7 +443,6 @@ void ldim_abcon_hyasic_init_feedback(void)
 
 void ldim_abcon_init_registers(void)
 {
-	ABCONPR("begin to init bcon register for hyasic\n");
 	//reg_abcon_clr_done_flag
 	abcon_wr_reg_bits(0x00, 1, 4, 1);
 	abcon_wr_reg_bits(0x00, 0, 4, 1);
@@ -468,15 +473,12 @@ void ldim_abcon_init_registers(void)
 
 	//init feedback registers
 	//ldim_abcon_hyasic_init_feedback();
-
-	ABCONPR("init bcon register for hyasic done\n");
 }
 
 void ldim_abcon_init_hyasic(void)
 {
 	char i;
 
-	ABCONPR("begin to init hyasic registers!\n");
 	//set dos as communications
 	ldim_abcon_hyasic_broadcast(0x44, 0x8000);
 
@@ -519,8 +521,6 @@ void ldim_abcon_init_hyasic(void)
 
 	//dos sick feedback, dimming mode
 	ldim_abcon_hyasic_broadcast(0x44, 0xa100);
-
-	ABCONPR("init hyasic registers end!\n");
 }
 
 static int abcon_hyasic_hw_init_on(struct ldim_dev_driver_s *dev_drv)

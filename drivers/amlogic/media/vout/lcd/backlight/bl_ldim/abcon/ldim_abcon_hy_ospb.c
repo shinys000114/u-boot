@@ -207,8 +207,8 @@ static void ldim_abcon_hy_ospb_broadcast(unsigned int regaddr, unsigned int valu
 {
 	unsigned int temp = 0;
 
-	ABCONPR("broadcast reg:0x%x val:0x%08x, ln=%d, comm_mode=%d\n",
-	regaddr, value, abcon->act_lane, comm_mode);
+	//ABCONPR("broadcast reg:0x%x val:0x%08x, ln=%d, comm_mode=%d\n",
+	//regaddr, value, abcon->act_lane, comm_mode);
 	bl_hy_ospb->sop_type = sop_broadcast;
 	bl_hy_ospb->dos_mode = SINGLE;
 
@@ -239,7 +239,10 @@ static void ldim_abcon_hy_ospb_broadcast(unsigned int regaddr, unsigned int valu
 		break;
 	}
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 
 	hy_ospb_pkt.pream_header = 0x40002082;
 	hy_ospb_pkt.pream_data = 0x5555;
@@ -274,7 +277,6 @@ static void ldim_abcon_hy_ospb_address(void)
 {
 	unsigned int temp = 0;
 
-	ABCONPR("begin to send hyasic address!\n");
 	bl_hy_ospb->sop_type = sop_address;
 	bl_hy_ospb->comm_mode = COMM_SERIAL;//serial
 	bl_hy_ospb->dos_mode = ADDR_CHECK;
@@ -306,7 +308,10 @@ static void ldim_abcon_hy_ospb_address(void)
 		break;
 	}
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 
 	hy_ospb_pkt.pream_header = 0x40002082;
 	hy_ospb_pkt.pream_data = 0x5555;
@@ -340,7 +345,6 @@ static void ldim_abcon_hy_ospb_dimming(void)
 {
 	unsigned int temp = 0;
 
-	ABCONPR("begin dimming data packet\n");
 	bl_hy_ospb->sop_type = sop_dimming;
 	bl_hy_ospb->comm_mode = COMM_PARALLEL;
 	bl_hy_ospb->dos_mode = CH_SICK_INT1;
@@ -368,7 +372,10 @@ static void ldim_abcon_hy_ospb_dimming(void)
 		break;
 	}
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 
 	hy_ospb_pkt.pream_header = 0x40002082;
 	hy_ospb_pkt.pream_data = 0x5555;
@@ -428,7 +435,7 @@ static void ldim_abcon_hy_ospb_read_pkt(void)
 }
 
 unsigned int ldim_abcon_hy_ospb_readback(unsigned char reg,
-	unsigned char chip, unsigned char lane)
+	unsigned char chip, unsigned short lane)
 {
 	unsigned int readback_val = 0;
 
@@ -445,7 +452,10 @@ unsigned int ldim_abcon_hy_ospb_readback(unsigned char reg,
 	abcon_wr_reg_bits(0x03, 1, 10, 4);// fix 1 lane
 
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, 1 << lane, 22, 4);//fix use lane 0
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, 1 << lane, 22, 4);//fix use lane 0
+	else
+		abcon_wr_reg_bits(0x29, 1 << lane, 0, 12);//fix use lane 0
 
 	//prepare read packet first
 	hy_ospb_pkt.pream_header = 0x00002104;
@@ -501,8 +511,8 @@ unsigned int ldim_abcon_hy_ospb_readback(unsigned char reg,
 	ldim_abcon_hy_ospb_write_pkt();
 	udelay(1000);
 	readback_val = abcon_rd_reg(0x52);
-	ABCONPR("readback: reg=0x%x, chip=%d, lane=%d, val=0x%x\n",
-	reg, chip, lane, readback_val);
+	//ABCONPR("readback: reg=0x%x, chip=%d, lane=%d, val=0x%x\n",
+	//reg, chip, lane, readback_val);
 
 	return readback_val;
 }

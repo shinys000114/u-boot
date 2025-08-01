@@ -100,11 +100,23 @@ void ldim_abcon_xianxin_write_packet(void)
 	unsigned int *buf;
 	unsigned char i = 0;
 	unsigned char act_lane_num = abcon->act_lane;
+	unsigned int ldc_seg_size, wseg_size;
 
-	if (bl_abcon_xianxin->sop_type == sop_dimming)
+	if (abcon->chip_type == ABCON_CHIP_T6W) {
+		ldc_seg_size = LDC_SEG_SIZE_T6W;
+		wseg_size = WSEG_SIZE_T6W;
+	} else {
+		ldc_seg_size = LDC_SEG_SIZE_T6X;
+		wseg_size = WSEG_SIZE_T6X;
+	}
+
+	if (bl_abcon_xianxin->sop_type == sop_dimming) {
 		buf = abcon_mem.ldc_seg;
-	else
+		invalidate_dcache_range((unsigned long)buf, (unsigned long)(buf + ldc_seg_size));
+	} else {
 		buf = abcon_mem.wseg;
+		invalidate_dcache_range((unsigned long)buf, (unsigned long)(buf + wseg_size));
+	}
 
 	if (!buf)
 		return;
@@ -194,7 +206,11 @@ unsigned char ldim_abcon_xianxin_readback(unsigned char reg, unsigned char dim, 
 		temp = 0x1;
 		break;
 	}
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);//reg_abcon_act_lane
+	//reg_abcon_act_lane
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 
 	//step3, set write packet
 	cmd_data = (5 << 14) | (bl_abcon_xianxin->regmap->read_reg_addr << 9) | (reg << 1);
@@ -223,7 +239,7 @@ void ldim_abcon_write_xianxin_register(unsigned char regaddr, unsigned char valu
 	unsigned int temp = 0;
 	unsigned int cmd_data = 0;
 
-	ABCONPR("write cmd reg:0x%x val:0x%08x, ln=%d\n", regaddr, value, abcon->act_lane);
+	//ABCONPR("write cmd reg:0x%x val:0x%08x, ln=%d\n", regaddr, value, abcon->act_lane);
 	bl_abcon_xianxin->sop_type = sop_cmd;
 
 	//clr done flag
@@ -250,7 +266,10 @@ void ldim_abcon_write_xianxin_register(unsigned char regaddr, unsigned char valu
 		break;
 	}
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 
 	cmd_data = (5 << 14) | ((regaddr & 0x1f) << 9) | (value << 1);
 	xianxin_packet.cmd_header = 0x44000088;
@@ -264,7 +283,6 @@ void ldim_abcon_xianxin_dimming(void)
 {
 	unsigned int temp = 0;
 
-	ABCONPR("%s: set duty command, act_lane=%d\n", __func__, abcon->act_lane);
 	bl_abcon_xianxin->sop_type = sop_dimming;
 
 	//reg_abcon_pin_dir_del_start
@@ -292,7 +310,10 @@ void ldim_abcon_xianxin_dimming(void)
 		break;
 	}
 	//reg_abcon_act_lane
-	abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	if (abcon->chip_type == ABCON_CHIP_T6W)
+		abcon_wr_reg_bits(0x2a, temp, 22, 4);
+	else
+		abcon_wr_reg_bits(0x29, temp, 0, 12);
 
 	xianxin_packet.cmd_header = 0x20000080;
 	xianxin_packet.cmd_data = 0xa0 | (bl_abcon_xianxin->regmap->duty_data & 0x1f);

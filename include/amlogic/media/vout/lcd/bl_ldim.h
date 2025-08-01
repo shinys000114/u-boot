@@ -49,11 +49,11 @@ struct abcon_conf_s {
 	unsigned int tx_clk;
 	unsigned int rx_clk;
 	unsigned char dev_type;
-	unsigned int chip_num[4];
+	unsigned int chip_num[12];
 	unsigned char ch_num;
 	unsigned char dimming_mode;
-	unsigned int gpio_o[2];
-	unsigned int gpio_i[2];
+	unsigned int gpio_o[3];
+	unsigned int gpio_i[3];
 	unsigned int gpio_en;
 	unsigned int gpio_pu_en;
 	unsigned int gpio_pu_up;
