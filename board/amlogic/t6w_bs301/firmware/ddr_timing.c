@@ -336,7 +336,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.reserve_para[6] = (1 << 7) | 0x8,     //write dqs
 		.cfg_ddr_training_delay_ps.reserve_para[7] = (1 << 7) | 0x8,     //write dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
+		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x14,//read dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 4] = (1 << 7) | 0x10,//read dqs
@@ -386,29 +386,19 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 256 + AC_OFFSET + ac_off_1t,
 
 #if NON_SIP_DDR4_REF
-		//ref board
 		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 256 + AC_OFFSET + ac_off_1t - 40,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 256 + AC_OFFSET + ac_off_1t - 60,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 256 + AC_OFFSET + ac_off_1t - 60,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[6] = 256 + AC_OFFSET + ac_off_1t - 60,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 256 + AC_OFFSET + ac_off_1t - 40,
-
-		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 128 + CK_OFFSET + 120 - 40,       // cs0
-		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 128 + CK_OFFSET + 140 - 40,      // cs1
+		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 128 + CK_OFFSET + 120 - 40, // cs0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 128 + CK_OFFSET + 140 - 40, // cs1
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + CK_OFFSET,    //ck
 		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 128 + CK_OFFSET,    //ck
 		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 128 + CK_OFFSET,     //cke  real chip
 		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 128 + CK_OFFSET,     //cke1
 		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 128 + CK_OFFSET,        //odt1
 		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 128 + CK_OFFSET,       //odt0
-
-		//.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 100 + 256 + AC_OFFSET + ac_off_1t - 60,
-		//.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 100 + 256 + AC_OFFSET + ac_off_1t - 40,
-		//.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 100 + 256 + AC_OFFSET + ac_off_1t- 80,
-		//.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 100 + 256 + AC_OFFSET + ac_off_1t -80,
-		//.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 100 + 256 + AC_OFFSET + ac_off_1t - 100,
-		//.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 100 + 256 + AC_OFFSET + ac_off_1t,
-		//.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 100 + 256 + AC_OFFSET + ac_off_1t,
 
 		.cfg_ddr_training_delay_ps.ac_trace_delay[3] = 256 + AC_OFFSET + ac_off_1t - 60,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 256 + AC_OFFSET + ac_off_1t - 70,
@@ -423,6 +413,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.cs_drv_ohm = 40,
 		.cfg_board_SI_setting_ps.ac_drv_ohm = 40,
 #endif
+
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[0] = 64 + 16,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[1] = 64 + 16,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[2] = 64 + 16,
@@ -688,7 +679,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dqs_delay[6] = 128,
 		.cfg_ddr_training_delay_ps.read_dqs_delay[7] = 128,
 
-		.cfg_ddr_training_delay_ps.soc_bit_vref0[0] = 0x000000,
+		.cfg_ddr_training_delay_ps.soc_bit_vref0[0] = 0,
 		//0 for auto training
 		.cfg_ddr_training_delay_ps.soc_bit_vref0[1] = 0x0000001a,
 		.cfg_ddr_training_delay_ps.soc_bit_vref0[2] = 0x0000001a,
@@ -833,7 +824,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.soc_bit_vref3[33] = 0x00000030,
 		.cfg_ddr_training_delay_ps.soc_bit_vref3[34] = 0x00000030,
 		.cfg_ddr_training_delay_ps.soc_bit_vref3[35] = 0x00000030,
-		.cfg_ddr_training_delay_ps.dram_vref[0] = 0x0000001d,
+		.cfg_ddr_training_delay_ps.dram_vref[0] = 0,
 		.cfg_ddr_training_delay_ps.dram_vref[1] = 0x00000000,
 		.cfg_ddr_training_delay_ps.dram_vref[2] = 0x00000000,
 		.cfg_ddr_training_delay_ps.dram_vref[3] = 0x00000000,
@@ -964,7 +955,6 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.RxReplicaPhase[1][4] = 0x00000000,
 		.cfg_ddr_training_delay_ps.RxReplicaPhase[2][4] = 0x00000000,
 		.cfg_ddr_training_delay_ps.RxReplicaPhase[3][4] = 0x00000000,
-
 	},
 //};
 #endif

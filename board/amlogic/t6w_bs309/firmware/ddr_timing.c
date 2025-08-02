@@ -336,7 +336,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.reserve_para[6] = (1 << 7) | 0x8,     //write dqs
 		.cfg_ddr_training_delay_ps.reserve_para[7] = (1 << 7) | 0x8,     //write dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
+		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x14,//read dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
 		.cfg_ddr_training_delay_ps.reserve_para[8 + 4] = (1 << 7) | 0x10,//read dqs
@@ -668,7 +668,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dqs_delay[6] = 128,
 		.cfg_ddr_training_delay_ps.read_dqs_delay[7] = 128,
 
-		.cfg_ddr_training_delay_ps.soc_bit_vref0[0] = 0x000000,
+		.cfg_ddr_training_delay_ps.soc_bit_vref0[0] = 0,
 		//0 for auto training
 		.cfg_ddr_training_delay_ps.soc_bit_vref0[1] = 0x0000001a,
 		.cfg_ddr_training_delay_ps.soc_bit_vref0[2] = 0x0000001a,
@@ -813,7 +813,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.soc_bit_vref3[33] = 0x00000030,
 		.cfg_ddr_training_delay_ps.soc_bit_vref3[34] = 0x00000030,
 		.cfg_ddr_training_delay_ps.soc_bit_vref3[35] = 0x00000030,
-		.cfg_ddr_training_delay_ps.dram_vref[0] = 0x0000001d,
+		.cfg_ddr_training_delay_ps.dram_vref[0] = 0,
 		.cfg_ddr_training_delay_ps.dram_vref[1] = 0x00000000,
 		.cfg_ddr_training_delay_ps.dram_vref[2] = 0x00000000,
 		.cfg_ddr_training_delay_ps.dram_vref[3] = 0x00000000,
