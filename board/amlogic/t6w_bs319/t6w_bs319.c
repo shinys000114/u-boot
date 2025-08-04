@@ -183,7 +183,7 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
-	env_set("defenv_para", "-c");
+	env_set("defenv_para", "-c -b0");
 	aml_board_late_init_front(NULL);
 
 #ifdef CONFIG_PXP_EMULATOR
@@ -437,6 +437,12 @@ int checkhw(char *name)
 	return 0;
 }
 #endif
+
+const char * const _board_env_reserv_array0[] = {
+	"model_name",
+	"connector0_type",
+	NULL//Keep NULL be last to tell END
+};
 
 int __attribute__((weak)) mmc_initialize(bd_t *bis)
 {
