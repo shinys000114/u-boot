@@ -63607,7 +63607,7 @@
 // Closing file:  ./../dsc/dsc_dec/rtl/ip_8k_dsc_dec_reg.h
 //
 
-#include <asm/amlogic/arch/extra_register.h>
+#include "extra_register.h"
 
 #endif // REGISTER_H
 
