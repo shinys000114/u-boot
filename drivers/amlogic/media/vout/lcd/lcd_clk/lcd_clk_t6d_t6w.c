@@ -69,7 +69,11 @@ static void lcd_pll_frac_set_t6d_t6w(struct aml_lcd_drv_s *pdrv, unsigned int fr
 	LCDPR("[%d]: %s: pll_frac=0x%x\n", pdrv->index, __func__, frac);
 #if IS_ENABLED(CONFIG_MESON_T6W) || IS_ENABLED(CONFIG_MESON_T6X)
 	if (cconf->pll_mode & LCD_PLL_MODE_DUAL_PLL) {
+#if IS_ENABLED(CONFIG_MESON_T6W)
 		reg = ANACTRL_GP2PLL_CTRL2;
+#else
+		reg = ANACTRL_GP2PLL_CTRL1;
+#endif
 		val = lcd_ana_read(reg);
 		lcd_ana_setb(reg, cconf->pll_config[1].pll_frac, 0, 19);
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
