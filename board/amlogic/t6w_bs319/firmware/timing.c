@@ -196,6 +196,12 @@ __attribute__ ((section(".misc_param"))) = {
 	/* set GPIOB_12 high to save power  */
 	{ PADCTRL_GPIOB_OEN,       (0x0 << 12),  (0x1 << 12), 0, 0, 0 },
 	{ PADCTRL_GPIOB_O,         (0x0 << 12),  (0x1 << 12), 0, 0, 0 },
+#ifdef CONFIG_NOVERBOSE_BUILD
+	/* use acs flag to disable uart print in each blx
+	 * reg must be UART_B_WFIFO, flags: 1 --> disable uart print, 0: enable
+	 */
+	{ UART_B_WFIFO, 0, 0xffffffff, 0, 1, 0 },
+#endif
 };
 
 #define __section(x)    __attribute__((__section__(x)))
