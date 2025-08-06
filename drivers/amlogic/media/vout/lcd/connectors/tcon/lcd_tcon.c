@@ -1836,6 +1836,11 @@ static struct lcd_tcon_reg_skip_s tcon_skip_reg_tbl_t6w[] = {
 	{ 0x1200, 0x12ff },
 };
 
+static struct lcd_tcon_reg_skip_s tcon_skip_reg_tbl_t6x[] = {
+	{ 0x0040, 0x006f },
+	{ 0x1200, 0x12ff },
+};
+
 static struct lcd_tcon_dma_ops_s lcd_tcon_dma_ops_t5m = {
 	.status = 0,
 	.addr_list = NULL,
@@ -2049,8 +2054,8 @@ static struct lcd_tcon_config_s tcon_data_t6x = {
 	.reg_table_width = LCD_TCON_TABLE_WIDTH_T5,
 	.reg_table_len = LCD_TCON_TABLE_LEN_T6W,
 	.core_reg_start = TCON_CORE_REG_START_T6W,
-	.reg_skip_tbl = tcon_skip_reg_tbl_t6w,
-	.reg_skip_tbl_len = ARRAY_SIZE(tcon_skip_reg_tbl_t6w),
+	.reg_skip_tbl = tcon_skip_reg_tbl_t6x,
+	.reg_skip_tbl_len = ARRAY_SIZE(tcon_skip_reg_tbl_t6x),
 
 	.axi_bank = LCD_TCON_AXI_BANK_T3X,
 

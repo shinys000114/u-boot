@@ -1106,7 +1106,7 @@ static struct lcd_clk_data_s lcd_clk_data_t6x = {
 	.pll_data[0] = &lcd_tcon_pll_data_t6w,
 	.pll_data[1] = &lcd_gp2_pll_data_t6w,
 
-	.xd_out_fmax = 820000000,
+	.xd_out_fmax = 840000000,
 	.phy_clk_location = 0,
 
 	.vclk_sel = 0,
