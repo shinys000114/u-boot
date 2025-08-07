@@ -917,13 +917,13 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
 		.ddr_dmc_sticky0_1 = ((0x0000 << 2) + 0xfe300800),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe300000),
 		.ddr_phy_base_address_1 = 0xfb000000,
 		.ddr_dmc_base_address_1 = 0xfe300000,
-		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe324000),
-		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe324000),
-		.ddr_dmc_apd_address_1 = ((0x0000 << 2) + 0xfe300000),   //DMC_DRAM_TRFC
-		.ddr_dmc_asr_address_1 = ((0x00bb << 2) + 0xfe300000),    //DMC_DRAM_DFI
+		.ddr_pctl_timing_base_address_1 = ((0x0101 << 2) + 0xfe300000),
+		.ddr_pctl_timing_end_address_1 = ((0x01bc << 2) + 0xfe300000),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe300000),   //DMC_DRAM_TRFC
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe300000),    //DMC_DRAM_DFI
 		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe300000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe300000),
 	},

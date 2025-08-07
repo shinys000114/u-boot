@@ -2234,8 +2234,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			 .cfg_ddr_training_delay_ps.ac_trace_delay[23] = 0x180 - 64,//384,0x10a
 			 .cfg_ddr_training_delay_ps.ac_trace_delay[24] = 0x180 - 64,//384,0x10c
 			 .cfg_ddr_training_delay_ps.ac_trace_delay[25] = 0x180 - 32,//384,0x10e
-			 .cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0x100 - 32,//256,0x110
-			 .cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0x100,//256,0x112
+			 .cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0x100 - 64,//256,0x110
+			 .cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0x100 - 64,//256,0x112
 			 .cfg_ddr_training_delay_ps.ac_trace_delay[28] = 0x100,//256,0x114
 			 .cfg_ddr_training_delay_ps.ac_trace_delay[29] = 0x100,//256,0x116
 
