@@ -1568,6 +1568,7 @@ void lcd_clk_generate_prbs_clk(struct aml_lcd_drv_s *pdrv,
 
 lcd_clk_generate_prbs_clk_done:
 	if (done) {
+		cconf->pll_mode &= ~LCD_PLL_MODE_DUAL_PLL;
 		cconf->pll_config[0].done = 1;
 	} else {
 		cconf->pll_config[0].done = 0;
