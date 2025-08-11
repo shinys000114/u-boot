@@ -345,7 +345,7 @@ void set_usb_power_off(void)
 	printf("set t6x usb phy off.\n");
 	usb_powerctrl_reg = readl(RESETCTRL_RESET0_LEVEL);
 	val = usb_powerctrl_reg;
-	val &= ~(7 << USB_PHY_A_BIT);
+	val &= ~(0xf << USB_PHY_A_BIT);
 	writel(val, RESETCTRL_RESET0_LEVEL);
 }
 
