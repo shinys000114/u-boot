@@ -215,7 +215,7 @@ int usb_stop(void)
 	return err;
 }
 
-#ifdef CONFIG_AML_USB_BT
+#if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
 int usb_wifi_stop(void)
 {
 	struct udevice *bus;
@@ -389,7 +389,7 @@ int usb_init(void)
 	return usb_started ? 0 : -1;
 }
 
-#ifdef CONFIG_AML_USB_BT
+#if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
 int usb_wifi_init(void)
 {
 	int controllers_initialized = 0;

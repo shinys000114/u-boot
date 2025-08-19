@@ -51,9 +51,6 @@
 #ifdef CONFIG_CEC_TRIM_VAL
 #include <amlogic/aml_cec.h>
 #endif
-#ifdef CONFIG_AMLOGIC_WIFI_USB2T
-#include "wifi.h"
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -214,9 +211,6 @@ int board_late_init(void)
 #endif
 	run_command("logo_display", 0);
 	run_command("run init_display", 0);
-#ifdef CONFIG_AMLOGIC_WIFI_USB2T
-	wifi_init();
-#endif
 
 	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_e);
 	aml_board_late_init_tail(NULL);

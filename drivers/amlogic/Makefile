@@ -7,8 +7,6 @@ obj-y += watchdog/
 obj-y += adc/
 obj-y += pwm/
 
-obj-$(CONFIG_AMLOGIC_WIFI_USB2T) += wifi/
-
 obj-$(CONFIG_AML_MEDIA) += media/
 
 obj-$(CONFIG_UNIFY_KEY_MANAGE) += keymanage/
@@ -64,3 +62,7 @@ obj-$(CONFIG_CMD_SND) += sound/
 obj-$(CONFIG_AMLOGIC_PCI_POWER) += pci/power/
 
 obj-$(CONFIG_SAVE_UBOOT_LOG) += log/
+
+obj-$(CONFIG_AMLOGIC_BT_USB) += wireless/
+
+obj-$(CONFIG_AMLOGIC_WIFI_USB2T) += wireless/

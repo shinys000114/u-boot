@@ -26,9 +26,6 @@
 #include <asm-generic/u-boot.h>
 #include <command.h>
 #include <asm/amlogic/arch/stick_mem.h>
-#ifdef CONFIG_AMLOGIC_WIFI_USB2T
-#include "wifi.h"
-#endif
 #ifdef CONFIG_AMLOGIC_AMFC
 #include <amlogic/amfc.h>
 #endif
@@ -181,10 +178,6 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#ifdef CONFIG_AML_USB_BT
-	char *ddr_resume = NULL;
-#endif
-
 	printf("board late init\n");
 	env_set("defenv_para", "-c -b0");
 	aml_board_late_init_front(NULL);
@@ -223,17 +216,6 @@ int board_late_init(void)
 
 	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_e);
 
-#ifdef CONFIG_AMLOGIC_WIFI_USB2T
-	wifi_init();
-#endif
-
-#ifdef CONFIG_AML_USB_BT
-	// bt download firmware
-	ddr_resume = env_get("ddr_resume");
-
-	if (ddr_resume && ddr_resume[0] == '1')
-		run_command("usb bt_start", 0);
-#endif
 	aml_board_late_init_tail(NULL);
 
 	run_command("multi_remote", 0);

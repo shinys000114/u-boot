@@ -332,7 +332,7 @@ defined(CONFIG_STORE_COMPATIBLE)
 	#define CONFIG_NETMASK         255.255.255.0
 #endif /* (CONFIG_CMD_NET) */
 
-#define WIFI_POWER_PIN "gpiod_11"
+#define WIFI_BT_EN "gpiod_11"
 
 #define MAC_ADDR_NEW  1
 

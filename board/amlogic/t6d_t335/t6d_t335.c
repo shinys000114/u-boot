@@ -26,9 +26,6 @@
 #include <asm-generic/u-boot.h>
 #include <command.h>
 #include <asm/amlogic/arch/stick_mem.h>
-#ifdef CONFIG_AMLOGIC_WIFI_USB2T
-#include "wifi.h"
-#endif
 #ifdef CONFIG_AMLOGIC_AMFC
 #include <amlogic/amfc.h>
 #endif
@@ -216,9 +213,6 @@ int board_late_init(void)
 
 	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_e);
 
-#ifdef CONFIG_AMLOGIC_WIFI_USB2T
-	wifi_init();
-#endif
 	aml_board_late_init_tail(NULL);
 
 	run_command("multi_remote", 0);

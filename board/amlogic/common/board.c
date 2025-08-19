@@ -183,6 +183,18 @@ int aml_board_late_init_front(void *arg)
 	board_init_mem();
 	run_command("run bcb_cmd", 0);
 
+#if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
+#if !CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
+	// setenv powermode standby; usb bt download firmware
+	const char *val = env_get("powermode");
+	if (val && strcmp(val, "standby") == 0)
+#endif
+	{
+		printf("run usb wifi_start\n");
+		run_command("usb wifi_start", 0);
+	}
+#endif
+
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	PUSH_TIME_TE("load dtb", BL33_LOAD_DTB_s);
 	if (run_command("run common_dtb_load", 0)) {

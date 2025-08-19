@@ -1,6 +1,0 @@
-config AMLOGIC_WIFI_USB2T
-	tristate "Support for Amlogic USB 2T WIFI"
-	default n
-	help
-	  Amlogic wifi usb 2t driver
-

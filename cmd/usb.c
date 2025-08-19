@@ -22,8 +22,17 @@
 #include <asm/unaligned.h>
 #include <part.h>
 #include <usb.h>
-#ifdef CONFIG_AML_USB_BT
-#include <aml_fw.h>
+
+#if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
+#include <amlogic/wireless/wifi_bt_comm.h>
+#endif
+
+#if CONFIG_IS_ENABLED(AMLOGIC_BT_USB)
+#include <amlogic/wireless/bt/amlbt_fw.h>
+#endif
+
+#if CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
+#include <amlogic/wireless/wifi/aml_wifi.h>
 #endif
 
 #ifdef CONFIG_USB_STORAGE
@@ -606,28 +615,6 @@ static void do_usb_start(void)
 #endif
 }
 
-#ifdef CONFIG_AML_USB_BT
-static void do_bt_usb_start(void)
-{
-	bootstage_mark_name(BOOTSTAGE_ID_USB_START, "usb_start");
-
-	if (usb_wifi_init() < 0)
-		return;
-}
-
-static void bt_usb_power_ctrl(void)
-{
-	char cmd1[20], cmd2[20];
-
-	snprintf(cmd1, sizeof(cmd1), "gpio c %s", BT_EN);
-	snprintf(cmd2, sizeof(cmd2), "gpio s %s", BT_EN);
-
-	run_command(cmd1, 0);
-	udelay(100000);
-	run_command(cmd2, 0);
-}
-#endif
-
 #ifdef CONFIG_DM_USB
 static void usb_show_info(struct usb_device *udev)
 {
@@ -668,28 +655,28 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 0;
 	}
 
-#ifdef CONFIG_AML_USB_BT
-	if (strncmp(argv[1], "bt_start", 8) == 0) {
+#if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
+	if (strncmp(argv[1], "wifi_start", 8) == 0) {
 		if (usb_started) {
 			printf("Already started\n");
 			usb_stop(); /* Already started */
 		}
+		aml_mod_init();
 
-		printf("starting BT USB...\n");
-		bt_usb_power_ctrl();
-		do_bt_usb_start();
-
-		aml_chip_type *aml_dev;
-		printf("load aml usb bt\n");
-		aml_dev = get_aml_dev();
-		if (aml_dev) {
-			load_aml_firmware_dev(aml_dev);
-			amlbt_firmware_init();
-			udelay(100000);
-			aml_wakeup_set();
+#if CONFIG_IS_ENABLED(AMLOGIC_BT_USB)
+		// setenv powermode standby; usb bt download firmware
+		const char *val = env_get("powermode");
+		if (val && strcmp(val, "standby") == 0) {
+			amlbt_start();
 		}
+#endif
+
+#if CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
+		aml_wifi_set_usb2t_mode();
+#endif
 
 		usb_wifi_stop();
+
 		return 0;
 	}
 #endif

@@ -257,7 +257,6 @@
 &crg2 {
 	status = "okay";
 	dr_mode = "host";
-	wifi-bt-cn = <1>;
 };
 
 &usb22_phy_v2 {

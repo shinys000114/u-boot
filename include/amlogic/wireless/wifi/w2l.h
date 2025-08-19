@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+
 #ifndef __W2L_H
 #define __W2L_H
 
-unsigned int wifi_w2l_fw_usb []={
+unsigned int wifi_w2l_fw_usb[] = {
 0x00000001,
 0x07b71141,
 0xc42200f0,

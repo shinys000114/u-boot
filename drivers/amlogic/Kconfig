@@ -53,7 +53,7 @@ source "drivers/amlogic/amfc/Kconfig"
 
 source "drivers/amlogic/pm/Kconfig"
 
-source "drivers/amlogic/wifi/Kconfig"
+source "drivers/amlogic/wireless/Kconfig"
 
 source "drivers/amlogic/st7789v3/Kconfig"
 
