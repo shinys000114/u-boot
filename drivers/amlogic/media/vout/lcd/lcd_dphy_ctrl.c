@@ -661,7 +661,7 @@ void lcd_lvds_dphy_set(struct aml_lcd_drv_s *pdrv, unsigned char on_off)
 		}
 		break;
 #endif
-#if defined(CONFIG_MESON_T6W) || defined(CONFIG_MESON_T6D)
+#if defined(CONFIG_MESON_T6W) || defined(CONFIG_MESON_T6D) || defined(CONFIG_MESON_T6X)
 	case LCD_CHIP_T6D:
 	case LCD_CHIP_T6W:
 	case LCD_CHIP_T6X:
