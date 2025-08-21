@@ -1013,13 +1013,6 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 	}
 #endif
-#if CONFIG_IS_ENABLED(OF_LIBFDT) && defined(CONFIG_LMB)
-	if (!ret && (states & BOOTM_STATE_FDT)) {
-		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
-		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
-					&images->ft_len);
-	}
-#endif
 
 #ifdef CONFIG_AMLOGIC_MODIFY
 	/* Check reserved memory region */
@@ -1030,7 +1023,17 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		return ret;
 	}
 #endif
+#endif
 
+#if CONFIG_IS_ENABLED(OF_LIBFDT) && defined(CONFIG_LMB)
+	if (!ret && (states & BOOTM_STATE_FDT)) {
+		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
+		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
+					&images->ft_len);
+	}
+#endif
+
+#ifdef CONFIG_AMLOGIC_MODIFY
 	/* memtag region protect */
 #ifdef CONFIG_CMD_MEMTAG
 	run_command("memtag check", 0);
