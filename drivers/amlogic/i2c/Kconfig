@@ -1,0 +1,15 @@
+#
+#Amlogic I2C control drivers
+#
+
+config SYS_I2C_MESON
+	bool "Amlogic Meson SoC I2C driver"
+	default n
+	help
+	  Say Y here if you want to use the Meson I2C control.
+
+config SYS_I2C_MESON_T6W
+	bool "Amlogic Meson T6W SoC I2C driver"
+	default n
+	help
+	  Say Y here if you want to use the Meson I2C control.

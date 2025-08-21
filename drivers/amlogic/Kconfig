@@ -35,6 +35,8 @@ source "drivers/amlogic/net/Kconfig"
 
 source "drivers/amlogic/pinctrl/Kconfig"
 
+source "drivers/amlogic/i2c/Kconfig"
+
 source "drivers/amlogic/spi/Kconfig"
 
 source "drivers/amlogic/mtd/Kconfig"
