@@ -204,19 +204,18 @@ static void lcd_set_pll_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 	tcon_div_sel = cconf->pll_tcon_div_sel;
 #if IS_ENABLED(CONFIG_MESON_T6X)
 	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 1, 3, 1);
-	pll_ctrl0 = 0x62000 | (cconf->pll_config[0].pll_m << 0);
-	pll_ctrl1 = 0x1030621c;
+	pll_ctrl0 = 0x23000 | (cconf->pll_config[0].pll_m << 0);
+	pll_ctrl1 = 0x1030600c;
 	pll_ctrl2 = 0x32000000 |
 		(tcon_div_t6x[tcon_div_sel][0] << 30) | /*div2_4_sel*/
 		(tcon_div_t6x[tcon_div_sel][2] << 31); /*clk1x_sel*/
-	pll_ctrl3 = 0x380 |
+	pll_ctrl3 = 0x180 |
 		(cconf->pll_config[0].pll_od1_sel << 10) |
 		(cconf->pll_config[0].pll_od2_sel << 14) |
 		(cconf->pll_config[0].pll_od3_sel << 12) |
 		(1 << 9) | /*tcon_od_en*/
 		(tcon_div_t6x[tcon_div_sel][1] << 30); /*tcon_bypass_en*/
-	pll_ctrl4 = cconf->pll_config[0].pll_frac |
-		(tcon_div_t6x[tcon_div_sel][3] << 20);
+	pll_ctrl4 = cconf->pll_config[0].pll_frac | (tcon_div_t6x[tcon_div_sel][3] << 20);
 #else
 	pll_ctrl0 = 0x22000 | (cconf->pll_config[0].pll_m << 0);
 	if (cconf->pll_config[0].pll_fvco <= 4750000000ULL &&
@@ -1120,6 +1119,7 @@ static void lcd_clk_generate_t6w(struct aml_lcd_drv_s *pdrv)
 
 static struct lcd_pll_data_s lcd_pll_data_t6d = {
 	.pll_od_fb = 0,
+	.pll_0_5_div_en = 0,
 	.pll_m_max = 511,
 	.pll_m_min = 2,
 	.pll_n_max = 1,
@@ -1179,6 +1179,11 @@ static struct lcd_clk_data_s lcd_clk_data_t6d = {
 
 static struct lcd_pll_data_s lcd_tcon_pll_data_t6w = {
 	.pll_od_fb = 0,
+#if IS_ENABLED(CONFIG_MESON_T6X)
+	.pll_0_5_div_en = 1,
+#else
+	.pll_0_5_div_en = 0,
+#endif
 	.pll_m_max = 511,
 	.pll_m_min = 2,
 	.pll_n_max = 1,
@@ -1201,6 +1206,7 @@ static struct lcd_pll_data_s lcd_tcon_pll_data_t6w = {
 
 static struct lcd_pll_data_s lcd_gp2_pll_data_t6w = {
 	.pll_od_fb = 0,
+	.pll_0_5_div_en = 0,
 	.pll_m_max = 511,
 	.pll_m_min = 2,
 	.pll_n_max = 2,
@@ -1329,7 +1335,6 @@ struct lcd_clk_config_s *lcd_clk_config_chip_init_t6d(struct aml_lcd_drv_s *pdrv
 	memset(cconf->pll_config, 0, size);
 
 	cconf->data = &lcd_clk_data_t6d;
-	cconf->pll_config[0].pll_od_fb = lcd_tcon_pll_data_t6w.pll_od_fb;
 	cconf->pll_config[0].pll_id = 0;
 
 	return cconf;
@@ -1371,12 +1376,9 @@ struct lcd_clk_config_s *lcd_clk_config_chip_init_t6w(struct aml_lcd_drv_s *pdrv
 	memset(cconf->pll_config, 0, size);
 
 	cconf->data = &lcd_clk_data_t6w;
-	cconf->pll_config[0].pll_od_fb = cconf->data->pll_data[0]->pll_od_fb;
 	cconf->pll_config[0].pll_id = 0;
-	if (cconf->pll_conf_num > 1) {
+	if (cconf->pll_conf_num > 1)
 		cconf->pll_config[1].pll_id = 1;
-		cconf->pll_config[1].pll_od_fb = cconf->data->pll_data[1]->pll_od_fb;
-	}
 	return cconf;
 }
 
@@ -1416,12 +1418,9 @@ struct lcd_clk_config_s *lcd_clk_config_chip_init_t6x(struct aml_lcd_drv_s *pdrv
 	memset(cconf->pll_config, 0, size);
 
 	cconf->data = &lcd_clk_data_t6x;
-	cconf->pll_config[0].pll_od_fb = cconf->data->pll_data[0]->pll_od_fb;
 	cconf->pll_config[0].pll_id = 0;
-	if (cconf->pll_conf_num > 1) {
+	if (cconf->pll_conf_num > 1)
 		cconf->pll_config[1].pll_id = 1;
-		cconf->pll_config[1].pll_od_fb = cconf->data->pll_data[1]->pll_od_fb;
-	}
 	return cconf;
 }
 

@@ -213,6 +213,16 @@ unsigned long long clk_vid_pll_div_calc(unsigned long long clk, unsigned int div
 	return clk_ret;
 }
 
+static inline unsigned long long lcd_pll_real_fvco_calc(unsigned long long pll_fvco,
+							struct lcd_pll_config_s *pll_config,
+							struct lcd_pll_data_s *pll_data)
+{
+	pll_fvco = lcd_do_div(pll_fvco, od_fb_table[pll_data->pll_od_fb]);
+	if (pll_data->pll_0_5_div_en)
+		pll_fvco = pll_fvco * 2;
+	return pll_fvco;
+}
+
 int lcd_pll_get_frac(struct lcd_clk_config_s *cconf, int pll_sel, unsigned long long pll_fvco)
 {
 	unsigned int frac_range, frac, offset;
@@ -222,7 +232,7 @@ int lcd_pll_get_frac(struct lcd_clk_config_s *cconf, int pll_sel, unsigned long 
 
 	frac_range = pll_data->pll_frac_range;
 
-	fvco_calc = lcd_do_div(pll_fvco, od_fb_table[pll_config->pll_od_fb]);
+	fvco_calc = lcd_pll_real_fvco_calc(pll_fvco, pll_config, pll_data);
 	temp = cconf->fin;
 	temp = lcd_do_div((temp * pll_config->pll_m), pll_config->pll_n);
 	if (fvco_calc >= temp) {
@@ -263,7 +273,7 @@ static int generate_pll_3od_setting(struct lcd_clk_config_s *cconf,
 	unsigned int m, n;
 	unsigned int od1_sel, od2_sel, od3_sel, od1, od2, od3;
 	unsigned long long pll_fod2_in, pll_fod3_in, pll_fvco, temp;
-	unsigned int od_fb = 0, pll_frac, frac_range;
+	unsigned int pll_frac, frac_range;
 	int done;
 
 	done = 0;
@@ -295,8 +305,7 @@ static int generate_pll_3od_setting(struct lcd_clk_config_s *cconf,
 				}
 				pll_config->pll_fvco = pll_fvco;
 				n = 1;
-				od_fb = pll_config->pll_od_fb;
-				pll_fvco = lcd_do_div(pll_fvco, od_fb_table[od_fb]);
+				pll_fvco = lcd_pll_real_fvco_calc(pll_fvco, pll_config, pll_data);
 				m = lcd_do_div(pll_fvco, cconf->fin);
 				temp = cconf->fin;
 				temp *= m;
@@ -332,7 +341,7 @@ static int generate_pll_1od_setting(struct lcd_clk_config_s *cconf,
 	struct lcd_pll_data_s *pll_data = cconf->data->pll_data[pll_sel];
 	unsigned int m, n, od_sel, od;
 	unsigned long long pll_fvco, temp;
-	unsigned int od_fb = 0, pll_frac;
+	unsigned int pll_frac;
 	int done = 0;
 
 	if (pll_fout > pll_data->pll_out_fmax || pll_fout < pll_data->pll_out_fmin)
@@ -350,8 +359,7 @@ static int generate_pll_1od_setting(struct lcd_clk_config_s *cconf,
 
 		pll_config->pll_fvco = pll_fvco;
 		n = 1;
-		od_fb = pll_config->pll_od_fb;
-		pll_fvco = lcd_do_div(pll_fvco, od_fb_table[od_fb]);
+		pll_fvco = lcd_pll_real_fvco_calc(pll_fvco, pll_config, pll_data);
 		m = lcd_do_div(pll_fvco, cconf->fin);
 		temp = cconf->fin;
 		temp *= m;
@@ -425,7 +433,7 @@ int check_vco(struct lcd_clk_config_s *cconf, int pll_sel, unsigned long long pl
 	struct lcd_pll_config_s *pll_config = &cconf->pll_config[pll_sel];
 	struct lcd_pll_data_s *pll_data = cconf->data->pll_data[pll_sel];
 	unsigned int m, n;
-	unsigned int od_fb = 0, pll_frac;
+	unsigned int pll_frac;
 	unsigned long long temp;
 	int done = 0;
 
@@ -437,8 +445,7 @@ int check_vco(struct lcd_clk_config_s *cconf, int pll_sel, unsigned long long pl
 
 	pll_config->pll_fvco = pll_fvco;
 	n = 1;
-	od_fb = pll_config->pll_od_fb;
-	pll_fvco = lcd_do_div(pll_fvco, od_fb_table[od_fb]);
+	pll_fvco = lcd_pll_real_fvco_calc(pll_fvco, pll_config, pll_data);
 	m = lcd_do_div(pll_fvco, cconf->fin);
 	temp = cconf->fin;
 	temp *= m;
@@ -1737,6 +1744,7 @@ void lcd_clk_config_init_print_dft(struct aml_lcd_drv_s *pdrv)
 			"pll_n_max:           %d\n"
 			"pll_n_min:           %d\n"
 			"pll_od_fb:           %d\n"
+			"pll_0_5_div_en:      %d\n"
 			"pll_frac_range:      %d\n"
 			"pll_od_sel_max:      %d\n"
 			"pll_ref_fmax:        %d\n"
@@ -1750,8 +1758,8 @@ void lcd_clk_config_init_print_dft(struct aml_lcd_drv_s *pdrv)
 			pdrv->index, pll_config->pll_id,
 			pll_data->pll_m_max, pll_data->pll_m_min,
 			pll_data->pll_n_max, pll_data->pll_n_min,
-			pll_data->pll_od_fb, pll_data->pll_frac_range,
-			pll_data->pll_od_sel_max,
+			pll_data->pll_od_fb, pll_data->pll_0_5_div_en,
+			pll_data->pll_frac_range, pll_data->pll_od_sel_max,
 			pll_data->pll_ref_fmax, pll_data->pll_ref_fmin,
 			pll_data->pll_vco_fmax, pll_data->pll_vco_fmin,
 			pll_data->pll_out_fmax, pll_data->pll_out_fmin,
