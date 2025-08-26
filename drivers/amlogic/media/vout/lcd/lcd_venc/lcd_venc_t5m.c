@@ -17,12 +17,11 @@
 #if defined (CONFIG_MESON_T5M) || defined(CONFIG_MESON_T6D) || defined (CONFIG_MESON_T6W)
 static void lcd_venc_wait_vsync(struct aml_lcd_drv_s *pdrv)
 {
-	unsigned int offset, reg;
+	unsigned int reg;
 	int line_cnt, line_cnt_previous;
 	int i = 0;
 
-	offset = pdrv->data->offset_venc[pdrv->index];
-	reg = VPU_VENCP_STAT + offset;
+	reg = VPU_VENCP_STAT;
 
 	line_cnt = 0x1fff;
 	line_cnt_previous = lcd_vcbus_getb(reg, 16, 13);
@@ -40,12 +39,9 @@ static void lcd_venc_wait_vsync(struct aml_lcd_drv_s *pdrv)
 
 static unsigned int lcd_venc_get_max_lint_cnt(struct aml_lcd_drv_s *pdrv)
 {
-	unsigned int offset, reg, line_cnt;
+	unsigned int line_cnt;
 
-	offset = pdrv->data->offset_venc[pdrv->index];
-	reg = ENCL_VIDEO_MAX_LNCNT + offset;
-
-	line_cnt = lcd_vcbus_read(reg) + 1;
+	line_cnt = lcd_vcbus_read(ENCL_VIDEO_MAX_LNCNT) + 1;
 	/*LCDPR("[%d]: %s: line_cnt=%d", pdrv->index, __func__, line_cnt); */
 
 	return line_cnt;
@@ -110,7 +106,7 @@ static struct lcd_enc_test_t lcd_enc_tst_t6w[] = {
 
 static int lcd_venc_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
 {
-	unsigned int start, width, height, offset;
+	unsigned int start, width, height;
 	struct lcd_enc_test_t *pcur_test = NULL;
 	unsigned int cur_test_num = 0;
 	unsigned gcd_num;
@@ -133,30 +129,29 @@ static int lcd_venc_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
 	if (num >= cur_test_num || !pcur_test)
 		return -1;
 
-	offset = pdrv->data->offset_venc[pdrv->index];
 	start = pdrv->config.timing.hstart;
 	width = pdrv->config.timing.act_timing.h_active / 9;
 
 	lcd_venc_wait_vsync(pdrv);
-	lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL + offset, pcur_test[num].rgb_in);
-	lcd_vcbus_write(ENCL_TST_Y + offset, pcur_test[num].y);
+	lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL, pcur_test[num].rgb_in);
+	lcd_vcbus_write(ENCL_TST_Y, pcur_test[num].y);
 	if (num == 9) {
 		width = pdrv->config.timing.act_timing.h_active;
 		height = pdrv->config.timing.act_timing.v_active;
 		gcd_num = gcd(width, height);
-		lcd_vcbus_write(ENCL_TST_CB + offset, width / gcd_num);
-		lcd_vcbus_write(ENCL_TST_CR + offset, height / gcd_num);
-		lcd_vcbus_write(ENCL_TST_CLRBAR_STRT + offset, height);
-		lcd_vcbus_write(ENCL_TST_CLRBAR_WIDTH + offset, width);
+		lcd_vcbus_write(ENCL_TST_CB, width / gcd_num);
+		lcd_vcbus_write(ENCL_TST_CR, height / gcd_num);
+		lcd_vcbus_write(ENCL_TST_CLRBAR_STRT, height);
+		lcd_vcbus_write(ENCL_TST_CLRBAR_WIDTH, width);
 	} else {
-		lcd_vcbus_write(ENCL_TST_CB + offset, pcur_test[num].cb);
-		lcd_vcbus_write(ENCL_TST_CR + offset, pcur_test[num].cr);
-		lcd_vcbus_write(ENCL_TST_CLRBAR_STRT + offset, start - 2);
-		lcd_vcbus_write(ENCL_TST_CLRBAR_WIDTH + offset, width);
+		lcd_vcbus_write(ENCL_TST_CB, pcur_test[num].cb);
+		lcd_vcbus_write(ENCL_TST_CR, pcur_test[num].cr);
+		lcd_vcbus_write(ENCL_TST_CLRBAR_STRT, start - 2);
+		lcd_vcbus_write(ENCL_TST_CLRBAR_WIDTH, width);
 	}
-	lcd_vcbus_write(ENCL_TST_MDSEL + offset, pcur_test[num].mode);
-	lcd_vcbus_setb(ENCL_TST_EN + offset, pcur_test[num].en, 0, 1);
-	lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV + offset, pcur_test[num].vfifo_en, 3, 1);
+	lcd_vcbus_write(ENCL_TST_MDSEL, pcur_test[num].mode);
+	lcd_vcbus_setb(ENCL_TST_EN, pcur_test[num].en, 0, 1);
+	lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV, pcur_test[num].vfifo_en, 3, 1);
 	if (num > 0) {
 		LCDPR("[%d]: show test pattern: %s\n",
 		      pdrv->index, pcur_test[num].name);
@@ -168,154 +163,129 @@ static int lcd_venc_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
 static void lcd_venc_set_tcon(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int offset_if, offset_data;
-	unsigned int reg_rgb_base, reg_rgb_coeff, reg_dith_ctrl, reg_pol_ctrl;
-	unsigned int reg_de_hs, reg_de_he, reg_de_vs, reg_de_ve;
-	unsigned int reg_hsync_hs, reg_hsync_he, reg_hsync_vs, reg_hsync_ve;
-	unsigned int reg_vsync_hs, reg_vsync_he, reg_vsync_vs, reg_vsync_ve;
 
-	offset_data = pdrv->data->offset_venc_data[pdrv->index];
-	offset_if = pdrv->data->offset_venc_if[pdrv->index];
-	reg_rgb_base = LCD_RGB_BASE_ADDR + offset_data;
-	reg_rgb_coeff = LCD_RGB_COEFF_ADDR + offset_data;
-	reg_dith_ctrl = LCD_DITH_CNTL_ADDR + offset_data;
-	reg_pol_ctrl = LCD_POL_CNTL_ADDR + offset_data;
-	reg_de_hs = DE_HS_ADDR + offset_if;
-	reg_de_he = DE_HE_ADDR + offset_if;
-	reg_de_vs = DE_VS_ADDR + offset_if;
-	reg_de_ve = DE_VE_ADDR + offset_if;
-	reg_hsync_hs = HSYNC_HS_ADDR + offset_if;
-	reg_hsync_he = HSYNC_HE_ADDR + offset_if;
-	reg_hsync_vs = HSYNC_VS_ADDR + offset_if;
-	reg_hsync_ve = HSYNC_VE_ADDR + offset_if;
-	reg_vsync_hs = VSYNC_HS_ADDR + offset_if;
-	reg_vsync_he = VSYNC_HE_ADDR + offset_if;
-	reg_vsync_vs = VSYNC_VS_ADDR + offset_if;
-	reg_vsync_ve = VSYNC_VE_ADDR + offset_if;
-
-	lcd_vcbus_write(reg_rgb_base, 0x0);
-	lcd_vcbus_write(reg_rgb_coeff, 0x400);
+	lcd_vcbus_write(LCD_RGB_BASE_ADDR, 0x0);
+	lcd_vcbus_write(LCD_RGB_COEFF_ADDR, 0x400);
 
 	if (pconf->basic.lcd_type != LCD_P2P && pconf->basic.lcd_type != LCD_MLVDS) {
 		switch (pconf->timing.act_timing.lcd_bits) {
 		case 18:
-			lcd_vcbus_write(reg_dith_ctrl,  0x600);
+			lcd_vcbus_write(LCD_DITH_CNTL_ADDR,  0x600);
 			break;
 		case 24:
-			lcd_vcbus_write(reg_dith_ctrl,  0x400);
+			lcd_vcbus_write(LCD_DITH_CNTL_ADDR,  0x400);
 			break;
 		case 30:
 		default:
-			lcd_vcbus_write(reg_dith_ctrl,  0x0);
+			lcd_vcbus_write(LCD_DITH_CNTL_ADDR,  0x0);
 			break;
 		}
 	} else {
-		lcd_vcbus_write(reg_dith_ctrl,  0x0);
+		lcd_vcbus_write(LCD_DITH_CNTL_ADDR,  0x0);
 	}
 
 	switch (pconf->basic.lcd_type) {
 	case LCD_LVDS:
-		lcd_vcbus_setb(reg_pol_ctrl, 1, 0, 3);
+		lcd_vcbus_setb(LCD_POL_CNTL_ADDR, 1, 0, 3);
 		// refs to lcd_lvds.c@lcd_lvds_enable
 		if (pconf->timing.act_timing.vsync_pol == pconf->timing.act_timing.hsync_pol)
-			lcd_vcbus_setb(reg_pol_ctrl, 1, 1, 1);
+			lcd_vcbus_setb(LCD_POL_CNTL_ADDR, 1, 1, 1);
 		break;
 	case LCD_VBYONE:
 		if (pconf->timing.act_timing.hsync_pol)
-			lcd_vcbus_setb(reg_pol_ctrl, 1, 0, 1);
+			lcd_vcbus_setb(LCD_POL_CNTL_ADDR, 1, 0, 1);
 		if (pconf->timing.act_timing.vsync_pol)
-			lcd_vcbus_setb(reg_pol_ctrl, 1, 1, 1);
+			lcd_vcbus_setb(LCD_POL_CNTL_ADDR, 1, 1, 1);
 		break;
 	case LCD_MIPI:
-		//lcd_vcbus_setb(reg_pol_ctrl, 0x3, 0, 2);
-		/*lcd_vcbus_write(reg_pol_ctrl,
-		 *	(lcd_vcbus_read(reg_pol_ctrl) |
+		//lcd_vcbus_setb(LCD_POL_CNTL_ADDR, 0x3, 0, 2);
+		/*lcd_vcbus_write(LCD_POL_CNTL_ADDR,
+		 *	(lcd_vcbus_read(LCD_POL_CNTL_ADDR) |
 		 *	 ((0 << 2) | (vs_pol_adj << 1) | (hs_pol_adj << 0))));
 		 */
-		/*lcd_vcbus_write(reg_pol_ctrl, (lcd_vcbus_read(reg_pol_ctrl) |
+		/*lcd_vcbus_write(LCD_POL_CNTL_ADDR, (lcd_vcbus_read(LCD_POL_CNTL_ADDR) |
 		 *	 ((1 << LCD_TCON_DE_SEL) | (1 << LCD_TCON_VS_SEL) |
 		 *	  (1 << LCD_TCON_HS_SEL))));
 		 */
 		break;
 	case LCD_EDP:
-		lcd_vcbus_setb(reg_pol_ctrl, 1, 0, 1);
+		lcd_vcbus_setb(LCD_POL_CNTL_ADDR, 1, 0, 1);
 		break;
 	default:
 		break;
 	}
 
 	/* DE signal */
-	lcd_vcbus_write(reg_de_hs,    pconf->timing.de_hs_addr);
-	lcd_vcbus_write(reg_de_he,    pconf->timing.de_he_addr);
-	lcd_vcbus_write(reg_de_vs,    pconf->timing.de_vs_addr);
-	lcd_vcbus_write(reg_de_ve,    pconf->timing.de_ve_addr);
+	lcd_vcbus_write(DE_HS_ADDR,    pconf->timing.de_hs_addr);
+	lcd_vcbus_write(DE_HE_ADDR,    pconf->timing.de_he_addr);
+	lcd_vcbus_write(DE_VS_ADDR,    pconf->timing.de_vs_addr);
+	lcd_vcbus_write(DE_VE_ADDR,    pconf->timing.de_ve_addr);
 
 	/* Hsync signal */
-	lcd_vcbus_write(reg_hsync_hs, pconf->timing.hs_hs_addr);
-	lcd_vcbus_write(reg_hsync_he, pconf->timing.hs_he_addr);
-	lcd_vcbus_write(reg_hsync_vs, pconf->timing.hs_vs_addr);
-	lcd_vcbus_write(reg_hsync_ve, pconf->timing.hs_ve_addr);
+	lcd_vcbus_write(HSYNC_HS_ADDR, pconf->timing.hs_hs_addr);
+	lcd_vcbus_write(HSYNC_HE_ADDR, pconf->timing.hs_he_addr);
+	lcd_vcbus_write(HSYNC_VS_ADDR, pconf->timing.hs_vs_addr);
+	lcd_vcbus_write(HSYNC_VE_ADDR, pconf->timing.hs_ve_addr);
 
 	/* Vsync signal */
-	lcd_vcbus_write(reg_vsync_hs, pconf->timing.vs_hs_addr);
-	lcd_vcbus_write(reg_vsync_he, pconf->timing.vs_he_addr);
-	lcd_vcbus_write(reg_vsync_vs, pconf->timing.vs_vs_addr);
-	lcd_vcbus_write(reg_vsync_ve, pconf->timing.vs_ve_addr);
+	lcd_vcbus_write(VSYNC_HS_ADDR, pconf->timing.vs_hs_addr);
+	lcd_vcbus_write(VSYNC_HE_ADDR, pconf->timing.vs_he_addr);
+	lcd_vcbus_write(VSYNC_VS_ADDR, pconf->timing.vs_vs_addr);
+	lcd_vcbus_write(VSYNC_VE_ADDR, pconf->timing.vs_ve_addr);
 }
 
 static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
 	unsigned int hstart, hend, vstart, vend;
-	unsigned int offset;
-	unsigned int pre_vde, pre_de_vs, pre_de_ve, pre_de_hs, pre_de_he;
+	unsigned int pre_hde, pre_vde, pre_de_vs, pre_de_ve, pre_de_hs, pre_de_he;
 
 	hstart = pconf->timing.hstart;
 	hend = pconf->timing.hend;
 	vstart = pconf->timing.vstart;
 	vend = pconf->timing.vend;
-	offset = pdrv->data->offset_venc[pdrv->index];
 
-	lcd_vcbus_write(ENCL_VIDEO_MAX_PXCNT + offset, pconf->timing.act_timing.h_period - 1);
-	lcd_vcbus_write(ENCL_VIDEO_MAX_LNCNT + offset, pconf->timing.act_timing.v_period - 1);
-	lcd_vcbus_write(ENCL_VIDEO_HAVON_BEGIN + offset, hstart);
-	lcd_vcbus_write(ENCL_VIDEO_HAVON_END + offset,   hend);
-	lcd_vcbus_write(ENCL_VIDEO_VAVON_BLINE + offset, vstart);
-	lcd_vcbus_write(ENCL_VIDEO_VAVON_ELINE + offset, vend);
+	lcd_vcbus_write(ENCL_VIDEO_MAX_PXCNT, pconf->timing.act_timing.h_period - 1);
+	lcd_vcbus_write(ENCL_VIDEO_MAX_LNCNT, pconf->timing.act_timing.v_period - 1);
+	lcd_vcbus_write(ENCL_VIDEO_HAVON_BEGIN, hstart);
+	lcd_vcbus_write(ENCL_VIDEO_HAVON_END,   hend);
+	lcd_vcbus_write(ENCL_VIDEO_VAVON_BLINE, vstart);
+	lcd_vcbus_write(ENCL_VIDEO_VAVON_ELINE, vend);
 	if (pconf->basic.lcd_type == LCD_P2P ||
 	    pconf->basic.lcd_type == LCD_MLVDS) {
 		pre_vde = pconf->timing.pre_de_v ? pconf->timing.pre_de_v : 8;
-		pre_de_vs = vstart - pre_vde;
+		pre_hde = pconf->timing.pre_de_h ? pconf->timing.pre_de_h : PRE_DE_DELAY;
+		pre_de_vs = pconf->timing.vstart - pre_vde;
 		pre_de_ve = pconf->timing.act_timing.v_active + pre_de_vs;
-		pre_de_hs = hstart + PRE_DE_DELAY;
+		pre_de_hs = pconf->timing.hstart + pre_hde;
 		pre_de_he = pconf->timing.act_timing.h_active - 1 + pre_de_hs;
-		lcd_vcbus_write(ENCL_VIDEO_V_PRE_DE_BLINE + offset, pre_de_vs);
-		lcd_vcbus_write(ENCL_VIDEO_V_PRE_DE_ELINE + offset, pre_de_ve);
-		lcd_vcbus_write(ENCL_VIDEO_H_PRE_DE_BEGIN + offset, pre_de_hs);
-		lcd_vcbus_write(ENCL_VIDEO_H_PRE_DE_END + offset,   pre_de_he);
+		lcd_vcbus_write(ENCL_VIDEO_V_PRE_DE_BLINE, pre_de_vs);
+		lcd_vcbus_write(ENCL_VIDEO_V_PRE_DE_ELINE, pre_de_ve);
+		lcd_vcbus_write(ENCL_VIDEO_H_PRE_DE_BEGIN, pre_de_hs);
+		lcd_vcbus_write(ENCL_VIDEO_H_PRE_DE_END,   pre_de_he);
 	}
 
-	lcd_vcbus_write(ENCL_VIDEO_HSO_BEGIN + offset, pconf->timing.hs_hs_addr);
-	lcd_vcbus_write(ENCL_VIDEO_HSO_END + offset,   pconf->timing.hs_he_addr);
-	lcd_vcbus_write(ENCL_VIDEO_VSO_BEGIN + offset, pconf->timing.vs_hs_addr);
-	lcd_vcbus_write(ENCL_VIDEO_VSO_END + offset,   pconf->timing.vs_he_addr);
-	lcd_vcbus_write(ENCL_VIDEO_VSO_BLINE + offset, pconf->timing.vs_vs_addr);
-	lcd_vcbus_write(ENCL_VIDEO_VSO_ELINE + offset, pconf->timing.vs_ve_addr);
+	lcd_vcbus_write(ENCL_VIDEO_HSO_BEGIN, pconf->timing.hs_hs_addr);
+	lcd_vcbus_write(ENCL_VIDEO_HSO_END,   pconf->timing.hs_he_addr);
+	lcd_vcbus_write(ENCL_VIDEO_VSO_BEGIN, pconf->timing.vs_hs_addr);
+	lcd_vcbus_write(ENCL_VIDEO_VSO_END,   pconf->timing.vs_he_addr);
+	lcd_vcbus_write(ENCL_VIDEO_VSO_BLINE, pconf->timing.vs_vs_addr);
+	lcd_vcbus_write(ENCL_VIDEO_VSO_ELINE, pconf->timing.vs_ve_addr);
 
 	switch (pdrv->data->chip_type) {
 	case LCD_CHIP_T7:
-		lcd_vcbus_write(ENCL_INBUF_CNTL1 + offset,
+		lcd_vcbus_write(ENCL_INBUF_CNTL1,
 				(5 << 13) | (pconf->timing.act_timing.h_active - 1));
-		lcd_vcbus_write(ENCL_INBUF_CNTL0 + offset, 0x200);
+		lcd_vcbus_write(ENCL_INBUF_CNTL0, 0x200);
 		break;
 	case LCD_CHIP_T3:
 	case LCD_CHIP_T5W:
 	case LCD_CHIP_T5M:
 	case LCD_CHIP_T6D:
 	case LCD_CHIP_T6W:
-		lcd_vcbus_write(ENCL_INBUF_CNTL1 + offset,
+		lcd_vcbus_write(ENCL_INBUF_CNTL1,
 				(4 << 13) | (pconf->timing.act_timing.h_active - 1));
-		lcd_vcbus_write(ENCL_INBUF_CNTL0 + offset, 0x200);
+		lcd_vcbus_write(ENCL_INBUF_CNTL0, 0x200);
 		break;
 	default:
 		break;
@@ -326,25 +296,24 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 
 static void lcd_venc_set(struct aml_lcd_drv_s *pdrv)
 {
-	unsigned int reg_disp_viu_ctrl, offset;
+	unsigned int reg_disp_viu_ctrl;
 
-	offset = pdrv->data->offset_venc[pdrv->index];
-	lcd_vcbus_write(ENCL_VIDEO_EN + offset, 0);
+	lcd_vcbus_write(ENCL_VIDEO_EN, 0);
 
-	lcd_vcbus_write(ENCL_VIDEO_MODE + offset, 0x8000); /* bit[15] shadown en */
-	lcd_vcbus_write(ENCL_VIDEO_MODE_ADV + offset, 0x0418); /* Sampling rate: 1 */
-	lcd_vcbus_write(ENCL_VIDEO_FILT_CTRL + offset, 0x1000); /* bypass filter */
+	lcd_vcbus_write(ENCL_VIDEO_MODE, 0x8000); /* bit[15] shadown en */
+	lcd_vcbus_write(ENCL_VIDEO_MODE_ADV, 0x0418); /* Sampling rate: 1 */
+	lcd_vcbus_write(ENCL_VIDEO_FILT_CTRL, 0x1000); /* bypass filter */
 	if (pdrv->data->chip_type >= LCD_CHIP_T6D) {
-		lcd_vcbus_setb(ENCL_TST_EN + offset, 3, 1, 2); /*vsync latch enable*/
-		lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV + offset, 1, 8, 1); /*vfifo_en latch enable*/
+		lcd_vcbus_setb(ENCL_TST_EN, 3, 1, 2); /*vsync latch enable*/
+		lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV, 1, 8, 1); /*vfifo_en latch enable*/
 	}
 	lcd_venc_set_timing(pdrv);
 
-	lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL + offset, 3);
+	lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL, 3);
 
 	if (pdrv->status & LCD_STATUS_PRE_MUTE)
 		lcd_venc_debug_test(pdrv, 8);//mute
-	lcd_vcbus_write(ENCL_VIDEO_EN + offset, 1);
+	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 
 	switch (pdrv->index) {
 	case 0:
@@ -391,51 +360,39 @@ static void lcd_venc_set(struct aml_lcd_drv_s *pdrv)
 	default:
 		break;
 	}
-	lcd_vcbus_write(VPU_VENC_CTRL + offset, 2);
+	lcd_vcbus_write(VPU_VENC_CTRL, 2);
 }
 
 static void lcd_venc_enable_ctrl(struct aml_lcd_drv_s *pdrv, int flag)
 {
-	unsigned int offset;
-
-	offset = pdrv->data->offset_venc[pdrv->index];
 	if (flag)
-		lcd_vcbus_write(ENCL_VIDEO_EN + offset, 1);
+		lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 	else
-		lcd_vcbus_write(ENCL_VIDEO_EN + offset, 0);
+		lcd_vcbus_write(ENCL_VIDEO_EN, 0);
 }
 
 static void lcd_venc_mute_set(struct aml_lcd_drv_s *pdrv, unsigned char flag)
 {
-	unsigned int offset;
-
-	offset = pdrv->data->offset_venc[pdrv->index];
-
 	lcd_venc_wait_vsync(pdrv);
 	if (flag) {
-		lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL + offset, 3);
-		lcd_vcbus_write(ENCL_TST_MDSEL + offset, 0);
-		lcd_vcbus_write(ENCL_TST_Y + offset, 0);
-		lcd_vcbus_write(ENCL_TST_CB + offset, 0);
-		lcd_vcbus_write(ENCL_TST_CR + offset, 0);
-		lcd_vcbus_setb(ENCL_TST_EN + offset, 1, 0, 1);
-		lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV + offset, 0, 3, 1);
+		lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL, 3);
+		lcd_vcbus_write(ENCL_TST_MDSEL, 0);
+		lcd_vcbus_write(ENCL_TST_Y, 0);
+		lcd_vcbus_write(ENCL_TST_CB, 0);
+		lcd_vcbus_write(ENCL_TST_CR, 0);
+		lcd_vcbus_setb(ENCL_TST_EN, 1, 0, 1);
+		lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV, 0, 3, 1);
 	} else {
-		lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV + offset, 1, 3, 1);
-		lcd_vcbus_setb(ENCL_TST_EN + offset, 0, 0, 1);
+		lcd_vcbus_setb(ENCL_VIDEO_MODE_ADV, 1, 3, 1);
+		lcd_vcbus_setb(ENCL_TST_EN, 0, 0, 1);
 	}
 }
 
 static unsigned int lcd_venc_get_encl_line_cnt(struct aml_lcd_drv_s *pdrv)
 {
-	unsigned int offset, cnt;
+	unsigned int cnt;
 
-	if (!pdrv)
-		return 0;
-
-	offset = pdrv->data->offset_venc[pdrv->index];
-
-	cnt = lcd_vcbus_getb(VPU_VENCP_STAT + offset, 16, 13);
+	cnt = lcd_vcbus_getb(VPU_VENCP_STAT, 16, 13);
 	return cnt;
 }
 
@@ -460,6 +417,10 @@ static void lcd_venc_reg_dump(struct aml_lcd_drv_s *pdrv)
 		ENCL_VIDEO_VSO_END,
 		ENCL_VIDEO_VSO_BLINE,
 		ENCL_VIDEO_VSO_ELINE,
+		ENCL_VIDEO_H_PRE_DE_BEGIN,
+		ENCL_VIDEO_H_PRE_DE_END,
+		ENCL_VIDEO_V_PRE_DE_BLINE,
+		ENCL_VIDEO_V_PRE_DE_ELINE,
 		ENCL_VIDEO_RGBIN_CTRL,
 		LCD_GAMMA_CNTL_PORT0,
 		LCD_RGB_BASE_ADDR,
@@ -481,25 +442,24 @@ static void lcd_venc_reg_dump(struct aml_lcd_drv_s *pdrv)
 static void lcd_venc_save_bootctrl_to_reg(struct aml_lcd_drv_s *pdrv)
 {
 	unsigned int val = 0;
-	unsigned int offset = pdrv->data->offset_venc[pdrv->index];
 
 	val = (pdrv->boot_ctrl.init_level & 0xf) | (!!(pdrv->status & LCD_STATUS_IF_ON) << 4)
 		| ((pdrv->boot_ctrl.dccd_flag & 0x1) << 5)
 		| ((pdrv->boot_ctrl.mute_flag & 0x1) << 6)
 		| (0xa << 9);
-	lcd_vcbus_write(L_STH1_HS_ADDR + offset, val);
+	lcd_vcbus_write(L_STH1_HS_ADDR, val);
 
 	val = pdrv->boot_ctrl.frame_rate & 0x1fff;
-		lcd_vcbus_write(L_STH1_HS_ADDR + offset + 4, val);
+		lcd_vcbus_write(L_STH1_HS_ADDR + 4, val);
 
 	val = (pdrv->boot_ctrl.lcd_type & 0xf) | ((pdrv->boot_ctrl.clk_mode & 0xf) << 4)
 		| ((pdrv->boot_ctrl.ppc & 0x3) << 8)
 		| ((pdrv->boot_ctrl.custom_pinmux & 0x1) << 10)
 		| ((pdrv->boot_ctrl.bl_state & 0x1) << 11);
-	lcd_vcbus_write(L_STH1_HS_ADDR + offset + 8, val);
+	lcd_vcbus_write(L_STH1_HS_ADDR + 8, val);
 
 	val = pdrv->boot_ctrl.advanced_flag & 0xff;
-	lcd_vcbus_write(L_STH1_HS_ADDR + offset + 12, val);
+	lcd_vcbus_write(L_STH1_HS_ADDR + 12, val);
 }
 
 int lcd_venc_op_init_t5m(struct lcd_venc_op_s *venc_op)
