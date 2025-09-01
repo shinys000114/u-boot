@@ -52,7 +52,11 @@
 #define USB_POLL_TOTAL_LEN			(1340)    // event addr offset:0x13c+event size:1024
 #define USB_POLL_TOTAL_LEN_W2L		(2364)
 
-#define AML_FW_PATH "/odm_ext/aml_bt_fw/"
+#ifdef CONFIG_YOCTO
+	#define AML_FW_PATH "/vendor/firmware/wireless/"
+#else
+	#define AML_FW_PATH "/odm_ext/aml_bt_fw/"
+#endif
 
 #define W2U_FW AML_FW_PATH "w2_bt_fw_usb.bin"
 #define W2L_U_FW  AML_FW_PATH "w2l_bt_15p4_fw_usb.bin"
