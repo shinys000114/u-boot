@@ -18,10 +18,11 @@
 #define CLKID_FCLK_DIV2P5       7
 #define CLKID_SYS_CLK		8
 #define CLKID_GP0_PLL		9
-#define CLKID_SYS_PLL		10
-#define CLKID_HIFI_PLL		11
+#define CLKID_GP1_PLL		10
+#define CLKID_SYS_PLL		11
+#define CLKID_HIFI_PLL		12
 
-#define CLKID_GATE_BASE		12
+#define CLKID_GATE_BASE		13
 #define CLKID_SARADC		(CLKID_GATE_BASE + 0)
 #define CLKID_SPICC_0		(CLKID_GATE_BASE + 1)
 #define CLKID_SPICC_1		(CLKID_GATE_BASE + 2)

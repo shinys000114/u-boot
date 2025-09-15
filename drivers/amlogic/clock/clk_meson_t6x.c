@@ -15,7 +15,7 @@
 
 #define SYS_CLK		166666666
 
-static struct clk *gp0_pll, *hifi_pll;
+static struct clk *gp0_pll, *gp1_pll, *hifi_pll;
 
 static struct meson_gate gates[] = {
 	{CLKID_SPICC_0, T6X_CLKCTRL_SPISG_CLK_CTRL, 6},
@@ -130,6 +130,62 @@ static const struct aml_pll_data gp0_pll_data = {
 		 CLK_AML_PLL_NOINIT_ENABLED,
 };
 
+static struct parm meson_gp1_pll_parm[4] = {
+	{T6X_ANACTRL_GP1PLL_CTRL0, 0, 8}, /* pm */
+	{T6X_ANACTRL_GP1PLL_CTRL0, 16, 5}, /* pn */
+	{T6X_ANACTRL_GP1PLL_CTRL0, 12, 3}, /* pod */
+	{T6X_ANACTRL_GP1PLL_CTRL3, 26, 1}, /* pdiv0p5_en */
+};
+
+static const struct pll_params_table gp1_pll_table[] = {
+	{ 1680000000, 70, 1, 0, 0},
+};
+
+static const struct reg_sequence gp1_pll_init_regs[] = {
+	{ .reg_off = T6X_ANACTRL_GP1PLL_CTRL1,	.def = 0x3420500f },
+	{ .reg_off = T6X_ANACTRL_GP1PLL_CTRL2,	.def = 0x00023041 },
+	{ .reg_off = T6X_ANACTRL_GP1PLL_CTRL3,	.def = 0x00000000 }
+};
+
+static const struct aml_pll_data gp1_pll_data = {
+	.en = {
+		.reg_off = T6X_ANACTRL_GP1PLL_CTRL0,
+		.shift   = 28,
+		.width   = 1,
+	},
+	.m = {
+		.reg_off = T6X_ANACTRL_GP1PLL_CTRL0,
+		.shift   = 0,
+		.width   = 8,
+	},
+	.n = {
+		.reg_off = T6X_ANACTRL_GP1PLL_CTRL0,
+		.shift   = 16,
+		.width   = 5,
+	},
+	.od = {
+		.reg_off = T6X_ANACTRL_GP1PLL_CTRL0,
+		.shift	 = 12,
+		.width	 = 3,
+	},
+
+	.l = {
+		.reg_off = T6X_ANACTRL_GP1PLL_CTRL0,
+		.shift   = 31,
+		.width   = 1,
+	},
+	.rst = {
+		.reg_off = T6X_ANACTRL_GP1PLL_CTRL0,
+		.shift   = 29,
+		.width   = 1,
+	},
+	.table = gp1_pll_table,
+	.table_count = ARRAY_SIZE(gp1_pll_table),
+	.init_regs = gp1_pll_init_regs,
+	.init_count = ARRAY_SIZE(gp1_pll_init_regs),
+	.flags = CLK_AML_PLL_NOINIT_ENABLED,
+};
+
 static const struct pll_params_table hifi_pll_table[] = {
 	{ 491520000, 163, 1, 2, 84000 }
 };
@@ -189,6 +245,8 @@ static int meson_clk_enable(struct clk *clk)
 {
 	if (clk->id == CLKID_GP0_PLL)
 		return clk_pll_ops.enable(gp0_pll);
+	if (clk->id == CLKID_GP1_PLL)
+		return clk_pll_ops.enable(gp1_pll);
 	else if (clk->id == CLKID_HIFI_PLL)
 		return clk_pll_ops.enable(hifi_pll);
 
@@ -199,6 +257,8 @@ static int meson_clk_disable(struct clk *clk)
 {
 	if (clk->id == CLKID_GP0_PLL)
 		return clk_pll_ops.disable(gp0_pll);
+	if (clk->id == CLKID_GP1_PLL)
+		return clk_pll_ops.disable(gp1_pll);
 	else if (clk->id == CLKID_HIFI_PLL)
 		return clk_pll_ops.disable(hifi_pll);
 
@@ -229,6 +289,12 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 		pn = &meson_gp0_pll_parm[1];
 		pod = &meson_gp0_pll_parm[2];
 		pdiv0p5 = &meson_gp0_pll_parm[3];
+		break;
+	case CLKID_GP1_PLL:
+		pm = &meson_gp1_pll_parm[0];
+		pn = &meson_gp1_pll_parm[1];
+		pod = &meson_gp1_pll_parm[2];
+		pdiv0p5 = &meson_gp1_pll_parm[3];
 		break;
 	default:
 		return -ENOENT;
@@ -267,6 +333,9 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
 		rate = meson_pll_get_rate(clk, id);
 		break;
 	case CLKID_GP0_PLL:
+		rate = meson_pll_get_rate(clk, id);
+		break;
+	case CLKID_GP1_PLL:
 		rate = meson_pll_get_rate(clk, id);
 		break;
 	case CLKID_FCLK_DIV2:
@@ -364,6 +433,9 @@ static int meson_clk_probe(struct udevice *dev)
 	gp0_pll = aml_clk_register_pll("gp0_pll", "xtal-clk", 0, priv->addr,
 				       &gp0_pll_data);
 	clk_dm(CLKID_GP0_PLL, gp0_pll);
+	gp1_pll = aml_clk_register_pll("gp1_pll", "xtal-clk", 0, priv->addr,
+				       &gp1_pll_data);
+	clk_dm(CLKID_GP1_PLL, gp1_pll);
 	hifi_pll = aml_clk_register_pll("hifi_pll", "xtal-clk", 0, priv->addr,
 					&hifi_pll_data);
 	clk_dm(CLKID_HIFI_PLL, hifi_pll);
