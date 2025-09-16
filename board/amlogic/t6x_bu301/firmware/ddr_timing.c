@@ -1261,8 +1261,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		 //bit 0 -3 ch1 cs0 ,bit 4-7 ch1
 		 .cfg_board_common_setting.dram_x4x8x16_mode = CONFIG_DRAM_MODE_X16,
 		 .cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
-		 //.cfg_board_common_setting.log_level = 0xff,
-		 .cfg_board_common_setting.log_level = 4,
+		 .cfg_board_common_setting.log_level = 0xff,
+		 //.cfg_board_common_setting.log_level = 4,
 		 //4,//LOG_LEVEL_BASIC,
 		 .cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
 		 .cfg_board_common_setting.pll_ssc_mode =
@@ -2028,8 +2028,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			 //bit 0 -3 ch1 cs0 ,bit 4-7 ch1
 			 .cfg_board_common_setting.dram_x4x8x16_mode = CONFIG_DRAM_MODE_X16,
 			 .cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
-			 //.cfg_board_common_setting.log_level = 0xff,
-			 .cfg_board_common_setting.log_level = 4,
+			 .cfg_board_common_setting.log_level = 0xff,
+			 //.cfg_board_common_setting.log_level = 4,
 			 //4,//LOG_LEVEL_BASIC,
 			 .cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
 			 .cfg_board_common_setting.pll_ssc_mode =
