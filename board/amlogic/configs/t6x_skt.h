@@ -124,7 +124,8 @@
 		"run storeargs;"\
 		"run upgrade_key;" \
 		"bcb uboot-command;"\
-		"run switch_bootmode;"
+		"run switch_bootmode;"\
+		"run reset_suspend;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #define CONFIG_ENV_IS_NOWHERE  1
