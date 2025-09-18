@@ -657,6 +657,15 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 #if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
 	if (strncmp(argv[1], "wifi_start", 8) == 0) {
+#if CONFIG_IS_ENABLED(AMLOGIC_BT_USB)
+		int ret = amlbt_should_start();
+#if !CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
+		if (!ret) {
+			 printf("%s:not in suspend, exit\n", __func__);
+			 return 0;
+		}
+#endif
+#endif
 		if (usb_started) {
 			printf("Already started\n");
 			usb_stop(); /* Already started */
@@ -664,11 +673,8 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		aml_mod_init();
 
 #if CONFIG_IS_ENABLED(AMLOGIC_BT_USB)
-		// setenv powermode standby; usb bt download firmware
-		const char *val = env_get("powermode");
-		if (val && strcmp(val, "standby") == 0) {
+		if (ret)
 			amlbt_start();
-		}
 #endif
 
 #if CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)

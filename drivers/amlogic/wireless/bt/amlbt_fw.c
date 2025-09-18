@@ -974,3 +974,30 @@ void amlbt_start(void)
 		amlbt_wakeup_set(type, aml_bt);
 	}
 }
+
+/*
+ * Function: amlbt_should_start
+ *
+ * Conditions to start USB BT:
+ * 1. powermode = "standby"
+ * 2. powermode = "last" && suspend != "off"
+ *
+ * Purpose:
+ * USB BT needs to download firmware and support wakeup.
+ */
+int amlbt_should_start(void)
+{
+	const char *pm_val = env_get("powermode");
+	const char *suspend_val = env_get("suspend");
+
+	if (!pm_val)
+		return 0;
+
+	if (strcmp(pm_val, "standby") == 0)
+		return 1;
+
+	if (strcmp(pm_val, "last") == 0 && suspend_val && strcmp(suspend_val, "off") != 0)
+		return 1;
+
+	return 0;
+}
