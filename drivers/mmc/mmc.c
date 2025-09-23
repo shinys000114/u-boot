@@ -2529,7 +2529,7 @@ static int mmc_startup(struct mmc *mmc)
 	struct mmc_cmd cmd;
 	struct blk_desc *bdesc;
 	struct meson_host *host = dev_get_priv(mmc->dev);
-	u32 status;
+	u32 status, start, timeout_ms = 100;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
 	if (mmc_host_is_spi(mmc)) { /* enable CRC check for spi */
@@ -2545,7 +2545,16 @@ static int mmc_startup(struct mmc *mmc)
 	if (IS_ENABLED(CONFIG_AMLOGIC_MODIFY)) {
 		if (!strcmp(mmc->cfg->name, "emmc") && host->jump_bl33 == 1) {
 			emmc_send_deselect(mmc);
-			err = mmc_send_status(mmc, &status);
+			start = get_timer(0);
+			do {
+				err = mmc_send_status(mmc, &status);
+				if (!err && (status & MMC_STATUS_RDY_FOR_DATA) &&
+				    (status & MMC_STATUS_CURR_STATE) == MMC_STATE_STBY)
+					break;
+				udelay(100);
+			} while (get_timer(start) < timeout_ms);
+			if (err)
+				return err;
 			cmd.cmdidx = MMC_CMD_SEND_CID;
 			cmd.resp_type = MMC_RSP_R2;
 			cmd.cmdarg = 1 << 16;
@@ -2565,8 +2574,18 @@ static int mmc_startup(struct mmc *mmc)
 	memcpy(mmc->cid, cmd.response, 16);
 
 	if (IS_ENABLED(CONFIG_AMLOGIC_MODIFY)) {
-		if (!strcmp(mmc->cfg->name, "emmc") && host->jump_bl33)
-			err = mmc_send_status(mmc, &status);
+		if (!strcmp(mmc->cfg->name, "emmc") && host->jump_bl33) {
+			start = get_timer(0);
+			do {
+				err = mmc_send_status(mmc, &status);
+				if (!err && (status & MMC_STATUS_RDY_FOR_DATA) &&
+				    (status & MMC_STATUS_CURR_STATE) == MMC_STATE_STBY)
+					break;
+				udelay(100);
+			} while (get_timer(start) < timeout_ms);
+			if (err)
+				return err;
+		}
 	}
 
 	/*
