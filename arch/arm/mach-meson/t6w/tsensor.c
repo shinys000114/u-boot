@@ -13,7 +13,7 @@
 #include <linux/delay.h>
 #include <linux/arm-smccc.h>
 
-int ts_a = 8526, ts_b = 2757, ts_m = 396, ts_n = 296;
+int ts_a = 8739, ts_b = 2907, ts_m = 396, ts_n = 296;
 unsigned int ts_cfg_reg1[2] = {TS_CPU_CFG_REG1, TS_TOP_CFG_REG1};
 unsigned int ts_state0_reg[2] = {TS_CPU_STAT0, TS_TOP_STAT0};
 char *sensor_name[2] = {"cpu", "top"};
