@@ -12,13 +12,13 @@
 #define CPU_CLK                                 1920 /*typical frequency: 1000/1200/1500/1500/1800/1896/1908 */
 
 /* board vmin_value defines */
-#define VMIN_FF_VALUE                           770
-#define VMIN_TT_VALUE                           800
-#define VMIN_SS_VALUE                           810
+#define VMIN_FF_VALUE                           760
+#define VMIN_TT_VALUE                           810
+#define VMIN_SS_VALUE                           830
 /* board vddee_value defines */
-/* SS/TT/FF = 0.87V */
-#define VDDEE_FF_VALUE                          0x00020010
-#define VDDEE_TT_VALUE                          0x00020010
+/* SS/TT/FF = -/0.85V/0.81V */
+#define VDDEE_FF_VALUE                          0x0008000a
+#define VDDEE_TT_VALUE                          0x0004000e
 #define VDDEE_SS_VALUE                          0x00020010
 
 board_clk_set_t __board_clk_setting
