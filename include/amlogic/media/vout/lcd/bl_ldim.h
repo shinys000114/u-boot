@@ -54,11 +54,9 @@ struct abcon_conf_s {
 	unsigned char dimming_mode;
 	unsigned int gpio_o[3];
 	unsigned int gpio_i[3];
-	unsigned int gpio_en;
-	unsigned int gpio_pu_en;
-	unsigned int gpio_pu_up;
 	unsigned int init_pwm;
 	unsigned int init_dc;
+	unsigned char idle_level;
 	unsigned char fb_en;
 	unsigned int fb_det_int;
 	unsigned char fb_adj_th;

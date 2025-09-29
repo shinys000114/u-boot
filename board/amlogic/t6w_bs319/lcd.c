@@ -152,6 +152,56 @@ static struct lcd_pinmux_ctrl_s lcd_ldim_pinmux_ctrl[BL_PINMUX_MAX] = {
 		.pinmux_clr = {{0x8, 0xf0000}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
+		.name = "ldim_bcon_up_pin", /*GPIOH_12 and bcon pins*/
+		.pinmux_set = {{0x8, 0x40000}, /*GPIOH_12*/
+						{0x9, 0x77000000}, /*bcon_0-1*/
+						{0xa, 0x00777777}, /*bcon_2-7*/
+						//{0x8, 0x00700000}, /*bcon_8 gpioh_13*/
+						{0x4, 0x00000060}, /*bcon_9*/
+						{0x6, 0x00005600}, /*bcon_10-11*/
+						{0xfe00412c, 0x3fc00000}, /*bcon bias-en*/
+						{0xfe00410c, 0x000c0002}, /*bcon bias-en*/
+						{0xfe004130, 0x3fc00000}, /*bcon bias-up*/
+						{0xfe004110, 0x000c0002}, /*bcon bias-up*/
+						{LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x8, 0xf0000},
+						{0x9, 0xff000000}, /*bcon_0-1*/
+						{0xa, 0x00ffffff}, /*bcon_2-7*/
+						//{0x8, 0x00700000}, /*bcon_8 gpioh_13*/
+						{0x4, 0x000000f0}, /*bcon_9*/
+						{0x6, 0x0000ff00}, /*bcon_10-11*/
+						{0xfe00412c, 0x3fc00000}, /*bcon bias-en*/
+						{0xfe00410c, 0x000c0002}, /*bcon bias-en*/
+						{0xfe004130, 0x3fc00000}, /*bcon bias-clr*/
+						{0xfe004110, 0x000c0002}, /*bcon bias-clr*/
+						{LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "ldim_bcon_dn_pin", /*GPIOH_12 and bcon pins*/
+		.pinmux_set = {{0x8, 0x40000}, /*GPIOH_12*/
+						{0x9, 0x77000000}, /*bcon_0-1*/
+						{0xa, 0x00777777}, /*bcon_2-7*/
+						//{0x8, 0x00700000}, /*bcon_8 gpioh_13*/
+						{0x4, 0x00000060}, /*bcon_9*/
+						{0x6, 0x00005600}, /*bcon_10-11*/
+						{0xfe00412c, 0x3fc00000}, /*bcon bias-en*/
+						{0xfe00410c, 0x000c0002}, /*bcon bias-en*/
+						{0xfe004130, 0x00000000}, /*bcon bias-up*/
+						{0xfe004110, 0x00000000}, /*bcon bias-up*/
+						{LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x8, 0xf0000},
+						{0x9, 0xff000000}, /*bcon_0-1*/
+						{0xa, 0x00ffffff}, /*bcon_2-7*/
+						//{0x8, 0x00700000}, /*bcon_8 gpioh_13*/
+						{0x4, 0x000000f0}, /*bcon_9*/
+						{0x6, 0x0000ff00}, /*bcon_10-11*/
+						{0xfe00412c, 0x3fc00000}, /*bcon bias-en*/
+						{0xfe00410c, 0x000c0002}, /*bcon bias-en*/
+						{0xfe004130, 0x3fc00000}, /*bcon bias-clr*/
+						{0xfe004110, 0x000c0002}, /*bcon bias-clr*/
+						{LCD_PINMUX_END, 0x0}},
+	},
+	{
 		.name = "invalid",
 	},
 };

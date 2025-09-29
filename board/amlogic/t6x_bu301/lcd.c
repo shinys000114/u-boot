@@ -250,6 +250,52 @@ static struct lcd_pinmux_ctrl_s lcd_ldim_pinmux_ctrl[BL_PINMUX_MAX] = {
 		.pinmux_clr = {{0x8, 0xf0000}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
+		.name = "ldim_bcon_up_pin", /*GPIOH_12 and bcon pins bias-pull-up*/
+		.pinmux_set = {{0x8, 0x40000}, /*GPIOH_12*/
+						{0x9, 0x77000000}, /*bcon_0-1*/
+						{0xa, 0x00777777}, /*bcon_2-7*/
+						{0x14, 0x44444000}, /*bcon_8_p 9-12*/
+						{0x15, 0x00044444}, /*bcon_13-17*/
+						{0xfe00412c, 0x3fc00000}, /*bcon bias-en*/
+						{0xfe0041ac, 0x000003ff}, /*bcon bias-en*/
+						{0xfe004130, 0x3fc00000}, /*bcon bias-up*/
+						{0xfe0041b0, 0x000003ff}, /*bcon bias-up*/
+						{LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x8, 0xf0000},
+						{0x9, 0xff000000}, /*bcon_0-1*/
+						{0xa, 0x00ffffff}, /*bcon_2-7*/
+						{0x14, 0xfffff000}, /*bcon_8_p 9-12*/
+						{0x15, 0x000fffff}, /*bcon_13-17*/
+						{0xfe00412c, 0x3fc00000}, /*bcon bias-en*/
+						{0xfe0041ac, 0x000003ff}, /*bcon bias-en*/
+						{0xfe004130, 0x3fc00000},
+						{0xfe0041b0, 0x000003ff},
+						{LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "ldim_bcon_dn_pin", /*GPIOH_12 and bcon pins bias-pull-down*/
+		.pinmux_set = {{0x8, 0x40000}, /*GPIOH_12*/
+						{0x9, 0x77000000}, /*bcon_0-1*/
+						{0xa, 0x00777777}, /*bcon_2-7*/
+						{0x14, 0x44444000}, /*bcon_8_p 9-12*/
+						{0x15, 0x00044444}, /*bcon_13-17*/
+						{0xfe00412c, 0x3fc00000}, /*bcon bias-en*/
+						{0xfe0041ac, 0x000003ff}, /*bcon bias-en*/
+						{0xfe004130, 0x00000000}, /*bcon bias-dn*/
+						{0xfe0041b0, 0x00000000}, /*bcon bias-dn*/
+						{LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x8, 0xf0000},
+						{0x9, 0xff000000}, /*bcon_0-1*/
+						{0xa, 0x00ffffff}, /*bcon_2-7*/
+						{0x14, 0xfffff000}, /*bcon_8_p 9-12*/
+						{0x15, 0x000fffff}, /*bcon_13-17*/
+						{0xfe00412c, 0x3fc00000}, /*bcon bias-en*/
+						{0xfe0041ac, 0x000003ff}, /*bcon bias-en*/
+						{0xfe004130, 0x3fc00000},
+						{0xfe0041b0, 0x000003ff},
+						{LCD_PINMUX_END, 0x0}},
+	},
+	{
 		.name = "invalid",
 	},
 };

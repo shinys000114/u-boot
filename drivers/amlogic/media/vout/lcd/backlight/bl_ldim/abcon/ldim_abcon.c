@@ -26,45 +26,6 @@
 struct abcon_mem_s abcon_mem;
 struct abcon_s *abcon;
 
-struct bcon_gpio_s t6w_bgpio[12] = {
-	/*idx, pmx_reg, pmx_sbit, fun, pu_en, pu_up, pu_idx*/
-	{0, 0xfe004024, 24, 7, 0xfe00412c, 0xfe004130, 22},
-	{1, 0xfe004024, 28, 7, 0xfe00412c, 0xfe004130, 23},
-	{2, 0xfe004028, 0, 7, 0xfe00412c, 0xfe004130, 24},
-	{3, 0xfe004028, 4, 7, 0xfe00412c, 0xfe004130, 25},
-	{4, 0xfe004028, 8, 7, 0xfe00412c, 0xfe004130, 26},
-	{5, 0xfe004028, 12, 7, 0xfe00412c, 0xfe004130, 27},
-	{6, 0xfe004028, 16, 7, 0xfe00412c, 0xfe004130, 28},
-	{7, 0xfe004028, 20, 7, 0xfe00412c, 0xfe004130, 29},
-	{8, 0xfe004020, 20, 7, 0xfe00412c, 0xfe004130, 13},
-	{9, 0xfe004010, 4, 6, 0xfe00410c, 0xfe004110, 1},
-	{10, 0xfe004018, 12, 5, 0xfe00410c, 0xfe004110, 19},
-	{11, 0xfe004018, 8, 6, 0xfe00410c, 0xfe004110, 18},
-};
-
-struct bcon_gpio_s t6x_bgpio[18] = {
-	/*idx, pmx_reg, pmx_sbit, fun, pu_en, pu_up, pu_idx*/
-	{0, 0xfe004024, 24, 7, 0xfe00412c, 0xfe004130, 22},//gpioh_22
-	{1, 0xfe004024, 28, 7, 0xfe00412c, 0xfe004130, 23},
-	{2, 0xfe004028, 0, 7, 0xfe00412c, 0xfe004130, 24},
-	{3, 0xfe004028, 4, 7, 0xfe00412c, 0xfe004130, 25},
-	{4, 0xfe004028, 8, 7, 0xfe00412c, 0xfe004130, 26},
-	{5, 0xfe004028, 12, 7, 0xfe00412c, 0xfe004130, 27},
-	{6, 0xfe004028, 16, 7, 0xfe00412c, 0xfe004130, 28},
-	{7, 0xfe004028, 20, 7, 0xfe00412c, 0xfe004130, 29},
-	//{8, 0xfe004020, 20, 7, 0xfe00412c, 0xfe004130, 13},//gpioh_13
-	{8, 0xfe004050, 12, 4, 0xfe0041ac, 0xfe0041b0, 0},//gpiop_0
-	{9, 0xfe004050, 16, 4, 0xfe0041ac, 0xfe0041b0, 1},//gpiop_1
-	{10, 0xfe004050, 20, 4, 0xfe0041ac, 0xfe0041b0, 2},//gpiop_2
-	{11, 0xfe004050, 24, 4, 0xfe0041ac, 0xfe0041b0, 3},//gpiop_3
-	{12, 0xfe004050, 28, 4, 0xfe0041ac, 0xfe0041b0, 4},//gpiop_4
-	{13, 0xfe004054, 0, 4, 0xfe0041ac, 0xfe0041b0, 5},//gpiop_5
-	{14, 0xfe004054, 4, 4, 0xfe0041ac, 0xfe0041b0, 6},//gpiop_6
-	{15, 0xfe004054, 8, 4, 0xfe0041ac, 0xfe0041b0, 7},//gpiop_7
-	{16, 0xfe004054, 12, 4, 0xfe0041ac, 0xfe0041b0, 8},//gpiop_8
-	{17, 0xfe004054, 16, 4, 0xfe0041ac, 0xfe0041b0, 9},//gpiop_9
-};
-
 void ldim_abcon_swrst(void)
 {
 	abcon_wr_reg(0x00, 0x30);
@@ -269,14 +230,7 @@ void ldim_abcon_set_txrx_clk(unsigned int txclk, unsigned int rxclk)
 
 void ldim_abcon_set_gpio(struct abcon_s *abcon)
 {
-	unsigned int val = 0;
-	unsigned int i = 0;
-	struct bcon_gpio_s *bgpio;
-	unsigned char gpio_num = 0;
-
 	if (abcon->chip_type == ABCON_CHIP_T6W) {
-		gpio_num = 12;
-		bgpio = &t6w_bgpio[0];
 		//reg_abcon_gpio_o_sel0
 		abcon_wr_reg_bits(0x25, abcon->conf.gpio_o[0], 0, 32);
 		//reg_abcon_gpio_o_sel1
@@ -287,8 +241,6 @@ void ldim_abcon_set_gpio(struct abcon_s *abcon)
 		//reg_abcon_gpio_i_sel1
 		abcon_wr_reg_bits(0x24, abcon->conf.gpio_i[1], 0, 16);
 	} else {
-		gpio_num = 18;
-		bgpio = &t6x_bgpio[0];
 		//reg_abcon_gpio_o_sel0
 		abcon_wr_reg_bits(0x25, abcon->conf.gpio_o[0], 0, 29);
 		//reg_abcon_gpio_o_sel1
@@ -302,18 +254,6 @@ void ldim_abcon_set_gpio(struct abcon_s *abcon)
 		abcon_wr_reg_bits(0x49, abcon->conf.gpio_i[1], 0, 29);
 		//reg_abcon_gpio_i_sel2
 		abcon_wr_reg_bits(0x4b, abcon->conf.gpio_i[2], 0, 29);
-	}
-
-	for (i = 0; i < gpio_num; i++) {
-		if (abcon->conf.gpio_en & (1 << i)) {
-			abcon_wr_reg_bits(bgpio[i].pmx_reg, bgpio[i].fun, bgpio[i].pmx_sbit, 4);
-
-			if (abcon->conf.gpio_pu_en & (1 << i)) {
-				abcon_wr_reg_bits(bgpio[i].pu_en, 1, bgpio[i].pu_idx, 1);
-				val = (abcon->conf.gpio_pu_up & (1 << i)) ? 1 : 0;
-				abcon_wr_reg_bits(bgpio[i].pu_up, val, bgpio[i].pu_idx, 1);
-			}
-		}
 	}
 }
 
