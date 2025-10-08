@@ -163,11 +163,13 @@
 #define TOP_SECURE_DATA                  0x0a1  /* 0x284 */
 #define TOP_SECURE_MODE                  0x0a2  /* 0x288 */
 
-/* TM2 */
+/* T6x */
 #define TOP_EDID_PORT2_ADDR_S			0x1200
 #define TOP_EDID_PORT2_ADDR_E			0x13ff
 #define TOP_EDID_PORT3_ADDR_S			0x1400
 #define TOP_EDID_PORT3_ADDR_E			0x15ff
+#define TOP_EDID_PORT4_ADDR_S			0x1600
+#define TOP_EDID_PORT4_ADDR_E			0x17ff
 
 /* clk cntrl */
 #define RX_CLK_CTRL			(0x4A << 2)
