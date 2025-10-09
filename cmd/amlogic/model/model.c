@@ -213,8 +213,10 @@ static int parse_model_sum(int index, const char *file_name, char *model_name)
 
 #ifdef CONFIG_AML_LCD
 	str = handle_ini_get_str(local_ini_mem, psec, "PANELINI_PATH", "null");
-	if (strcmp(str, "null") == 0)
+	if (strcmp(str, "null") == 0) {
 		ALOGE("%s: %s: invalid PANELINI_PATH!\n", __func__, model_name);
+		return -1;
+	}
 	if (index == 0)
 		sprintf(model_panel, "model_panel");
 	else
@@ -230,8 +232,10 @@ static int parse_model_sum(int index, const char *file_name, char *model_name)
 #endif
 
 	str = handle_ini_get_str(local_ini_mem, psec, "EDID_14_FILE_PATH", "null");
-	if (strcmp(str, "null") == 0)
-		ALOGD("%s: %s: invalid EDID_14_FILE_PATH!\n", __func__, model_name);
+	if (strcmp(str, "null") == 0) {
+		ALOGE("%s: %s: invalid EDID_14_FILE_PATH!\n", __func__, model_name);
+		return -1;
+	}
 	env_set("model_edid", str);
 
 	/*
@@ -610,6 +614,7 @@ int handle_model_sum(void)
 		if (ret < 0) {
 			snprintf(model_path, 127, "%s/Project_index_%s.ini",
 				get_model_path(i), model);
+			debug("model_sum try to read from model_path: %s\n", model_path);
 			ret = parse_model_sum(i, model_path, DEFAULT_SECTION);
 		}
 	}

@@ -3265,6 +3265,7 @@ static void model_list_panel_path(int index)
 static int parse_model_sum(int index, const char *file_name, char *model_name)
 {
 	const char *ini_value = NULL;
+	int ret = -1;
 #ifdef CONFIG_AML_LCD
 	char str[15];
 #endif
@@ -3284,17 +3285,23 @@ static int parse_model_sum(int index, const char *file_name, char *model_name)
 		sprintf(str, "model%d_panel", index);
 
 	ini_value = ini_get_string(model_name, "PANELINI_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
+	if (strcmp(ini_value, "null") != 0) {
 		env_set(str, ini_value);
-	else
+		ret = 0;
+	} else {
 		ALOGE("%s, invalid PANELINI_PATH!!!\n", __func__);
+		ret = -1;
+	}
 #endif
 
 	ini_value = ini_get_string(model_name, "EDID_14_FILE_PATH", "null");
-	if (strcmp(ini_value, "null") != 0)
+	if (strcmp(ini_value, "null") != 0) {
 		env_set("model_edid", ini_value);
-	else
-		ALOGD("%s, invalid EDID_14_FILE_PATH!!!\n", __func__);
+		ret = 0;
+	} else {
+		ALOGE("%s, invalid EDID_14_FILE_PATH!!!\n", __func__);
+		ret = -1;
+	}
 	/*
 	ini_value = ini_get_string(model_name, "PQINI_PATH", "null");
 	if (strcmp(ini_value, "null") != 0)
@@ -3306,7 +3313,7 @@ static int parse_model_sum(int index, const char *file_name, char *model_name)
 	*/
 	ini_parser_uninit();
 
-	return 0;
+	return ret;
 }
 
 bool is_jpg_file(const char *path) {
@@ -3772,6 +3779,7 @@ int handle_model_sum(void)
 		if (ret < 0) {
 			snprintf(model_path, 127, "%s/Project_index_%s.ini",
 				get_model_path(i), model);
+			debug("model_sum try to read from model_path: %s\n", model_path);
 			ret = parse_model_sum(i, model_path, DEFAULT_SECTION);
 		}
 		if (ret < 0)
