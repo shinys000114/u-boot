@@ -9,7 +9,7 @@
 #include <ddr_timing.c>
 
 /* board clk defines */
-#define CPU_CLK                                 1908 /*typical frequency: 1000/1200/1500/1500/1800/1896/1908 */
+#define CPU_CLK                                 1920 /*typical frequency: 1000/1200/1500/1500/1800/1896/1908 */
 
 /* board vmin_value defines */
 #define VMIN_FF_VALUE                           770
