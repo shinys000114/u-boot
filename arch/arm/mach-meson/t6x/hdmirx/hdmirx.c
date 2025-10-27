@@ -169,6 +169,32 @@ void hdmirx_wr_top(unsigned long addr, unsigned long data)
 	}
 }
 
+unsigned int hdmirx_rd_edid(unsigned long addr)
+{
+	int data;
+	unsigned int dev_offset = 0;
+
+	dev_offset = TOP_BASE_EDID_OFFSET;
+	if (addr >= TOP_EDID_ADDR_S && addr <= TOP_EDID_PORT4_ADDR_E)
+		data = rx_rd_reg_b(dev_offset + addr);
+	else
+		data = rx_rd_reg(dev_offset + (addr << 2));
+
+	return data;
+}
+
+void hdmirx_wr_edid(unsigned long addr, unsigned long data)
+{
+	unsigned long dev_offset = 0;
+
+	dev_offset = TOP_BASE_EDID_OFFSET;
+	if (addr >= TOP_EDID_ADDR_S && addr <= TOP_EDID_PORT4_ADDR_E) {
+		rx_wr_reg_b(dev_offset + addr, (unsigned char)data);
+	} else {
+		rx_wr_reg(dev_offset + (addr << 2), data);
+	}
+}
+
 void hdmirx_wr_bits_top(unsigned long addr, u32 mask, u32 value)
 {
 	hdmirx_wr_top(addr, set(hdmirx_rd_top(addr), mask, value));
@@ -312,27 +338,27 @@ void rx_edid_fill_to_register(unsigned char *pedid,
 	tmp_addr = TOP_EDID_ADDR_S;
 	for (i = 0; i <= 255; i++) {
 		/* fill first edid buffer */
-		hdmirx_wr_top(tmp_addr + i, pedid[i]);
+		hdmirx_wr_edid(tmp_addr + i, pedid[i]);
 		/* fill second edid buffer */
-		hdmirx_wr_top(0x100 + tmp_addr + i, pedid[i]);
+		hdmirx_wr_edid(0x100 + tmp_addr + i, pedid[i]);
 	}
 	for (i = 0; i <= 255; i++) {
 		/* fill first edid buffer */
-		hdmirx_wr_top(TOP_EDID_PORT2_ADDR_S + i, pedid[i]);
+		hdmirx_wr_edid(TOP_EDID_PORT2_ADDR_S + i, pedid[i]);
 		/* fill second edid buffer */
-		hdmirx_wr_top(TOP_EDID_PORT2_ADDR_S + 0x100 + i, pedid[i]);
+		hdmirx_wr_edid(TOP_EDID_PORT2_ADDR_S + 0x100 + i, pedid[i]);
 	}
 	for (i = 0; i <= 255; i++) {
 		/* fill first edid buffer */
-		hdmirx_wr_top(TOP_EDID_PORT3_ADDR_S + i, pedid[i]);
+		hdmirx_wr_edid(TOP_EDID_PORT3_ADDR_S + i, pedid[i]);
 		/* fill second edid buffer */
-		hdmirx_wr_top(TOP_EDID_PORT3_ADDR_S + 0x100 + i, pedid[i]);
+		hdmirx_wr_edid(TOP_EDID_PORT3_ADDR_S + 0x100 + i, pedid[i]);
 	}
 	for (i = 0; i <= 255; i++) {
 		/* fill first edid buffer */
-		hdmirx_wr_top(TOP_EDID_PORT4_ADDR_S + i, pedid[i]);
+		hdmirx_wr_edid(TOP_EDID_PORT4_ADDR_S + i, pedid[i]);
 		/* fill second edid buffer */
-		hdmirx_wr_top(TOP_EDID_PORT4_ADDR_S + 0x100 + i, pedid[i]);
+		hdmirx_wr_edid(TOP_EDID_PORT4_ADDR_S + 0x100 + i, pedid[i]);
 	}
 	/* calculate 4 port check sum */
 	if (brepeat) {
@@ -636,10 +662,9 @@ void rx_clk_init(void)
 /* pinmux SCL/SDA/HPD/PWR5V of all port */
 void rx_set_pinmux(void)
 {
-	unsigned int mux = readl(PADCTRL_PIN_MUX_REGJ);
 
 	writel(0x11111111, PADCTRL_PIN_MUX_REGI);
-	writel((mux & 0xFFFF0000) | 0x1111, PADCTRL_PIN_MUX_REGJ);
+	writel(0x11111111, PADCTRL_PIN_MUX_REGJ);
 	printf("set pinmux I:0x%x\n", readl(PADCTRL_PIN_MUX_REGI));
 	printf("set pinmux J:0x%x\n", readl(PADCTRL_PIN_MUX_REGJ));
 }
@@ -649,6 +674,7 @@ void hdmirx_hw_init(unsigned int port_map,
 	int edid_size)
 {
 	/*int i, j;*/
+
 	if (pedid_data && edid_size >= EDID_DEFAULT_LEN) {
 		printf("load %#x,len:%d\n", pedid_data[0], edid_size);
 		hdmirx_data.edid_buf = pedid_data;
@@ -675,8 +701,7 @@ void hdmirx_hw_init(unsigned int port_map,
 		/* } */
 		/* printf("\n"); */
 	/* } */
-
-	hdmirx_wr_top(TOP_PORT_SEL, 0x10);
+	hdmirx_wr_top(TOP_PORT_SEL, 0x100000);
 	hdmirx_wr_bits_top(TOP_HPD_PWR5V, MSK(4, 0), 0xF);
 	rx_set_pinmux();
 	printf("%s Done port map:%#x !\n", __func__, port_map);
