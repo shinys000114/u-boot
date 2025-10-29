@@ -374,13 +374,15 @@ int checkhw(char *name)
 	board_id = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xff00) >> 8);
 
 	switch (ddr_size) {
-		//case 0x100000000UL:
-		//	if (board_id == 12) {
-		//		strcpy(dtb_name, "s6_s905x5_bl207-4g\0");
-		//	} else {
-		//		strcpy(dtb_name, "s6_s905x5_bl201-4g\0");
-		//	}
-		//	break;
+#ifdef CONFIG_YOCTO
+		case 0x100000000UL:
+			if (board_id == 12) {
+				strcpy(dtb_name, "s6_s905x5_bl207-4g\0");
+			} else {
+				strcpy(dtb_name, "s6_s905x5_bl201-4g\0");
+			}
+			break;
+#endif
 		case 0x200000000UL:
                         if (board_id == 12) {
 				strcpy(dtb_name, "s6_s905x5_bl201h1-8g\0");
