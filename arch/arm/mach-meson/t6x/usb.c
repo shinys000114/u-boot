@@ -49,6 +49,7 @@
 #define USB_PHY_A_APB_BIT	    17
 #define USB_PHY_B_APB_BIT	    18
 #define USB_PHY3_BIT			9
+#define USB_PHY3_APB_BIT                9
 
 #define USB2_PLL_RST_BIT 		0
 #define USB2_PLL_LOCK_RST_BIT 	1
@@ -278,6 +279,10 @@ int usb2_phy_init(struct phy *phy)
 	usb_save_phy_dev(0, phy);
 	usb_enable_phy_pll(priv->base_addr);
 
+	writel(readl(USB_RESET_LEVEL_REGISTER) & ~(1 << USB_PHY3_BIT), USB_RESET_LEVEL_REGISTER);
+	writel(readl(USB_RESET_LEVEL_REGISTER_1) &
+		~(1 << USB_PHY3_APB_BIT), USB_RESET_LEVEL_REGISTER_1);
+
 	if (priv->usb_phy2_pll_base_addr[0] == USB_PHY_A_BASE) {
 		debug("priv->reset_addr is 0x%x\n", priv->reset_addr);
 		writel((1 << USB_2_A_DRD_BIT) | (1 << USB_GENERAL_A_BIT), priv->reset_addr);
@@ -384,7 +389,9 @@ void set_usb_phy2x_config(uint32_t u3_flag)
 		//mdelay(150);
 	//}
 
-	writel((readl(USB_RESET_LEVEL_REGISTER) & (~(1 << USB_PHY3_BIT))), USB_RESET_LEVEL_REGISTER);
+	writel(readl(USB_RESET_LEVEL_REGISTER) & ~(1 << USB_PHY3_BIT), USB_RESET_LEVEL_REGISTER);
+	writel(readl(USB_RESET_LEVEL_REGISTER_1) &
+		~(1 << USB_PHY3_APB_BIT), USB_RESET_LEVEL_REGISTER_1);
 	usb_udelay(10);
 	if (u3_flag) {
 		writel((readl(USB_RESET_LEVEL_REGISTER) & (~(1 << USB_PHY_A_BIT))), USB_RESET_LEVEL_REGISTER);
