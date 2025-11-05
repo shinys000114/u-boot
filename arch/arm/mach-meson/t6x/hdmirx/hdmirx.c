@@ -169,6 +169,14 @@ void hdmirx_wr_top(unsigned long addr, unsigned long data)
 	}
 }
 
+void hdmirx_wr_top_single(unsigned long addr, unsigned long data, unsigned char port)
+{
+	unsigned long dev_offset = 0;
+
+	dev_offset = 0xfe398000;
+	rx_wr_reg(dev_offset + (addr << 2) + port * 400, data);
+}
+
 unsigned int hdmirx_rd_edid(unsigned long addr)
 {
 	int data;
@@ -518,10 +526,10 @@ static int rx_top_init(void)
 	data32 |= 1 << 13;
 	/* SCL sampling clk div */
 	data32 |= 1 << 0;
-	hdmirx_wr_top(TOP_INFILTER_I2C0, data32);
-	hdmirx_wr_top(TOP_INFILTER_I2C1, data32);
-	hdmirx_wr_top(TOP_INFILTER_I2C2, data32);
-	hdmirx_wr_top(TOP_INFILTER_I2C3, data32);
+	hdmirx_wr_top_single(TOP_INFILTER_I2C0, data32, 0);
+	hdmirx_wr_top_single(TOP_INFILTER_I2C0, data32, 1);
+	hdmirx_wr_top_single(TOP_INFILTER_I2C0, data32, 2);
+	hdmirx_wr_top_single(TOP_INFILTER_I2C0, data32, 3);
 
 	data32 = 0;
 	/*420to444_en*/
