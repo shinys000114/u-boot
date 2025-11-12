@@ -105,7 +105,8 @@
 		"run upgrade_key;" \
 		"bcb uboot-command;"\
 		"run switch_bootmode;"\
-		"run reset_suspend;"
+		"run reset_suspend;"\
+		"run check_aocpu;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
