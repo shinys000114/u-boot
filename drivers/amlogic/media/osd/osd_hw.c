@@ -1231,7 +1231,8 @@ int osd_set_scan_mode(u32 index)
 	if (vinfo) {
 		if (vinfo->height != vinfo->field_height) { // interlace
 			osd_hw.scan_mode = real_scan_mode = SCAN_MODE_INTERLACE;
-			if (vinfo->height == 480 || vinfo->height == 576) { //480i/576i/cvbs
+			if (vinfo->width == 720 &&
+					(vinfo->height == 480 || vinfo->height == 576)) { //480i/576i/cvbs
 				if (osd_hw.free_scale_mode[index]) {
 					osd_hw.field_out_en = 1;
 					switch (osd_hw.free_scale_data[index].y_end) {
