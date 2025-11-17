@@ -56,15 +56,15 @@ static void lcd_pll_frac_set_t6x(struct aml_lcd_drv_s *pdrv, unsigned int frac)
 	}
 	LCDPR("[%d]: %s: pll_frac=0x%x\n", pdrv->index, __func__, frac);
 	if (cconf->pll_mode & LCD_PLL_MODE_DUAL_PLL) {
-		reg = ANACTRL_PIXPLL_CTRL1;
+		reg = ANACTRL_GP2PLL_CTRL1;
 		val = lcd_ana_read(reg);
 		lcd_ana_setb(reg, cconf->pll_config[1].pll_frac, 0, 19);
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDPR("[%d]: %s: reg 0x%x: 0x%08x->0x%08x\n",
 				pdrv->index, __func__, reg, val, lcd_ana_read(reg));
 		}
-		LCDPR("[%d]: %s: dsc pll_frac=0x%x\n", pdrv->index,
-			__func__, cconf->pll_config[1].pll_frac);
+		LCDPR("[%d]: %s: gp2 pll_frac=0x%x\n", pdrv->index,
+		      __func__, cconf->pll_config[1].pll_frac);
 	}
 }
 
@@ -271,22 +271,23 @@ static void lcd_set_pll_t6x(struct aml_lcd_drv_s *pdrv)
 				((cconf->pll_config[1].pll_n & 0x1f) << 16);
 			pll_ctrl1 = 0x03a00000 |
 				(cconf->pll_config[1].pll_frac & 0x7ffff);
-			lcd_ana_write(ANACTRL_PIXPLL_CTRL0, pll_ctrl0);
-			lcd_ana_setb(ANACTRL_PIXPLL_CTRL0, 1, 28, 1);
-			lcd_ana_write(ANACTRL_PIXPLL_CTRL1, pll_ctrl1);
-			lcd_ana_write(ANACTRL_PIXPLL_CTRL2, 0x00040000);
-			lcd_ana_write(ANACTRL_PIXPLL_CTRL3, 0x0f0da000);
+			pll_ctrl3 = 0x0b0da000 | (cconf->data->pll_data[1]->pll_0_5_div_en << 26);
+			lcd_ana_write(ANACTRL_GP2PLL_CTRL0, pll_ctrl0);
+			lcd_ana_setb(ANACTRL_GP2PLL_CTRL0, 1, 28, 1);
+			lcd_ana_write(ANACTRL_GP2PLL_CTRL1, pll_ctrl1);
+			lcd_ana_write(ANACTRL_GP2PLL_CTRL2, 0x00040000);
+			lcd_ana_write(ANACTRL_GP2PLL_CTRL3, pll_ctrl3);
 			udelay(20);
-			lcd_ana_setb(ANACTRL_PIXPLL_CTRL0, 0, 29, 1);
+			lcd_ana_setb(ANACTRL_GP2PLL_CTRL0, 0, 29, 1);
 			udelay(20);
-			lcd_ana_setb(ANACTRL_PIXPLL_CTRL3, 1, 9, 1);
+			lcd_ana_setb(ANACTRL_GP2PLL_CTRL3, 1, 9, 1);
 			ret = lcd_pll_wait_lock(cconf->pll_config[1].pll_id,
-						ANACTRL_PIXPLL_CTRL0, 31);
+						ANACTRL_GP2PLL_CTRL0, 31);
 		} while (ret && ++cnt < PLL_RETRY_MAX);
 	}
 
 	if (ret)
-		LCDERR("[%d]: dsc pll lock failed\n", pdrv->index);
+		LCDERR("[%d]: gp2 pll lock failed\n", pdrv->index);
 
 	if (cconf->ss_level > 0)
 		lcd_set_pll_ss_t6x(pdrv, cconf, (LCD_SSC_LEVEL | LCD_SSC_FREQ | LCD_SSC_MODE));
@@ -313,7 +314,7 @@ static void lcd_set_vid_pll_div_t6x(struct aml_lcd_drv_s *pdrv)
 
 	if (cconf->pll_mode & LCD_PLL_MODE_DUAL_PLL) {
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
-			LCDPR("no need to set clk divider for dsc pll\n\n");
+			LCDPR("no need to set clk divider for gp2\n\n");
 		return;
 	}
 
@@ -717,11 +718,11 @@ static void lcd_clk_reg_dump(struct aml_lcd_drv_s *pdrv)
 		ANACTRL_VID_PLL_CLK_DIV
 	};
 
-	unsigned int dsc_pll_reg_table[] = {
-		ANACTRL_PIXPLL_CTRL0,
-		ANACTRL_PIXPLL_CTRL1,
-		ANACTRL_PIXPLL_CTRL2,
-		ANACTRL_PIXPLL_CTRL3,
+	unsigned int gp2_pll_reg_table[] = {
+		ANACTRL_GP2PLL_CTRL0,
+		ANACTRL_GP2PLL_CTRL1,
+		ANACTRL_GP2PLL_CTRL2,
+		ANACTRL_GP2PLL_CTRL3,
 	};
 
 	unsigned int clk_reg_table[] = {
@@ -740,8 +741,8 @@ static void lcd_clk_reg_dump(struct aml_lcd_drv_s *pdrv)
 	for (i = 0; i < size; i++)
 		printf("pll [0x%08x] = 0x%08x\n", table[i], lcd_ana_read(table[i]));
 	if (cconf && (cconf->pll_mode & LCD_PLL_MODE_DUAL_PLL)) {
-		table = dsc_pll_reg_table;
-		size = ARRAY_SIZE(dsc_pll_reg_table);
+		table = gp2_pll_reg_table;
+		size = ARRAY_SIZE(gp2_pll_reg_table);
 		for (i = 0; i < size; i++)
 			printf("pll [0x%08x] = 0x%08x\n", table[i], lcd_ana_read(table[i]));
 	}
@@ -767,7 +768,7 @@ static void lcd_clk_generate_t6x(struct aml_lcd_drv_s *pdrv)
 			return;
 		}
 		cconf->pll_mode |= LCD_PLL_MODE_DUAL_PLL;
-		cconf->data->vclk_sel = 2;
+		cconf->data->vclk_sel = 3;
 	} else {
 		cconf->pll_mode &= ~LCD_PLL_MODE_DUAL_PLL;
 		cconf->data->vclk_sel = 0;
@@ -799,7 +800,7 @@ static struct lcd_pll_data_s lcd_tcon_pll_data_t6x = {
 	.div_sel_max = CLK_DIV_SEL_2p25,
 };
 
-static struct lcd_pll_data_s lcd_dsc_pll_data_t6x = {
+static struct lcd_pll_data_s lcd_gp2_pll_data_t6x = {
 	.pll_od_fb = 0,
 	.pll_0_5_div_en = 1,
 	.pll_m_max = 511,
@@ -824,7 +825,7 @@ static struct lcd_pll_data_s lcd_dsc_pll_data_t6x = {
 
 static struct lcd_clk_data_s lcd_clk_data_t6x = {
 	.pll_data[0] = &lcd_tcon_pll_data_t6x,
-	.pll_data[1] = &lcd_dsc_pll_data_t6x,
+	.pll_data[1] = &lcd_gp2_pll_data_t6x,
 
 	.xd_out_fmax = 840000000,
 	.phy_clk_location = 0,
