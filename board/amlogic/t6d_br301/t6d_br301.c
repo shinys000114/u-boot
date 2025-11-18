@@ -66,6 +66,7 @@
 #ifdef CONFIG_CVBS_CALI
 #include <amlogic/aml_tvafe.h>
 #endif
+#include <amlogic/aml_efuse.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 void sys_led_init(void)
@@ -567,17 +568,47 @@ int checkhw(char *name)
 {
 	char dtb_name[64] = { 0 };
 	ulong ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
+	uint package_id = (readl(SYSCTRL_SEC_STATUS_REG0) >> 16) & 0xf;
+	uint amfc_dos_higher_speed =   IS_FEAT_EN_AMFC_DOS_HIGHER_SPEED();
 
-	switch (ddr_size) {
+	if (package_id == 2) {
+		switch (ddr_size) {
 		case 0x40000000UL:
-			strcpy(dtb_name, "t6d_t950d5_br301-1g\0");
+			strcpy(dtb_name, "t6d_t950d5z_br301-4k-1g\0");
 			break;
 		case 0x60000000UL:
-			strcpy(dtb_name, "t6d_t950d5_br301-1.5g\0");
+			strcpy(dtb_name, "t6d_t950d5z_br301-4k-1.5g\0");
 			break;
 		default:
-			strcpy(dtb_name, "t6d_t950d5_br301\0");
+			strcpy(dtb_name, "t6d_t950d5z_br301\0");
 			break;
+		}
+	} else {
+		if (amfc_dos_higher_speed == 1) {
+			switch (ddr_size) {
+			case 0x40000000UL:
+				strcpy(dtb_name, "t6d_t950d5_br301-4k-1g\0");
+				break;
+			case 0x60000000UL:
+				strcpy(dtb_name, "t6d_t950d5_br301-4k-1.5g\0");
+				break;
+			default:
+				strcpy(dtb_name, "t6d_t950d5_br301\0");
+				break;
+			}
+		} else {
+			switch (ddr_size) {
+			case 0x40000000UL:
+				strcpy(dtb_name, "t6d_t950d5_br301-1g\0");
+				break;
+			case 0x60000000UL:
+				strcpy(dtb_name, "t6d_t950d5_br301-1.5g\0");
+				break;
+			default:
+				strcpy(dtb_name, "t6d_t950d5_br301\0");
+				break;
+			}
+		}
 	}
 
 	strcpy(name, dtb_name);
