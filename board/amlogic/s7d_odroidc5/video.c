@@ -160,6 +160,8 @@ int hdmi_timing_from_modeline(const char *m, struct hdmi_timing *ht)
 	ht->h_freq = (ht->pixel_freq * 1000) / ht->h_total;
 	ht->v_freq = (ht->h_freq * 1000) / ht->v_total;
 
+	ht->pi_mode = 1;
+
 	/* H/V sync polarity & scan mode */
 	while (pos < argc) {
 		char *str = argv[pos++];
