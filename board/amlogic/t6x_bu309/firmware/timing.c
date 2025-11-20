@@ -190,6 +190,9 @@ __attribute__ ((section(".misc_param"))) = {
 	/* set GPIOB_12 high to save power  */
 	{ PADCTRL_GPIOB_OEN,       (0x0 << 12),  (0x1 << 12), 0, 0, 0 },
 	{ PADCTRL_GPIOB_O,         (0x0 << 12),  (0x1 << 12), 0, 0, 0 },
+	/* enable vddio3v3/vcc3v3, set gpiod_10 high */
+	{ PADCTRL_GPIOD_O,	   (0x1 << 10),		       (0x1 << 10), 0, 0, 0 },
+	{ PADCTRL_GPIOD_OEN,	   (0x0 << 10),		       (0x1 << 10), 0, 0, 0 },
 #ifdef CONFIG_NOVERBOSE_BUILD
 	/* use acs flag to disable uart print in each blx
 	 * reg must be UART_B_WFIFO, flags: 1 --> disable uart print, 0: enable
