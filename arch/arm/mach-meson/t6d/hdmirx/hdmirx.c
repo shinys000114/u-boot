@@ -276,6 +276,25 @@ unsigned int rx_edid_cal_phy_addr(unsigned int brepeat,
 	return flag;
 }
 
+bool is_valid_edid_data(unsigned char *p_edid)
+{
+	bool ret = false;
+
+	if (!p_edid)
+		return ret;
+	if (p_edid[0] == 0 &&
+		p_edid[1] == 0xff &&
+		p_edid[2] == 0xff &&
+		p_edid[3] == 0xff &&
+		p_edid[4] == 0xff &&
+		p_edid[5] == 0xff &&
+		p_edid[6] == 0xff &&
+		p_edid[7] == 0)
+		ret = true;
+
+	return ret;
+}
+
 void rx_edid_fill_to_register(unsigned char *pedid,
 	unsigned int brepeat,
 	unsigned int *pphy_addr,
@@ -774,3 +793,14 @@ void rx_set_phy_rterm(void)
 	}
 }
 
+/*
+ * rx_pre_init: edid init & phy rterm cfg
+ */
+void rx_pre_init(void)
+{
+	unsigned char *pedid_data = rx_get_edid();
+
+	if (!is_valid_edid_data(pedid_data))
+		hdmirx_ctrl_edid_update();
+	rx_set_phy_rterm();
+}
