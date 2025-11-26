@@ -355,11 +355,21 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, int status)
 	} else {
 		reg_data = 0;
 #if IS_ENABLED(CONFIG_MESON_T6X)
-		lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, 0x1140d100);
+		if (phy->cv_mode == PHY_VMODE) {
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 0, 0, 3);  //common0[2:0]=0
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 0, 19, 2); //common1[4:3]=0
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL15, 0, 16, 4); //vinlp[3:0]=0
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL15, 0, 22, 1); //vinlp[6]=0
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL15, 0, 24, 6); //vinlp[13:8]=0
+		} else {
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 0, 0, 3);  //common0[2:0]=0
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL14, 0, 19, 2); //common1[4:3]=0
+			lcd_ana_setb(ANACTRL_DIF_PHY_CNTL15, 2, 22, 2); //vinlp[7:6]=2
+		}
 #else
 		lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, 0x1300d100);
-#endif
 		lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, 0x30800000);
+#endif
 	}
 
 	for (i = 0; i < phy_cfg->lane_num; i++) {
