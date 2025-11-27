@@ -16,26 +16,6 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-	reserved-memory {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		/* 28 MiB reserved for ARM Trusted Firmware (BL31) and Optee */
-		secmon_reserved: secmon@5000000 {
-			reg = <0x0 0x05000000 0x0 0x1c00000>;
-			no-map;
-		};
-
-		linux,cma {
-			compatible = "shared-dma-pool";
-			reusable;
-			size = <0x0 0xbc00000>;
-			alignment = <0x0 0x400000>;
-			linux,cma-default;
-		};
-	};
-
 	cpus {
 		#address-cells = <0x2>;
 		#size-cells = <0x0>;
