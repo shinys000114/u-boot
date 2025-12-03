@@ -97,25 +97,29 @@ typedef struct ddr_para_data_start {
 
 #define DDR_TIMMING_TUNE_STRUCT_SIZE(a)  sizeof(a)
 
-#define DDR_TIMMING_TUNE_TIMMING0_F(PARA, VALUE) ((DDR_TIMMING_OFFSET(PARA)) << 16) |\
-((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | VALUE
-#define DDR_TIMMING_TUNE_TIMMING1_F(PARA, VALUE) ((sizeof(ddr_set_ps0_only_t) +\
-DDR_TIMMING_OFFSET(PARA)) << 16) | ((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | (VALUE)
+#define DDR_TIMMING_TUNE_TIMMING0_F(PARA, VALUE) (((DDR_TIMMING_OFFSET(PARA)) << 16) |\
+((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | (VALUE))
+#define DDR_TIMMING_TUNE_TIMMING1_F(PARA, VALUE) \
+(((sizeof(ddr_set_ps0_only_t) + DDR_TIMMING_OFFSET(PARA)) << 16) | \
+((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | (VALUE))
 
-#define DDR_TIMMING_TUNE_TIMMING0_F_32BIT_L16(PARA, VALUE) ((DDR_TIMMING_OFFSET(PARA))\
-<< 16) | (2 << 28) | ((VALUE) & 0xffff)
-#define DDR_TIMMING_TUNE_TIMMING0_F_32BIT_H16(PARA, VALUE) ((DDR_TIMMING_OFFSET(PARA) +\
-2) << 16) | (2 << 28) | (((VALUE) >> 16) & 0xffff)
+//2 << 28,bit28 ,1/2/4 byte size,only support 1/2 byte;
+#define DDR_TIMMING_TUNE_TIMMING0_F_32BIT_L16(PARA, VALUE) \
+(((DDR_TIMMING_OFFSET(PARA)) << 16) | (2 << 28) | ((VALUE) & 0xffff))
+#define DDR_TIMMING_TUNE_TIMMING0_F_32BIT_H16(PARA, VALUE) \
+(((DDR_TIMMING_OFFSET(PARA) + 2) << 16) | (2 << 28) | (((VALUE) >> 16) & 0xffff))
 
-#define DDR_TIMMING_TUNE_TIMMING1_F_32BIT_L16(PARA, VALUE) ((DDR_TIMMING_OFFSET(PARA))\
-<< 16) | (2 << 28) | ((VALUE) & 0xffff)
-#define DDR_TIMMING_TUNE_TIMMING1_F_32BIT_H16(PARA, VALUE) ((sizeof(ddr_set_ps0_only_t) +\
-(DDR_TIMMING_OFFSET(PARA) + 2) << 16)) | (2 << 28) | (((VALUE) >> 16) & 0xffff)
+#define DDR_TIMMING_TUNE_TIMMING1_F_32BIT_L16(PARA, VALUE) \
+(((sizeof(ddr_set_ps0_only_t) + DDR_TIMMING_OFFSET(PARA)) << 16) | \
+(2 << 28) | ((VALUE) & 0xffff))
+#define DDR_TIMMING_TUNE_TIMMING1_F_32BIT_H16(PARA, VALUE) \
+(((sizeof(ddr_set_ps0_only_t) + (DDR_TIMMING_OFFSET(PARA) + 2)) << 16) | \
+(2 << 28) | (((VALUE) >> 16) & 0xffff))
 
-#define DDR_TIMMING_TUNE_START(id_src_from, id_adc_ch, id_value) (id_src_from) |\
-(id_adc_ch) | (id_value)
-#define DDR_TIMMING_TUNE_ADC_MULT_START(id_value, ch0, ch1, ch2, ch3, ch4, ch5) (id_value) |\
-(ch0) | ((ch1) << 4) | ((ch2) << 8) | ((ch3) << 12) | ((ch4) << 16) | ((ch5) << 20)
+#define DDR_TIMMING_TUNE_START(id_src_from, id_adc_ch, id_value) \
+((id_src_from) | (id_adc_ch) | (id_value))
+#define DDR_TIMMING_TUNE_ADC_MULT_START(id_value, ch0, ch1, ch2, ch3, ch4, ch5) ((id_value) |\
+(ch0) | ((ch1) << 4) | ((ch2) << 8) | ((ch3) << 12) | ((ch4) << 16) | ((ch5) << 20))
 
 #if 1
 uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
