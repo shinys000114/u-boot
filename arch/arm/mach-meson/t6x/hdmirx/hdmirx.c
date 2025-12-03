@@ -396,23 +396,23 @@ void rx_edid_update_overlay(unsigned int phy_addr_offset,
 	/* replace the first edid ram data */
 	/* physical address byte 1 */
 	tmp_addr = TOP_EDID_ADDR_S + phy_addr_offset + 1;
-	hdmirx_wr_top(tmp_addr, pphy_addr[E_PORT0] >> 8);
-	hdmirx_wr_top(tmp_addr + 0x200, pphy_addr[E_PORT1] >> 8);
-	hdmirx_wr_top(tmp_addr + 0x400, pphy_addr[E_PORT2] >> 8);
-	hdmirx_wr_top(tmp_addr + 0x600, pphy_addr[E_PORT3] >> 8);
+	hdmirx_wr_edid(tmp_addr, pphy_addr[E_PORT0] >> 8);
+	hdmirx_wr_edid(tmp_addr + 0x200, pphy_addr[E_PORT1] >> 8);
+	hdmirx_wr_edid(tmp_addr + 0x400, pphy_addr[E_PORT2] >> 8);
+	hdmirx_wr_edid(tmp_addr + 0x600, pphy_addr[E_PORT3] >> 8);
 	/* physical address byte 0 */
 	tmp_addr = TOP_EDID_ADDR_S + phy_addr_offset;
-	hdmirx_wr_top(tmp_addr, pphy_addr[E_PORT0] & 0xff);
-	hdmirx_wr_top(tmp_addr + 0x200, pphy_addr[E_PORT1] & 0xff);
-	hdmirx_wr_top(tmp_addr + 0x400, pphy_addr[E_PORT2] & 0xff);
-	hdmirx_wr_top(tmp_addr + 0x600, pphy_addr[E_PORT3] & 0xff);
+	hdmirx_wr_edid(tmp_addr, pphy_addr[E_PORT0] & 0xff);
+	hdmirx_wr_edid(tmp_addr + 0x200, pphy_addr[E_PORT1] & 0xff);
+	hdmirx_wr_edid(tmp_addr + 0x400, pphy_addr[E_PORT2] & 0xff);
+	hdmirx_wr_edid(tmp_addr + 0x600, pphy_addr[E_PORT3] & 0xff);
 
 	/* checksum */
 	tmp_addr = TOP_EDID_ADDR_S + 0xff;
-	hdmirx_wr_top(tmp_addr, pchecksum[E_PORT0]);
-	hdmirx_wr_top(tmp_addr + 0x200, pchecksum[E_PORT1]);
-	hdmirx_wr_top(tmp_addr + 0x400, pchecksum[E_PORT2]);
-	hdmirx_wr_top(tmp_addr + 0x600, pchecksum[E_PORT3]);
+	hdmirx_wr_edid(tmp_addr, pchecksum[E_PORT0]);
+	hdmirx_wr_edid(tmp_addr + 0x200, pchecksum[E_PORT1]);
+	hdmirx_wr_edid(tmp_addr + 0x400, pchecksum[E_PORT2]);
+	hdmirx_wr_edid(tmp_addr + 0x600, pchecksum[E_PORT3]);
 
 	/* for (i = 0; i < E_PORT_NUM; i++) { */
 		/* printf(">port %d,addr 0x%x,checksum 0x%x\n", */
