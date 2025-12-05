@@ -2153,6 +2153,7 @@ static int hdmi_move_hdr_pkt(bool flag)
 static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = hdev->para;
+	char *voutmode = NULL;
 	/* Pixel bit width: 4=24-bit; 5=30-bit; 6=36-bit; 7=48-bit. */
 	u8 color_depth = COLORDEPTH_24B;
 	/* Pixel format: 0=RGB444; 1=YCbCr422; 2=YCbCr444; 3=YCbCr420. */
@@ -2166,6 +2167,10 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	u32 data32;
 	u8 data8;
 	u8 dp_color_depth = 0;
+
+	voutmode = env_get("voutmode");
+	if (voutmode == NULL)
+		voutmode = "hdmi";
 
 	if (para->tmds_clk > 340000) {
 		para->scrambler_en = 1;
@@ -2376,7 +2381,10 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	data32 |= (active_pixels << 0); /* [14: 0] cntl_hactive */
 	hdmitx21_wr_reg(HDMITX_TOP_HV_ACTIVE, data32);
 	hdmitx_soft_reset(RESET_18OR10TO20 | RESET_PFIFO);
-	hdmitx21_set_reg_bits(TPI_SC_IVCTX, 1, 0, 1);
+	if (strncmp(voutmode, "hdmi", 4) == 0)
+		hdmitx21_set_reg_bits(TPI_SC_IVCTX, 1, 0, 1);
+	else
+		hdmitx21_set_reg_bits(TPI_SC_IVCTX, 0, 0, 1);
 	/*
 	 * On Huawei TVs, HDR will cause a flickering screen,
 	 * and HDR PKT needs to be moved behind VSYNC on S7 or S7D
