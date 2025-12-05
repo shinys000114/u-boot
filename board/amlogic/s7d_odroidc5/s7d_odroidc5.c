@@ -281,6 +281,8 @@ int board_late_init(void)
 	vpp_init();
 #endif
 
+	env_set("voutmode", "hdmi");
+
 	if (dev_desc) {
 		if (load_odroid_bios(dev_desc) != 0) {
 			env_set("mmc_list",
