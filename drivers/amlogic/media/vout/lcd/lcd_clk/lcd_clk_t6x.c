@@ -50,6 +50,10 @@ static void lcd_pll_frac_set_t6x(struct aml_lcd_drv_s *pdrv, unsigned int frac)
 	reg = ANACTRL_TCON_PLL0_CNTL4;
 	val = lcd_ana_read(reg);
 	lcd_ana_setb(reg, frac, 0, 17);
+	udelay(10);
+	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 1, 4, 1);
+	udelay(10);
+	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 0, 4, 1);
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		LCDPR("[%d]: %s: reg 0x%x: 0x%08x->0x%08x\n",
 		      pdrv->index, __func__, reg, val, lcd_ana_read(reg));
@@ -222,7 +226,6 @@ static void lcd_set_pll_t6x(struct aml_lcd_drv_s *pdrv)
 	}
 
 	tcon_div_sel = cconf->pll_tcon_div_sel;
-	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 1, 3, 1);
 	pll_ctrl0 = 0x8022000 | (cconf->pll_config[0].pll_m << 0) |
 			(cconf->data->pll_data[0]->pll_0_5_div_en << 12);
 	pll_ctrl1 = 0x1030600c;
@@ -258,9 +261,15 @@ static void lcd_set_pll_t6x(struct aml_lcd_drv_s *pdrv)
 	lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL3, 0, 31, 1);
 	udelay(10);
 	lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL3, 1, 31, 1);
-
 	if (ret)
 		LCDERR("[%d]: vx1 pll lock failed\n", pdrv->index);
+	/* set load to 0 */
+	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 0, 4, 1);
+	/* select ANACTRL_TCON_PLL_VLOCK[4] as load */
+	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 0, 3, 1);
+	/* enable load en*/
+	lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 1, 14, 1);
+
 	if (cconf->pll_mode & LCD_PLL_MODE_DUAL_PLL) {
 		cnt = 0;
 		ret = 0;
