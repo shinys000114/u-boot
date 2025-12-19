@@ -1505,7 +1505,6 @@ int ldim_dev_get_config(char *dt_addr, struct aml_ldim_driver_s *ldim_drv)
 		break;
 	}
 
-
 	return ret;
 }
 #endif
