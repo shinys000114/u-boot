@@ -1068,9 +1068,9 @@ int aml_lcd_driver_probe(int index)
 		device_remove(backlight_dev, DM_REMOVE_NORMAL);
 #endif
 	if (index == 0)
-		snprintf(node_lcd, 11, "lcd");
+		snprintf(node_lcd, 3, "lcd");
 	else
-		snprintf(node_lcd, 12, "lcd%d", index);
+		snprintf(node_lcd, 4, "lcd%d", index);
 	ret = uclass_get_device_by_name(UCLASS_MISC, node_lcd, &lcd_dev);
 	if (!ret) {
 		device_remove(lcd_dev, DM_REMOVE_NORMAL);
