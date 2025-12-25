@@ -323,6 +323,9 @@ struct dsi_panel_det_attr_s {
 struct dsi_config_s {
 	/* user config */
 	unsigned char lane_num;
+	unsigned char deskew_en;
+	unsigned short deskew_initial_time;
+	unsigned short deskew_periodic_time;
 	unsigned int bit_rate_target; /* MHz */
 	unsigned char multi_port_cfg; /* bit[0:3]*/
 	unsigned char operation_mode_init; /* 0=video mode, 1=command mode */
@@ -333,6 +336,7 @@ struct dsi_config_s {
 	unsigned int factor_numerator;
 	unsigned int factor_denominator;
 	unsigned int lane_byte_clk;
+	unsigned int tear_en_ctrl; // 0=dis, 1=dcs, 2=gpio
 
 	/* non_burst vid packet */
 	unsigned int user_pkt_size;

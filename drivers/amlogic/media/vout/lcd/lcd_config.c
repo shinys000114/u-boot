@@ -1030,6 +1030,17 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 		pctrl->mipi_cfg.clk_always_hs = be32_to_cpup((((u32 *)propdata) + 6));
 		pctrl->mipi_cfg.user_pkt_size = be32_to_cpup((((u32 *)propdata) + 7));
 
+		propdata = (char *)fdt_getprop(dt_addr, child_offset, "deskew-en", NULL);
+		pctrl->mipi_cfg.deskew_en = propdata ? be32_to_cpup((u32 *)propdata) : 0;
+
+		propdata = (char *)fdt_getprop(dt_addr, child_offset, "deskew-initial", NULL);
+		pctrl->mipi_cfg.deskew_initial_time =
+			propdata ? be32_to_cpup((u32 *)propdata) : 0x1000;
+
+		propdata = (char *)fdt_getprop(dt_addr, child_offset, "deskew-periodic", NULL);
+		pctrl->mipi_cfg.deskew_periodic_time =
+			propdata ? be32_to_cpup((u32 *)propdata) : 0x1000;
+
 		pctrl->mipi_cfg.check_en = 0;
 		pctrl->mipi_cfg.check_reg = 0xff;
 		pctrl->mipi_cfg.check_cnt = 0;
@@ -1078,6 +1089,25 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 	phy->ss.freq = 255;
 	phy->ss.level = 255;
 	phy->ss.mode = 255;
+
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "phy-pn-swap", &len);
+	if (len > 0 && propdata) {
+		len = (phy_cfg->lane_num > (len / 4)) ? (len / 4) : phy_cfg->lane_num;
+		for (i = 0; i < len; i++)
+			phy_cfg->ch_ctrl[i].pn_swap = be32_to_cpup(((u32 *)propdata) + i) ? 1 : 0;
+	}
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "phy-phase-sel", &len);
+	if (len > 0 && propdata) {
+		len = (phy_cfg->lane_num > (len / 4)) ? (len / 4) : phy_cfg->lane_num;
+		for (i = 0; i < len; i++)
+			phy_cfg->ch_ctrl[i].phase_sel = be32_to_cpup(((u32 *)propdata) + i);
+	}
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "phy-ch-sel", &len);
+	if (len > 0 && propdata) {
+		len = (phy_cfg->lane_num > (len / 4)) ? (len / 4) : phy_cfg->lane_num;
+		for (i = 0; i < len; i++)
+			phy_cfg->ch_ctrl[i].sel = be32_to_cpup(((u32 *)propdata) + i);
+	}
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "phy_adv_attr", NULL);
 	if (propdata && phy_cfg->phys[0]) {
