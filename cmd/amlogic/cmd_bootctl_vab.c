@@ -30,6 +30,10 @@
 #include <part_efi.h>
 
 #include <asm/amlogic/arch/secure_apb.h>
+#include <linux/arm-smccc.h>
+#include <asm/amlogic/arch/reboot.h>
+#include <asm/amlogic/arch/bl31_apis.h>
+
 
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
@@ -270,6 +274,19 @@ bootctl_func_handles vab_cmd_bootctrl_handles = {0};
 static bootloader_control s_boot_ctrl_cache;
 static bool s_boot_ctrl_initialized;
 static char s_miscbuf_cache[MISCBUF_SIZE] = {0};
+
+static void reboot_by_reason(unsigned int r)
+{
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(SET_REBOOT_REASON, r, 0, 0, 0, 0, 0, 0, &res);
+
+	if (res.a0)
+		printf("failed to set reboot reason\n");
+
+	run_command("wdt dev watchdog", 0);
+	run_command("wdt expire", 0);
+}
 
 static bool boot_info_validate(bootloader_control *info)
 {
@@ -871,9 +888,9 @@ static int do_GetValidSlot(
 			}
 			run_command("saveenv", 0);
 			if (rebootmode && (strcmp(rebootmode, "quiescent") == 0))
-				run_command("reboot quiescent", 0);
+				reboot_by_reason(AMLOGIC_QUIESCENT_REBOOT);
 			else
-				run_command("reboot", 0);
+				reboot_by_reason(AMLOGIC_NORMAL_BOOT);
 		} else {
 			boot_info_reset(boot_ctrl);
 			boot_info_save(boot_ctrl, miscbuf);
@@ -934,9 +951,9 @@ static int do_GetValidSlot(
 			}
 			run_command("saveenv", 0);
 			if (rebootmode && (strcmp(rebootmode, "quiescent") == 0))
-				run_command("reboot quiescent", 0);
+				reboot_by_reason(AMLOGIC_QUIESCENT_REBOOT);
 			else
-				run_command("reboot", 0);
+				reboot_by_reason(AMLOGIC_NORMAL_BOOT);
 		} else {
 			boot_info_reset(boot_ctrl);
 			boot_info_save(boot_ctrl, miscbuf);
@@ -1177,9 +1194,9 @@ static int do_SetUpdateTries(
 		}
 		boot_info_save(boot_ctrl, miscbuf);
 		if (rebootmode && (strcmp(rebootmode, "quiescent") == 0))
-			run_command("reboot quiescent", 0);
+			reboot_by_reason(AMLOGIC_QUIESCENT_REBOOT);
 		else
-			run_command("reboot", 0);
+			reboot_by_reason(AMLOGIC_NORMAL_BOOT);
 	}
 
 	if (boot_ctrl->merge_flag == SNAPSHOTTED) {
@@ -1208,9 +1225,9 @@ static int do_SetUpdateTries(
 		}
 		boot_info_save(boot_ctrl, miscbuf);
 		if (rebootmode && (strcmp(rebootmode, "quiescent") == 0))
-			run_command("reboot quiescent", 0);
+			reboot_by_reason(AMLOGIC_QUIESCENT_REBOOT);
 		else
-			run_command("reboot", 0);
+			reboot_by_reason(AMLOGIC_NORMAL_BOOT);
 	}
 
 	debug("boot_ctrl->roll_flag = %d\n", boot_ctrl->roll_flag);
@@ -1308,9 +1325,9 @@ static int do_CheckABState(cmd_tbl_t *cmdtp,
 
 	printf("ab update mode, try %d times again\n", retry_times + 1);
 	if (rebootmode && (strcmp(rebootmode, "quiescent") == 0))
-		run_command("reboot quiescent", 0);
+		reboot_by_reason(AMLOGIC_QUIESCENT_REBOOT);
 	else
-		run_command("reboot", 0);
+		reboot_by_reason(AMLOGIC_NORMAL_BOOT);
 	return 0;
 }
 
@@ -1409,9 +1426,9 @@ static int do_UpdateDt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 			printf("part changes, reset\n");
 			if (rebootmode && (strcmp(rebootmode, "quiescent") == 0))
-				run_command("reboot quiescent", 0);
+				reboot_by_reason(AMLOGIC_QUIESCENT_REBOOT);
 			else
-				run_command("reboot", 0);
+				reboot_by_reason(AMLOGIC_NORMAL_BOOT);
 		}
 	}
 	return 0;
