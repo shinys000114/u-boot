@@ -198,6 +198,9 @@ int board_late_init(void)
 #endif
 
 	aml_board_late_init_front(NULL);
+#ifdef CONFIG_SAVE_UBOOT_LOG
+	uboot_log_replace_addr_with_fdt();
+#endif
 
 	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_s);
 
