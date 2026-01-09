@@ -3158,14 +3158,16 @@ int lcd_get_panel_config(char *dt_addr, int load_id, struct aml_lcd_drv_s *pdrv)
 		ret = -1;
 		break;
 	}
-
 	if (ret)
 		return -1;
 
-	lcd_phy_default_off(pdrv);
-	lcd_lane_map_update(pdrv);
-
 	lcd_config_load_init(pdrv);
+
+	lcd_phy_probe(pdrv);
+	lcd_lane_map_update(pdrv);
+	lcd_clk_config_probe(pdrv);
+	lcd_debug_probe(pdrv);
+
 	lcd_config_load_print(pdrv);
 
 #ifdef CONFIG_AML_LCD_TCON

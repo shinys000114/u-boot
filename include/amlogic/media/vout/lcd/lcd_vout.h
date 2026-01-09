@@ -470,8 +470,10 @@ struct phy_config_s {
 	unsigned int vswing_level;
 	unsigned int ext_pullup;
 	unsigned int preem_level;
-	unsigned int weakly_pull_down;
-	unsigned int low_common_mode;
+	unsigned char weakly_pull_down;
+	unsigned char low_common_mode;
+	unsigned char ch_phase_en; //for minilvds
+	unsigned char ch_clk_inv; //for lvds
 
 	unsigned int bypass_resample;
 	unsigned int state;
@@ -486,6 +488,15 @@ struct phy_config_s {
 	struct phy_ch_ctrl_s ch_ctrl[CH_LANE_MAX];
 	struct phy_attr_s *act_phy;
 	struct phy_attr_s *phys[MAX_NUM_PHY_CFGS];
+};
+
+enum lcd_phy_set_status {
+	LCD_PHY_OFF = 0,
+	LCD_PHY_ON,
+	LCD_PHY_PWR_UP,
+	LCD_PHY_PWR_DOWN,
+	LCD_PHY_UPDATE,
+	LCD_PHY_LOCK_LANE,
 };
 
 union lcd_ctrl_config_u {
@@ -799,6 +810,7 @@ unsigned int aml_lcd_driver_outputmode_check(unsigned char lcd_idx, char *mode);
 void aml_lcd_driver_prepare(int index, char *mode);
 void aml_lcd_driver_enable(int index, char *mode);
 void aml_lcd_driver_disable(int index);
+void aml_lcd_driver_power_ctrl(int index, int status);
 void aml_lcd_driver_set_ss(int index, unsigned int level, unsigned int freq, unsigned int mode);
 void aml_lcd_driver_get_ss(int index);
 void aml_lcd_driver_clk_info(int index);

@@ -537,8 +537,10 @@ static void lcd_module_disable(struct aml_lcd_drv_s *pdrv)
 {
 	LCDPR("[%d]: disable: %s\n", pdrv->index, pdrv->config.basic.model_name);
 
-	if (pdrv->status & LCD_STATUS_IF_ON)
+	if (pdrv->status & LCD_STATUS_IF_ON) {
 		lcd_power_ctrl(pdrv, 0);
+		pdrv->status &= ~LCD_STATUS_IF_ON;
+	}
 
 	lcd_venc_enable(pdrv, 0);
 	lcd_disable_clk(pdrv);
@@ -839,11 +841,8 @@ static void lcd_init_debug_bootargs(void)
 	lrm_bootargs_put_data((unsigned char *)&debug_ctrl, "lcd_debug", size);
 }
 
-void lcd_panel_config_load_to_drv(struct aml_lcd_drv_s *pdrv)
+void lcd_init_config_to_drv(struct aml_lcd_drv_s *pdrv)
 {
-	lcd_clk_config_probe(pdrv);
-	lcd_phy_probe(pdrv);
-	lcd_debug_probe(pdrv);
 	lcd_mode_init(pdrv);
 	lcd_init_ctrl_bootargs(pdrv);
 }
@@ -907,7 +906,7 @@ static int lcd_config_probe(struct udevice *dev, unsigned int index)
 		lcd_driver_remove(pdrv->index);
 		return -1;
 	}
-	lcd_panel_config_load_to_drv(pdrv);
+	lcd_init_config_to_drv(pdrv);
 
 #ifdef CONFIG_AML_LCD_EXTERN
 	if (index == 0)
@@ -1186,6 +1185,33 @@ void aml_lcd_driver_disable(int index)
 	}
 
 	lcd_module_disable(pdrv);
+}
+
+void aml_lcd_driver_power_ctrl(int index, int status)
+{
+	struct aml_lcd_drv_s *pdrv;
+
+	pdrv = lcd_driver_check_valid(index);
+	if (!pdrv)
+		return;
+
+	if (status) {
+		if (pdrv->status & LCD_STATUS_IF_ON) {
+			LCDPR("[%d]: already power on\n", pdrv->index);
+			return;
+		}
+		lcd_interface_on(pdrv);
+		pdrv->status |= LCD_STATUS_IF_ON;
+	} else {
+		if ((pdrv->status & LCD_STATUS_IF_ON) == 0) {
+			LCDPR("[%d]: already power off\n", pdrv->index);
+			return;
+		}
+		pdrv->status &= ~LCD_STATUS_IF_ON;
+		lcd_power_ctrl(pdrv, 0);
+	}
+
+	lcd_update_ctrl_bootargs(pdrv);
 }
 
 void aml_lcd_driver_set_ss(int index, unsigned int level, unsigned int freq,

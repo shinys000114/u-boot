@@ -189,7 +189,7 @@ static void dsi_panel_detect_drv_config_reload(struct aml_lcd_drv_s *pdrv)
 		LCDERR("[%d]: %s: load panel failed\n", pdrv->index, __func__);
 		return;
 	}
-	lcd_panel_config_load_to_drv(pdrv);
+	lcd_init_config_to_drv(pdrv);
 
 #ifdef CONFIG_AML_LCD_BACKLIGHT
 	aml_bl_reprobe_single(pdrv->index, dt_addr_temp, load_id_temp);

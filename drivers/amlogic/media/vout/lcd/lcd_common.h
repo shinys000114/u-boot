@@ -38,7 +38,8 @@
 /* 20250917: tcon support discontinued bin */
 /* 20251028: support vrr vdf */
 /* 20251113: support ip27 */
-#define LCD_DRV_VERSION    "20251113"
+/* 20260203: optimize t6 phy & dphy init flow */
+#define LCD_DRV_VERSION    "20260203"
 
 #define CTYPE_MASK           0xf0
 #define CTYPE_RGB            0x00
@@ -139,7 +140,7 @@ unsigned char *lcd_init_table_load_array(char *name, unsigned char cmd_size,
 					 int tbl_max, int *tbl_cnt);
 
 int lcd_base_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv);
-void lcd_panel_config_load_to_drv(struct aml_lcd_drv_s *pdrv);
+void lcd_init_config_to_drv(struct aml_lcd_drv_s *pdrv);
 int lcd_check_config_load(struct aml_lcd_drv_s *pdrv);
 int lcd_get_panel_config(char *dt_addr, int load_id, struct aml_lcd_drv_s *pdrv);
 
@@ -272,7 +273,6 @@ int lcd_phy_param_get(struct aml_lcd_drv_s *pdrv, struct phy_config_s *phy_cfg,
 void lcd_phy_param_print(struct aml_lcd_drv_s *pdrv);
 void lcd_phy_analog_reg_print(struct aml_lcd_drv_s *pdrv);
 void lcd_phy_reset(struct aml_lcd_drv_s *pdrv);
-void lcd_phy_default_off(struct aml_lcd_drv_s *pdrv);
 void lcd_phy_set(struct aml_lcd_drv_s *pdrv, int status);
 int lcd_phy_probe(struct aml_lcd_drv_s *pdrv);
 int lcd_phy_config_init(struct aml_lcd_data_s *pdata);
