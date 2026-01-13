@@ -315,10 +315,13 @@ static void lcd_phy_init_off_t6d(struct aml_lcd_drv_s *pdrv)
 	if (phy->cv_mode == PHY_VMODE) {
 		cntl15 &= ~(0x1 << 22);
 		cntl15 &= ~(0x1f << 24);
+		cntl15 |= 1 << 19;  //vinlp[3]=1
 	} else {
-		if (phy_ctrl_bit_on)
-			cntl15 |= 2 << 22;
+		cntl15 &= ~(1 << 19);  //vinlp[3]=0
 	}
+	cntl15 &= ~(3 << 22);  //vinlp[7:6]=0
+	if (phy_ctrl_bit_on)
+		cntl15 |= 2 << 22; //vinlp[7:6]=2
 
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, cntl14);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, cntl15);

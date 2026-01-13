@@ -514,8 +514,13 @@ static void lcd_phy_init_off(struct aml_lcd_drv_s *pdrv)
 		cntl15 &= ~(0xf << 16);
 		cntl15 &= ~(0x1 << 22);
 		cntl15 &= ~(0x3f << 24);
+		cntl15 |= 1 << 20;  //vinlp[4]=1
+		cntl15 |= 1 << 23;  //vinlp[7]=1
 	} else {
-		cntl15 |= 2 << 22;
+		cntl15 &= ~(0xf << 16);
+		cntl15 &= ~(1 << 20);  //vinlp[4]=0
+		cntl15 &= ~(1 << 22);  //vinlp[6]=0
+		cntl15 |= 1 << 23;  //vinlp[7]=1
 	}
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, cntl14);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, cntl15);
