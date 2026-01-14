@@ -531,12 +531,14 @@ static struct lcd_bootargs_item_s *lrm_bootargs_get_item(unsigned char *bootargs
 	p = bootargs_mem + sizeof(struct lcd_bootargs_head_s);
 	for (i = 0; i < head->args_num; i++) {
 		item = (struct lcd_bootargs_item_s *)p;
+		if (!item)
+			break;
 		item_size = (sizeof(struct lcd_bootargs_item_s) + item->data_size);
 		mem_size += item_size;
 		if (mem_size > head->cur_pos)
 			break;
 
-		if (strcmp(item->name, name) == 0)
+		if (name && strcmp(item->name, name) == 0)
 			return item;
 
 		p += item_size;
