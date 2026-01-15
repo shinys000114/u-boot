@@ -54,6 +54,10 @@ static void lcd_pll_frac_set_t6d_t6w(struct aml_lcd_drv_s *pdrv, unsigned int fr
 		LCDPR("[%d]: %s: reg 0x%x: 0x%08x->0x%08x\n",
 		      pdrv->index, __func__, reg, val, lcd_ana_read(reg));
 	}
+	udelay(10);
+	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 1, 4, 1);
+	udelay(10);
+	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 0, 4, 1);
 	LCDPR("[%d]: %s: pll_frac=0x%x\n", pdrv->index, __func__, frac);
 #if IS_ENABLED(CONFIG_MESON_T6W)
 	if (cconf->pll_mode & LCD_PLL_MODE_DUAL_PLL) {
@@ -237,6 +241,14 @@ static void lcd_set_pll_t6d_t6w(struct aml_lcd_drv_s *pdrv)
 
 	if (ret)
 		LCDERR("[%d]: vx1 pll lock failed\n", pdrv->index);
+
+	/* set load to 0 */
+	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 0, 4, 1);
+	/* select ANACTRL_TCON_PLL_VLOCK[4] as load */
+	lcd_ana_setb(ANACTRL_TCON_PLL_VLOCK, 0, 3, 1);
+	/* enable load en*/
+	lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL0, 1, 14, 1);
+
 #if (IS_ENABLED(CONFIG_MESON_T6W))
 	if (cconf->pll_mode & LCD_PLL_MODE_DUAL_PLL) {
 		cnt = 0;
