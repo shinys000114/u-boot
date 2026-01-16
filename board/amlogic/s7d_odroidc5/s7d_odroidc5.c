@@ -31,6 +31,10 @@
 #include <blk.h>
 #include <mmc.h>
 
+#include "dm/lists.h"
+#include "dm/root.h"
+#include "dm/uclass-internal.h"
+
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
 #endif
@@ -149,12 +153,72 @@ int eth_get_efuse_mac(struct udevice *dev) {
 }
 
 #if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
+
+static int vu7c_hw_init(void)
+{
+	struct udevice *soc_dev, *i2c_dev, *bridge_dev;
+	ofnode i2c_node, bridge_node;
+	int ret;
+
+	i2c_node = ofnode_path("/soc/i2c@fe066c00");
+	if (!ofnode_valid(i2c_node)) {
+		printf("vu7c: i2c3 node not found\n");
+		return -1;
+	}
+
+	ret = uclass_get_device_by_ofnode(UCLASS_SIMPLE_BUS, ofnode_get_parent(i2c_node), &soc_dev);
+	if (ret) {
+		printf("vu7c: failed to get soc device (ret=%d)\n", ret);
+		return -1;
+	}
+
+	if (uclass_find_device_by_ofnode(UCLASS_I2C, i2c_node, &i2c_dev)) {
+		ret = device_bind_driver_to_node(soc_dev, "i2c_meson", "i2c@fe066c00",
+						 i2c_node, &i2c_dev);
+		if (ret) {
+			printf("vu7c: failed to bind i2c_meson (ret=%d)\n", ret);
+			return -1;
+		}
+	}
+
+	if (i2c_dev && !i2c_dev->driver_data) {
+		const struct udevice_id *id = i2c_dev->driver->of_match;
+		while (id && id->compatible) {
+			if (ofnode_device_is_compatible(i2c_node, id->compatible)) {
+				i2c_dev->driver_data = id->data;
+				break;
+			}
+			id++;
+		}
+	}
+
+	bridge_node = ofnode_find_subnode(i2c_node, "hdmi-bridge@32");
+	if (!ofnode_valid(bridge_node)) {
+		printf("vu7c: bridge node not found\n");
+		return -1;
+	}
+
+	ret = device_bind_driver_to_node(i2c_dev, "lt8619c", "hdmi-bridge@32",
+					 bridge_node, &bridge_dev);
+	if (ret && ret != -EEXIST) {
+		printf("vu7c: failed to bind lt8619c (ret=%d)\n", ret);
+		return -1;
+	}
+
+	return 0;
+}
+
 int vu7c_init(void)
 {
-	int ret = 0;
-	run_command("i2c dev 3", 0);
-	ret = run_command("i2c probe 0x32", 0);
-	return ret;
+	char* overlays = env_get("overlays");
+
+	if (overlays && strstr(overlays, "display_vu7c") != NULL)
+	{
+		vu7c_hw_init();
+		run_command("i2c dev 3", 0);
+		return run_command("i2c probe 0x32", 0);
+	}
+	return -1;
 }
 #endif
 
@@ -299,7 +363,8 @@ int board_late_init(void)
 	}
 
 #if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
-	if (vu7c_init() == 0) {
+	ret = vu7c_init();
+	if (ret == 0) {
 		env_set("user_colorattribute", "rgb,8bit");
 		env_set("colorattribute", "rgb,8bit");
 		env_set("displaymode", "1024x600p60hz");
@@ -310,7 +375,8 @@ int board_late_init(void)
 
 #if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
 	/* vu7c backlight on */
-	run_command("gpio set GPIOX_6", 0);
+	if (ret == 0)
+		run_command("gpio set GPIOX_6", 0);
 #endif
 
 	memset(chipid, 0, 16);

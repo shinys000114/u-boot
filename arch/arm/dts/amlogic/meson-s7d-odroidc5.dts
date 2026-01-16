@@ -27,7 +27,7 @@
 
 /* demo for i2c user */
 &i2c3 {
-	status= "okay";
+	status= "disabled";
 	clock-frequency = <100000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c3_pins1>;
@@ -35,7 +35,7 @@
 	lt8619c: hdmi-bridge@32 {
 		compatible = "lt8619c";
 		reg = <0x32>;
-		status= "okay";
+		status= "disabled";
 		hw_reset = "GPIOX_3";
 		gpios = <&gpio GPIOX_3 GPIO_ACTIVE_LOW>;
 	};
