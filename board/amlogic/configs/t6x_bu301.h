@@ -25,6 +25,8 @@
 #define CONFIG_CONS_INDEX 2
 //#define CONFIG_BAUDRATE  115200
 
+#define CONFIG_REPLACE_TV_MODE 1
+
 /*if disable uboot console, enable it*/
 //#define CONFIG_SILENT_CONSOLE
 #ifdef CONFIG_SILENT_CONSOLE
@@ -132,7 +134,8 @@
 		"run switch_bootmode;"\
 		"run switch_usbmode;"\
 		"run reset_suspend;"\
-		"run check_aocpu;"
+		"run check_aocpu;"\
+		"check_udisk_burn;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #define CONFIG_ENV_IS_NOWHERE  1
