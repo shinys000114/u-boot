@@ -132,6 +132,7 @@ static unsigned char *lcd_ext_pmu_bin_get(int index, int multi_flag, int multi_i
 	char path_tag[2][MAX_STR_LEN];
 	char *p_name, *p_path;
 	int i, j;
+	unsigned char *ret;
 
 	if (multi_flag) {
 		snprintf(path_tag[0], MAX_STR_LEN, "TCON_EXT_B%d_%d_SPI_BIN_PATH", index, multi_id);
@@ -145,8 +146,11 @@ static unsigned char *lcd_ext_pmu_bin_get(int index, int multi_flag, int multi_i
 	p_path = ext_pmu_bins.path;
 	for (i = 0; i < ext_pmu_bins.cnt; i++) {
 		for (j = 0; j < 2; j++) {
-			if (strcmp(path_tag[j], p_name) == 0)
-				return model_read_file_to_buffer(p_path, size);
+			if (strcmp(path_tag[j], p_name) == 0) {
+				ret = model_read_file_to_buffer(p_path, size);
+				if (ret)
+					return ret;
+			}
 		}
 		p_name += ext_pmu_bins.name_len;
 		p_path += ext_pmu_bins.path_len;
