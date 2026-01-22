@@ -222,6 +222,7 @@ static int board_model_det_saradc_get_val(int saradc_ch, int level_max, unsigned
 	run_command(cmd_str, 0);
 	run_command("saradc getval", 0);
 	val = env_get_ulong("saradc_val", 16, 0);
+	run_command("saradc close", 0);
 
 	for (i = 0; i < level_max; i++) {
 		if (val >= level_table[i * 2] && val <= level_table[i * 2 + 1]) {
