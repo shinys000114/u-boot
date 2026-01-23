@@ -1176,7 +1176,8 @@ static int aml_vpu_suspend(void *pm_ops)
 	cpu_type = get_cpu_id().family_id;
 	set_vpu_clk(&vpu_conf, SUSPEND_CLK);
 	set_vpu_clkb(&vpu_conf, SUSPEND_CLK);
-	if (cpu_type == MESON_CPU_MAJOR_ID_T6X)
+	if (cpu_type == MESON_CPU_MAJOR_ID_T6W ||
+	    cpu_type == MESON_CPU_MAJOR_ID_T6X)
 		clk_disable(&vpu_conf.data->gpl_clk);
 	VPUPR("%s driver disabled\n", __func__);
 
@@ -1188,7 +1189,8 @@ static int aml_vpu_resume(void *pm_ops)
 	unsigned int cpu_type;
 
 	cpu_type = get_cpu_id().family_id;
-	if (cpu_type == MESON_CPU_MAJOR_ID_T6X)
+	if (cpu_type == MESON_CPU_MAJOR_ID_T6W ||
+	    cpu_type == MESON_CPU_MAJOR_ID_T6X)
 		clk_enable(&vpu_conf.data->gpl_clk);
 	set_vpu_clk(&vpu_conf, vpu_conf.data->clk_level_dft);
 	set_vpu_clkb(&vpu_conf, vpu_conf.data->clk_level_dft);
@@ -1354,8 +1356,8 @@ static int vpu_dm_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	if (vpu_conf.data->gp_pll_valid &&
-		vpu_conf.data->chip_type == VPU_CHIP_T6X) {
+	if (vpu_conf.data->chip_type == VPU_CHIP_T6W ||
+	    vpu_conf.data->chip_type == VPU_CHIP_T6X) {
 		ret = clk_get_bulk(dev, &clocks);
 		if (ret) {
 			VPUERR("clk_get_bulk fail!\n");
@@ -1375,6 +1377,9 @@ static int vpu_dm_probe(struct udevice *dev)
 }
 
 static const struct udevice_id vpu_ids[] = {
+	{
+		.compatible = "amlogic, vpu-t6w",
+	},
 	{
 		.compatible = "amlogic, vpu-t6x",
 	},

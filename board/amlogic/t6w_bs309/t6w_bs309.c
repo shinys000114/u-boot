@@ -181,6 +181,7 @@ int board_late_init(void)
 	struct udevice *backlight_dev;
 #endif
 #endif
+	struct udevice *vpu_dev;
 
 	printf("board late init\n");
 	env_set("defenv_para", "-c -b0");
@@ -193,7 +194,7 @@ int board_late_init(void)
 	PUSH_TIME_TE("vpu vpp init", BL33_VPUVPP_INIT_s);
 
 #ifdef CONFIG_AML_VPU
-	vpu_probe();
+	ret = uclass_get_device_by_name(UCLASS_MISC, "vpu", &vpu_dev);
 #endif
 #ifdef CONFIG_AML_VPP
 	vpp_init();
