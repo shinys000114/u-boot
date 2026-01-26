@@ -665,6 +665,12 @@ config T6D_T335
 	help
 		Select T6D T335 config
 
+config T6D_BR301_H1
+	bool "T6D_BR301_H1"
+	select TARGET_T6D_BR301_H1
+	help
+		Select T6D BR301 H1 config
+
 endchoice
 
 config TARGET_T6D_SKT
@@ -682,6 +688,10 @@ config TARGET_T6D_BR309
 config TARGET_T6D_T335
 	bool "T6D T335 board"
 	depends on T6D_T335
+
+config TARGET_T6D_BR301_H1
+	bool "T6D BR301 H1 board"
+	depends on T6D_BR301_H1
 
 endif
 
@@ -1044,6 +1054,12 @@ config T6W_BS319
 	help
 		Select T6W BS319(XXXX) config
 
+config T6W_BS331
+	bool "T6W_BS319"
+	select TARGET_T6W_BS331
+	help
+		Select T6W BS331(XXXX) config
+
 endchoice
 
 config TARGET_T6W_SKT
@@ -1065,6 +1081,10 @@ config TARGET_T6W_BS311
 config TARGET_T6W_BS319
 	bool "T6W BS319 board"
 	depends on T6W_BS319
+
+config TARGET_T6W_BS331
+	bool "T6W BS331 board"
+	depends on T6W_BS331
 endif
 
 if MESON_T6X
@@ -1165,6 +1185,8 @@ source "board/amlogic/t6d_skt/Kconfig"
 
 source "board/amlogic/t6d_br301/Kconfig"
 
+source "board/amlogic/t6d_br301_h1/Kconfig"
+
 source "board/amlogic/t6d_br309/Kconfig"
 
 source "board/amlogic/t6d_t335/Kconfig"
@@ -1222,6 +1244,8 @@ source "board/amlogic/t6w_bs309/Kconfig"
 source "board/amlogic/t6w_bs311/Kconfig"
 
 source "board/amlogic/t6w_bs319/Kconfig"
+
+source "board/amlogic/t6w_bs331/Kconfig"
 
 source "board/amlogic/t6x_skt/Kconfig"
 
