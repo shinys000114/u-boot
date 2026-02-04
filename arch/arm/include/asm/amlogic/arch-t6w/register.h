@@ -57306,7 +57306,7 @@
 //
 // Closing file:  ./parser_regs.h
 //
-#define DMC_SEC_STATUS                             ((0x051a  << 2) + 0xfe036000)
+#define DMC_SEC_STATUS                             ((0x061a  << 2) + 0xfe340000)
 //bit 31~2. not used.
 //bit 6
 //bit 5
@@ -57315,10 +57315,10 @@
 //bit 2   sec_alert.   1 DMC security register alert function triggered. can't clean. only reset DMC can clear this bit.
 //bit 1   write security violation.
 //bit 0.  read security violation.
-#define DMC_VIO_ADDR0                            (0xfe036000 + (0x051b<<2))
-#define DMC_VIO_ADDR1                            (0xfe036000 + (0x051c<<2))
-#define DMC_VIO_ADDR2                            (0xfe036000 + (0x051d<<2))
-#define DMC_VIO_ADDR3                            (0xfe036000 + (0x051e<<2))
+#define DMC_VIO_ADDR0                            (0xfe340000 + (0x061b << 2))
+#define DMC_VIO_ADDR1                            (0xfe340000 + (0x061c << 2))
+#define DMC_VIO_ADDR2                            (0xfe340000 + (0x061d << 2))
+#define DMC_VIO_ADDR3                            (0xfe340000 + (0x061e << 2))
 
 #endif // REGISTER_H
 
