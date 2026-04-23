@@ -372,6 +372,7 @@ int board_late_init(void)
 #endif
 
 	run_command("showlogo", 0);
+	env_set("outputmode", "1080p60hz");
 
 #if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
 	/* vu7c backlight on */
@@ -424,7 +425,16 @@ int mach_cpu_init(void)
 
 static int odroid_fixup_display(void *blob, const char *default_mode)
 {
-	const char *mode = default_mode ? : "1080p60hz";
+	const char *mode;
+
+	if (!default_mode)
+	{
+		mode = "1080p60hz";
+	}
+	else
+	{
+		mode = default_mode;
+	}
 	const char *property = "fbdev_sizes";
 	int bits_per_pixel = 32;	// FIXME: may or not
 	int err, nodeoffset;
