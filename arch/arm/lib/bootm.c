@@ -379,6 +379,8 @@ static void add_kernel_bootargs(struct bootm_headers *images)
 	for (i = 0; i < count - 1; i++) { //delete the same items
 		if (params[i] == NULL)
 			continue;
+		if (!strcmp(params[i], "console"))
+			continue;
 		for (j = i + 1; j < count; j++) {
 			if (params[j] == NULL)
 				continue;
