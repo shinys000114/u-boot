@@ -2703,6 +2703,14 @@ static void edid_set_fallback_mode(struct rx_cap *prxcap)
 	prxcap->VIC[1] = HDMI_4_1280x720p60_16x9;
 	prxcap->VIC[2] = HDMI_3_720x480p60_16x9;
 	prxcap->native_vic = HDMI_4_1280x720p60_16x9;
+#ifdef CONFIG_S7D_ODROIDC5
+	if (is_custom_mode()) {
+		prxcap->VIC_count = 0x4;
+		prxcap->VIC[3] = HDMI_ODROID_CUSTOM_VIDEO;
+		prxcap->native_vic = HDMI_ODROID_CUSTOM_VIDEO;
+		HDMITX_INFO("set default vic ODROID-CUSTOM\n");
+	} else
+#endif
 	HDMITX_INFO("set default vic 720p60hz\n");
 
 	hdmitx_edid_set_default_aud(prxcap);

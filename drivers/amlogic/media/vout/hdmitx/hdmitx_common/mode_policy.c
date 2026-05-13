@@ -77,12 +77,11 @@ static bool is_dv_prefer(struct meson_policy_in *input) {
 
 static bool is_hdr_prefer(struct meson_policy_in *input) {
 #if defined(CONFIG_S7D_ODROIDC5)
-	int vic;
 	char *mode = env_get("displaymode");
 	if (!mode)
 		mode = env_get("hdmimode");
 	if (mode) {
-		vic = hdmitx_edid_vic_tab_map_vic(mode);
+		int vic = hdmitx_edid_vic_tab_map_vic(mode);
 		if (vic == HDMI_ODROID_CUSTOM_VIDEO)
 			return false;
 	}
@@ -1050,6 +1049,13 @@ static void get_hdmi_outputmode(struct meson_policy_in *input,
      * Fall back to 480p if EDID be parsed ng
      */
     if (!is_hdmi_edid_parserok(input)) {
+#if defined(CONFIG_S7D_ODROIDC5)
+        if (is_custom_mode()) {
+            char *displaymode = env_get("displaymode");
+            strcpy(mode, displaymode);
+            return;
+        }
+#endif
         strcpy(mode, MESON_DEFAULT_HDMI_MODE);
         SYS_LOGE("EDID parsing error detected\n");
         return;

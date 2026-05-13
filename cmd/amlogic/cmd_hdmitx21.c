@@ -431,7 +431,11 @@ static int _do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		hdev->hwop.set_div40(div40);
 	} else { /* "output" */
 		if (!hdev->pxp_mode) {
-			if (!hdmitx_edid_check_data_valid(hdev->RXCap.edid_check, hdev->rawedid)) {
+			if (!hdmitx_edid_check_data_valid(hdev->RXCap.edid_check, hdev->rawedid)
+#ifdef CONFIG_S7D_ODROIDC5
+					&& !is_custom_mode()
+#endif
+			   ) {
 				/* in SWPL-34712: if EDID parsing error in kernel,
 				 * only forcely output default mode(480p,RGB,8bit)
 				 * in sysctl, not save the default mode to env.
@@ -1764,7 +1768,11 @@ static int _do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const 
 		/* find proper mode if EDID changed */
 		scene_process(hdev, &output);
 		env_set("hdmichecksum", hdev->RXCap.hdmichecksum);
-		if (hdmitx_edid_check_data_valid(hdev->RXCap.edid_check, hdev->rawedid)) {
+		if (hdmitx_edid_check_data_valid(hdev->RXCap.edid_check, hdev->rawedid)
+#ifdef CONFIG_S7D_ODROIDC5
+				|| is_custom_mode()
+#endif
+				) {
 			/*
 			 * SWPL-34712: if EDID parsing error case, not save env,
 			 * only output default mode(480p,RGB,8bit). after

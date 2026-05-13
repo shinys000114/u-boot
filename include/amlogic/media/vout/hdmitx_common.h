@@ -173,4 +173,7 @@ bool get_kernel_dtb_info(void);
  */
 int is_valid_hdmi(const char *input);
 
+#ifdef CONFIG_S7D_ODROIDC5
+int is_custom_mode(void);
+#endif
 #endif

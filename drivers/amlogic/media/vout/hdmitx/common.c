@@ -267,3 +267,18 @@ void hdmi_mode_frac_postprocess(void)
 	       env_get("outputmode"), env_get("colorattribute"), env_get("hdmichecksum"));
 	run_command("saveenv", 0);
 }
+
+#ifdef CONFIG_S7D_ODROIDC5
+int is_custom_mode(void) {
+	static char custom = -1;
+	if (custom == -1) {
+		char *mode = env_get("displaymode");
+		if (mode)
+			custom = 1;
+		else
+			custom = 0;
+	}
+
+	return custom;
+}
+#endif
