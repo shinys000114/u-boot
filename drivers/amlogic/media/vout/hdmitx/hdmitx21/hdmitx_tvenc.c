@@ -57,6 +57,11 @@ static void config_tv_enc_calc(struct hdmitx_dev *hdev, enum hdmi_vic vic)
 	timing.h_back /= hpara_div;
 	timing.h_active /= hpara_div;
 
+#ifdef CONFIG_S7D_ODROIDC5
+	if (tp->h_front <= hsync_st)
+		hsync_st = tp->h_front > 2 ? tp->h_front - 1 : 2;
+#endif
+
 	/* it will flash screen under 8k50/60hz if with this sync_st */
 	/* if (hdev->para->dsc_en) { */
 	/* hsync_st = tp->h_front - 1; */
