@@ -1,3 +1,4 @@
+#include <command.h>
 #include <common.h>
 #include <string.h>
 #include <fdtdec.h>
@@ -223,6 +224,76 @@ void hdmi_timing_from_display_timing(struct hdmi_timing *ht, struct display_timi
 	ht->v_pixel = 1;
 }
 
+int lookup_display_timing(struct fdt_header *fdt, struct display_timing *timing)
+{
+	int len, i = 0;
+
+	if (!timing)
+		return -EINVAL;
+
+	while (true)
+	{
+		int node, subnode;
+		char path[1024];
+		const char *name;
+
+		snprintf(path, sizeof(path),
+				"/fragment@%d/__overlay__",
+				i);
+
+		node = fdt_path_offset(fdt, path);
+
+		if (node <= 0) {
+			break;
+		}
+
+		subnode = fdt_first_subnode(fdt, node);
+		name = fdt_get_name(fdt, subnode, &len);
+
+		/* parse display timing */
+		if (name && !strncmp(name, "display-timings",
+					strlen("display-timings"))) {
+			const char *mode;
+			fdtdec_decode_display_timing(fdt, node, 0, timing);
+			snprintf(path, sizeof(path),
+					"/fragment@%d/__overlay__/display-timings",
+					i);
+			node = fdt_path_offset(fdt, path);
+			subnode = fdt_first_subnode(fdt, node);
+			mode = fdt_get_name(fdt, subnode, &len);
+
+			/* parse displaymode name */
+			printf("display: displaymode - %s\n", mode);
+			env_set("displaymode", mode);
+		} else {
+			const char *voutmode;
+			const char *force_hpd;
+
+			/* parse voutmode */
+			voutmode = fdt_getprop(fdt, node, "voutmode", &len);
+			if (voutmode && len) {
+				printf("display: voutmode - %s\n", voutmode);
+				env_set("voutmode", voutmode);
+			}
+
+			/* parse force_hpd */
+			force_hpd = fdt_getprop(fdt, node, "force_hpd", &len);
+			if (force_hpd) {
+				char * disable_usb_reset = env_get("disable_usb_reset");
+				if (!disable_usb_reset ||
+						strncmp(disable_usb_reset, "true", strlen("true")))
+					env_set("early_usb_start", "true");
+			}
+		}
+		i++;
+	}
+
+	if (timing)
+		return 0;
+
+	return -ENODEV;
+}
+
 int lookup_display_timings_node(struct fdt_header *fdt, const char *displaymode,
 			struct display_timing *timing)
 {
@@ -274,12 +345,65 @@ int lookup_display_timings_node(struct fdt_header *fdt, const char *displaymode,
 	return -ENODEV;
 }
 
-const struct hdmi_timing *load_hdmi_timing_from_dt(
-		struct blk_desc *dev_desc, const char *displaymode)
+int load_from_dtbo(struct blk_desc *dev_desc,
+		unsigned long addr, const char *dtbo)
 {
 	const char *fk_kvers = "5.15.153-odroid-arm64";
 	char path[4096];
+	int ret;
 
+	/* Linux */
+	snprintf(path, sizeof(path),
+			"dtbs/%s/amlogic/overlays/odroidc5/%s.dtbo",
+			fk_kvers, dtbo);
+	ret = load_from_mmc(addr, dev_desc->devnum, 1, path);
+	if (ret) {
+		/* Android */
+		snprintf(path, sizeof(path),
+				"amlogic/overlays/ODROID-C5/%s.dtbo",
+				dtbo);
+		ret = load_from_mmc(addr, dev_desc->devnum, 2, path);
+	}
+
+	return ret;
+}
+
+const struct hdmi_timing *load_hdmi_timing_from_display_dtbo(
+		struct blk_desc *dev_desc, const char *dt)
+{
+	unsigned long addr = env_get_ulong("loadaddr", 16, 0);
+	struct display_timing timing;
+	struct hdmi_timing hdmi_timing;
+	int ret;
+
+	if (!dt)
+		return NULL;
+
+	ret = load_from_dtbo(dev_desc, addr, dt);
+
+	if (ret)
+		return NULL;
+
+	ret = lookup_display_timing((struct fdt_header *)addr, &timing);
+	if (ret == 0) {
+		struct hdmi_timing *ht = (struct hdmi_timing *)
+			hdmitx21_gettiming_from_vic(HDMI_ODROID_CUSTOM_VIDEO);
+		if (ht) {
+			hdmi_timing_from_display_timing(&hdmi_timing, &timing);
+			memcpy(ht, &hdmi_timing, sizeof(struct hdmi_timing));
+			ht->vic = HDMI_ODROID_CUSTOM_VIDEO;
+			ht->name = env_get("displaymode");
+
+			return ht;
+		}
+	}
+
+	return NULL;
+}
+
+const struct hdmi_timing *load_hdmi_timing_from_dt(
+		struct blk_desc *dev_desc, const char *displaymode)
+{
 	unsigned long addr = env_get_ulong("loadaddr", 16, 0);
 	struct display_timing timing;
 	struct hdmi_timing hdmi_timing;
@@ -288,16 +412,8 @@ const struct hdmi_timing *load_hdmi_timing_from_dt(
 	if (!displaymode)
 		return NULL;
 
-	/* Linux */
-	snprintf(path, sizeof(path),
-			"dtbs/%s/amlogic/overlays/odroidc5/display-timings.dtbo",
-			fk_kvers);
-	ret = load_from_mmc(addr, dev_desc->devnum, 1, path);
-	if (ret) {
-		/* Android */
-		strcpy(path, "amlogic/overlays/ODROID-C5/display-timings.dtbo");
-		ret = load_from_mmc(addr, dev_desc->devnum, 2, path);
-	}
+	ret = load_from_dtbo(dev_desc, addr, "display-timings");
+
 	if (ret)
 		return NULL;
 
@@ -382,6 +498,40 @@ const struct hdmi_timing *load_hdmi_timing_from_modeline(
 		if (ht)
 			break;
 	}
+
+	return ht;
+}
+
+const struct hdmi_timing *lookup_hdmi_timing_from_display_dt(void)
+{
+	const struct hdmi_timing *ht;
+	struct blk_desc *dev_desc = amlogic_get_bootdev();
+	char display[32];
+	char * dts;
+	char * overlays = env_get("overlays");
+
+	if (!overlays)
+		return NULL;
+
+	overlays = strstr(overlays, "display");
+
+	if (!overlays)
+		return NULL;
+
+	snprintf(display, sizeof(display), overlays);
+
+	dts = strtok(display, " ");
+
+	if (!dts)
+		return NULL;
+
+	/* lookup from display dtbo */
+	ht = load_hdmi_timing_from_display_dtbo(dev_desc, dts);
+
+	if (ht == NULL)
+		return NULL;
+
+	hdmi_timing_printdebug(ht);
 
 	return ht;
 }

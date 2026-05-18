@@ -21,7 +21,10 @@
 #define DEFAULT_LOGO_FB_BPP	32
 
 extern const struct hdmi_timing *load_hdmi_timing_from_env(const char *modeline, const char *mode);
+extern const struct hdmi_timing *load_hdmi_timing_from_display_dtbo(struct blk_desc *dev_desc, const char*dt);
+
 extern const struct hdmi_timing *load_hdmi_timing_from_dt(struct blk_desc *dev_desc, const char *displaymode);
+extern const struct hdmi_timing *lookup_hdmi_timing_from_display_dt(void);
 extern const struct hdmi_timing *lookup_hdmi_timing_by_name(const char *mode);
 extern const struct hdmi_timing *hdmitx21_gettiming_from_name(const char *name);
 extern void hdmi_timing_printdebug(const struct hdmi_timing *ht);
@@ -38,9 +41,15 @@ static const struct hdmi_timing *lookup_display_timing(const char *mode)
 
 static const struct hdmi_timing *get_active_output_timing(void)
 {
-	const char *mode = env_get("outputmode");
-	const struct hdmi_timing *ht = lookup_display_timing(mode);
+	const char *mode;
+	const struct hdmi_timing *ht;
 
+	ht = lookup_hdmi_timing_from_display_dt();
+	if (ht)
+		return ht;
+
+	mode = env_get("outputmode");
+	ht = lookup_display_timing(mode);
 	if (ht)
 		return ht;
 
@@ -169,6 +178,7 @@ static int display_logo_raw(int width, int height, int bpp)
 	const struct hdmi_timing *ht;
 	int ret;
 	int bmp_load = false;
+	char *force_hpd;
 
 	env_set("bootlogo_addr", "0x1f800000");
 	set_logo_fb_env(width, height, bpp);
@@ -196,6 +206,10 @@ static int display_logo_raw(int width, int height, int bpp)
 		return ret;
 
 	set_display_handoff_env(ht);
+
+	force_hpd = env_get("early_usb_start");
+	if (force_hpd && !strncmp(force_hpd, "true", strlen("true")))
+		run_command("usb hub-on 1", 0);
 
 	return 0;
 }
