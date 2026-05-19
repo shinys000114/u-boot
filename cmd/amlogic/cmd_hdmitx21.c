@@ -1523,6 +1523,9 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 	}
 
 	memcpy(&hdev->tx_common.rxcap, &hdev->RXCap, sizeof(hdev->tx_common.rxcap));
+
+	env_set("voutmode", hdev->RXCap.ieeeoui ? "hdmi" : "dvi");
+	pr_info("set voutmode: %s\n", env_get("voutmode"));
 }
 
 /* policy process: to find the output mode/attr/dv_type */
