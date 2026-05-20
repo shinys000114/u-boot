@@ -389,6 +389,75 @@ int usb_init(void)
 	return usb_started ? 0 : -1;
 }
 
+#if defined(CONFIG_S7D_ODROIDC5) && CONFIG_IS_ENABLED(DM_USB)
+int usb_hub_on(int busnum)
+{
+	int controllers_initialized = 0;
+	struct usb_bus_priv *priv;
+	struct udevice *bus;
+	struct uclass *uc;
+	bool done;
+	int ret;
+
+	if (usb_started)
+		return 0;
+
+	asynch_allowed = 1;
+
+	ret = uclass_get(UCLASS_USB, &uc);
+	if (ret)
+		return ret;
+
+	usb_hub_power_only_start();
+
+	uclass_foreach_dev(bus, uc) {
+		if (dev_seq(bus) != busnum)
+			continue;
+
+		printf("Bus %s: ", bus->name);
+
+		ret = device_probe(bus);
+		if (ret == -ENODEV) {
+			puts("Port not available.\n");
+			controllers_initialized++;
+			continue;
+		}
+
+		if (ret) {
+			printf("probe failed, error %d\n", ret);
+			continue;
+		}
+
+		controllers_initialized++;
+		usb_started = true;
+
+		priv = dev_get_uclass_priv(bus);
+		if (!priv->companion)
+			usb_scan_bus(bus, true);
+
+		if (usb_hub_power_only_done())
+			break;
+	}
+
+	done = usb_hub_power_only_done();
+	usb_hub_power_only_stop();
+
+	if (!controllers_initialized) {
+		printf("No working controllers found\n");
+		return -ENODEV;
+	}
+
+	if (!done) {
+		printf("No external USB hub found\n");
+		if (usb_started)
+			usb_stop();
+		return -ENODEV;
+	}
+
+	return 0;
+}
+#endif
+
 #if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
 int usb_wifi_init(void)
 {

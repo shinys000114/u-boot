@@ -255,6 +255,9 @@ int usb_kbd_deregister(int force);
 #endif
 /* routines */
 int usb_init(void); /* initialize the USB Controller */
+#if defined(CONFIG_S7D_ODROIDC5) && CONFIG_IS_ENABLED(DM_USB)
+int usb_hub_on(int busnum); /* power on one external hub without scanning downstream */
+#endif
 int usb_stop(void); /* stop the USB Controller */
 
 #if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
@@ -850,6 +853,11 @@ int usb_setup_device(struct usb_device *dev, bool do_read,
  * @return:	true if the hub device is root hub, false otherwise.
  */
 bool usb_hub_is_root_hub(struct udevice *hub);
+#if defined(CONFIG_S7D_ODROIDC5) && CONFIG_IS_ENABLED(DM_USB)
+void usb_hub_power_only_start(void);
+void usb_hub_power_only_stop(void);
+bool usb_hub_power_only_done(void);
+#endif
 
 /**
  * usb_hub_scan() - Scan a hub and find its devices

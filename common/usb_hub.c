@@ -59,6 +59,38 @@ struct usb_device_scan {
 };
 
 static LIST_HEAD(usb_scan_list);
+#if defined(CONFIG_S7D_ODROIDC5) && CONFIG_IS_ENABLED(DM_USB)
+static bool hub_power_only;
+static bool hub_power_only_done;
+
+static void usb_scan_list_clear(void)
+{
+	struct usb_device_scan *usb_scan;
+	struct usb_device_scan *tmp;
+
+	list_for_each_entry_safe(usb_scan, tmp, &usb_scan_list, list) {
+		list_del(&usb_scan->list);
+		free(usb_scan);
+	}
+}
+
+void usb_hub_power_only_start(void)
+{
+	hub_power_only = true;
+	hub_power_only_done = false;
+}
+
+void usb_hub_power_only_stop(void)
+{
+	hub_power_only = false;
+	hub_power_only_done = false;
+}
+
+bool usb_hub_power_only_done(void)
+{
+	return hub_power_only_done;
+}
+#endif
 
 __weak void usb_hub_reset_devices(struct usb_hub_device *hub, int port)
 {
@@ -587,6 +619,12 @@ static int usb_device_list_scan(void)
 			ret = usb_scan_port(usb_scan);
 			if (ret)
 				goto out;
+#if defined(CONFIG_S7D_ODROIDC5) && CONFIG_IS_ENABLED(DM_USB)
+			if (hub_power_only_done) {
+				usb_scan_list_clear();
+				goto out;
+			}
+#endif
 		}
 	}
 
@@ -842,6 +880,14 @@ static int usb_hub_configure(struct usb_device *dev)
 #endif
 
 	usb_hub_power_on(hub);
+
+#if defined(CONFIG_S7D_ODROIDC5) && CONFIG_IS_ENABLED(DM_USB)
+	if (hub_power_only && !usb_hub_is_root_hub(dev->dev)) {
+		printf("USB hub %s VBUS powered\n", dev->dev->name);
+		hub_power_only_done = true;
+		return 0;
+	}
+#endif
 
 	/*
 	 * Reset any devices that may be in a bad state when applying

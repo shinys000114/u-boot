@@ -654,6 +654,21 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		do_usb_start();
 		return 0;
 	}
+#if defined(CONFIG_S7D_ODROIDC5) && defined(CONFIG_DM_USB)
+	if (strncmp(argv[1], "hub-on", 6) == 0) {
+		int busnum;
+
+		if (argc != 3)
+			return CMD_RET_USAGE;
+		if (usb_started)
+			return 0;
+
+		busnum = dectoul(argv[2], NULL);
+		printf("starting USB hub VBUS on bus %d...\n", busnum);
+
+		return usb_hub_on(busnum) ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
+	}
+#endif
 
 #if CONFIG_IS_ENABLED(AMLOGIC_BT_USB) || CONFIG_IS_ENABLED(AMLOGIC_WIFI_USB2T)
 	if (strncmp(argv[1], "wifi_start", 8) == 0) {
@@ -773,6 +788,9 @@ U_BOOT_CMD(
 	usb,	5,	1,	do_usb,
 	"USB sub-system",
 	"start - start (scan) USB controller\n"
+#if defined(CONFIG_S7D_ODROIDC5) && defined(CONFIG_DM_USB)
+	"usb hub-on <bus> - power on the first external USB hub on bus only\n"
+#endif
 	"usb reset - reset (rescan) USB controller\n"
 	"usb stop [f] - stop USB [f]=force stop\n"
 	"usb tree - show USB device tree\n"
