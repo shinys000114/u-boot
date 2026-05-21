@@ -66,24 +66,19 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"uart_base=0xfe07a000\0"\
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0"\
-	"outputmode=1080p60hz\0"\
+	"connector0_type=HDMI-A-A\0"\
 	"hdmimode=none\0"\
 	"qms_en=1\0"\
+	"scan_info=3\0"\
 	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0"\
 	"cvbs_drv=0\0"\
-	"display_width=1920\0"\
-	"display_height=1080\0"\
-	"display_bpp=16\0"\
-	"display_color_index=16\0"\
 	"display_layer=osd0\0"\
 	"display_color_fg=0xffff\0"\
 	"display_color_bg=0\0"\
 	"dtb_mem_addr=0x01000000\0"\
 	"hdmichecksum=0x00000000\0"\
 	"fb_addr=0x00300000\0"\
-	"fb_width=1920\0"\
-	"fb_height=1080\0"\
 	"dolby_status=0\0"\
 	"dolby_vision_on=0\0"\
 	"boot_part=boot\0"\
@@ -93,8 +88,10 @@
 	"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0"\
 	"dv_fw_dir=/oem/firmware/dovi_fw.bin\0"\
 	"hdr_policy=0\0"\
+	"hdr_priority=268435456\0"\
 	"config_csc_en=1\0"\
 	"frac_rate_policy=1\0"\
+	"actual_frac_rate=1\0"\
 	"upgrade_key="\
 		"run upgrade_key_base;"\
 		"echo usr key;"\
@@ -332,4 +329,3 @@ defined(CONFIG_STORE_COMPATIBLE)
 #define CONFIG_AVB2_UBOOT_SHA256
 
 #endif
-
