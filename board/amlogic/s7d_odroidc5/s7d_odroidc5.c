@@ -64,6 +64,21 @@ struct blk_desc *amlogic_get_bootdev(void);
  */
 extern const struct hdmi_timing *hdmitx21_gettiming_from_name(const char *name);
 
+static void odroid_clear_display_env(void)
+{
+	env_set("connector0_type", "HDMI-A-A");
+	env_set("hdmitx", NULL);
+	env_set("vout", NULL);
+	env_set("outputmode", NULL);
+	env_set("hdmimode", NULL);
+	env_set("display_bpp", NULL);
+	env_set("display_color_index", NULL);
+	env_set("display_width", NULL);
+	env_set("display_height", NULL);
+	env_set("fb_width", NULL);
+	env_set("fb_height", NULL);
+}
+
 void sys_led_init(void)
 {
 	run_command("gpio set GPIODV_5", 0);
@@ -347,6 +362,8 @@ int board_late_init(void)
 
 	env_set("voutmode", "hdmi");
 
+	odroid_clear_display_env();
+
 	if (dev_desc) {
 		if (load_odroid_bios(dev_desc) != 0) {
 			env_set("mmc_list",
@@ -371,8 +388,9 @@ int board_late_init(void)
 	}
 #endif
 
-	run_command("showlogo", 0);
-	env_set("outputmode", "1080p60hz");
+	ret = run_command("showlogo", 0);
+	if (ret)
+		odroid_clear_display_env();
 
 #if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
 	/* vu7c backlight on */
@@ -426,23 +444,10 @@ int mach_cpu_init(void)
 static int odroid_fixup_display(void *blob, const char *default_mode)
 {
 	const char *mode;
-
-	if (!default_mode)
-	{
-		mode = "1080p60hz";
-	}
-	else
-	{
-		mode = default_mode;
-	}
 	const char *property = "fbdev_sizes";
-	int bits_per_pixel = 32;	// FIXME: may or not
+	int bits_per_pixel;
 	int err, nodeoffset;
-	struct hdmi_timing *timing;
-
-	timing	= (struct hdmi_timing*)hdmitx21_gettiming_from_name(mode);
-	if (!timing)
-		return -EINVAL;
+	const struct hdmi_timing *timing;
 
 	err = fdt_check_header(blob);
 	if (err < 0)
@@ -451,6 +456,16 @@ static int odroid_fixup_display(void *blob, const char *default_mode)
 	nodeoffset = fdt_find_or_add_subnode(blob, 0, "drm-subsystem");
 	if (nodeoffset < 0)
 		return nodeoffset;
+
+	mode = default_mode ? : env_get("outputmode");
+	if (!mode)
+		return -EINVAL;
+
+	timing = hdmitx21_gettiming_from_name(mode);
+	if (!timing)
+		return -EINVAL;
+
+	bits_per_pixel = env_get_ulong("display_bpp", 10, 32);
 
 	fdt32_t fbset[] = {
 		[0] = cpu_to_fdt32(timing->h_active),

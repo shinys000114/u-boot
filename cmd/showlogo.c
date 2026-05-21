@@ -65,6 +65,12 @@ static void set_logo_fb_env(int width, int height, int bpp)
 
 static void set_display_handoff_env(const struct hdmi_timing *ht)
 {
+	const char *colorattribute;
+	const char *scan_info;
+	const char *vout_init;
+	char hdmitx[64];
+	char vout[64];
+
 	if (!ht)
 		return;
 
@@ -72,6 +78,24 @@ static void set_display_handoff_env(const struct hdmi_timing *ht)
 	env_set("hdmimode", ht->name);
 	env_set_ulong("fb_width", ht->h_active);
 	env_set_ulong("fb_height", ht->v_active);
+
+	vout_init = env_get("vout_init");
+	if (ht->name && *ht->name && vout_init && *vout_init) {
+		snprintf(vout, sizeof(vout), "%s,%s", ht->name, vout_init);
+		env_set("vout", vout);
+	} else {
+		env_set("vout", NULL);
+	}
+
+	colorattribute = env_get("colorattribute");
+	scan_info = env_get("scan_info");
+	if (colorattribute && *colorattribute && scan_info && *scan_info) {
+		snprintf(hdmitx, sizeof(hdmitx), "%s,scan_info:%s",
+			 colorattribute, scan_info);
+		env_set("hdmitx", hdmitx);
+	} else {
+		env_set("hdmitx", NULL);
+	}
 }
 
 static int init_hdmi(const char* mode, bool bestmode) {
