@@ -1471,6 +1471,7 @@ void hdmitx_update_dv_strategy_info(struct dv_info *dv)
 static void get_parse_edid_data(struct hdmitx_dev *hdev)
 {
 	int hdr_priority = get_hdr_strategy_priority();
+	char *voutmode;
 
 	hdmitx_config_i2c_rate(DDC_I2C_50K);
 	hdev->hwop.read_edid(hdev->rawedid);
@@ -1528,8 +1529,11 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 
 	memcpy(&hdev->tx_common.rxcap, &hdev->RXCap, sizeof(hdev->tx_common.rxcap));
 
-	env_set("voutmode", hdev->RXCap.ieeeoui ? "hdmi" : "dvi");
-	pr_info("set voutmode: %s\n", env_get("voutmode"));
+	voutmode = env_get("voutmode");
+	if (!voutmode) {
+		env_set("voutmode", hdev->RXCap.ieeeoui ? "hdmi" : "dvi");
+		pr_info("set voutmode: %s\n", env_get("voutmode"));
+	}
 }
 
 /* policy process: to find the output mode/attr/dv_type */
