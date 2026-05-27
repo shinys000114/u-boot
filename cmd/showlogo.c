@@ -20,6 +20,8 @@
 #define DEFAULT_LOGO_FB_HEIGHT	720
 #define DEFAULT_LOGO_FB_BPP	32
 
+static const struct hdmi_timing *ht = NULL;
+
 extern const struct hdmi_timing *load_hdmi_timing_from_env(const char *modeline, const char *mode);
 extern const struct hdmi_timing *load_hdmi_timing_from_display_dtbo(struct blk_desc *dev_desc, const char*dt);
 
@@ -72,7 +74,7 @@ static void set_logo_fb_env(int width, int height, int bpp)
 	env_set_ulong("fb_height", height);
 }
 
-static void set_display_handoff_env(const struct hdmi_timing *ht)
+static void set_display_handoff_env(void)
 {
 	const char *colorattribute;
 	const char *scan_info;
@@ -175,13 +177,14 @@ static int load_boot_logo(void)
 
 static int display_logo_raw(int width, int height, int bpp)
 {
-	const struct hdmi_timing *ht;
 	int ret;
 	int bmp_load = false;
 	char *force_hpd;
 
 	env_set("bootlogo_addr", "0x1f800000");
 	set_logo_fb_env(width, height, bpp);
+
+	set_display_handoff_env();
 
 	bmp_load = load_boot_logo();
 	if (bmp_load) {
@@ -197,15 +200,9 @@ static int display_logo_raw(int width, int height, int bpp)
 		run_command("bmp scale", 0);
 	}
 
-	ht = get_active_output_timing();
-	if (!ht)
-		return -EINVAL;
-
 	ret = run_command("vout output $outputmode", 0);
 	if (ret)
 		return ret;
-
-	set_display_handoff_env(ht);
 
 	force_hpd = env_get("early_usb_start");
 	if (force_hpd && !strncmp(force_hpd, "true", strlen("true")))
@@ -238,7 +235,6 @@ static int display_logo(const char *mode, const char *bmp_width, const char *bmp
 static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
 		char *const argv[])
 {
-	const struct hdmi_timing *ht = NULL;
 	const char *mode = env_get("displaymode");
 
 	if (!lookup_display_timing(mode))
@@ -253,14 +249,21 @@ static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
 			return -EINVAL;
 
 		return display_logo_(argv[1],
-				DEFAULT_LOGO_FB_WIDTH,
-				DEFAULT_LOGO_FB_HEIGHT,
+				ht->h_active,
+				ht->v_active,
 				DEFAULT_LOGO_FB_BPP);
 	}
 
+	ht = get_active_output_timing();
+	if (!ht)
+		return -EINVAL;
+
+	if (!mode)
+		mode = ht->name;
+
 	return display_logo_(mode,
-			DEFAULT_LOGO_FB_WIDTH,
-			DEFAULT_LOGO_FB_HEIGHT,
+			ht->h_active,
+			ht->v_active,
 			DEFAULT_LOGO_FB_BPP);
 }
 
