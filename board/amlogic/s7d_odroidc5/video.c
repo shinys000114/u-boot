@@ -348,15 +348,24 @@ int lookup_display_timings_node(struct fdt_header *fdt, const char *displaymode,
 int load_from_dtbo(struct blk_desc *dev_desc,
 		unsigned long addr, const char *dtbo)
 {
-	const char *fk_kvers = "5.15.153-odroid-arm64";
+	const char *fk_kvers[] = {
+		"6.12.38-odroid-arm64",
+		"5.15.153-odroid-arm64",
+	};
 	char path[4096];
 	int ret;
+	int i;
 
 	/* Linux */
-	snprintf(path, sizeof(path),
-			"dtbs/%s/amlogic/overlays/odroidc5/%s.dtbo",
-			fk_kvers, dtbo);
-	ret = load_from_mmc(addr, dev_desc->devnum, 1, path);
+
+	for (i = 0; i < ARRAY_SIZE(fk_kvers); i++) {
+		snprintf(path, sizeof(path),
+				"dtbs/%s/amlogic/overlays/odroidc5/%s.dtbo",
+				fk_kvers[i], dtbo);
+		ret = load_from_mmc(addr, dev_desc->devnum, 1, path);
+		if (!ret)
+			break;
+	}
 	if (ret) {
 		/* Android */
 		snprintf(path, sizeof(path),
