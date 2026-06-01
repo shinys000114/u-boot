@@ -859,6 +859,11 @@ static void construct_avi_packet(struct hdmitx_dev *hdev)
 	info->quantization_range = HDMI_QUANTIZATION_RANGE_LIMITED;
 	info->nups = HDMI_NUPS_UNKNOWN;
 	info->video_code = para->timing.vic;
+#ifdef CONFIG_S7D_ODROIDC5
+	if (para->timing.vic == HDMI_ODROID_CUSTOM_VIDEO ||
+	    para->timing.vic >= HDMI_CEA_VIC_END)
+		info->video_code = 0;
+#endif
 	if (para->timing.vic == HDMI_95_3840x2160p30_16x9 ||
 		para->timing.vic == HDMI_94_3840x2160p25_16x9 ||
 		para->timing.vic == HDMI_93_3840x2160p24_16x9 ||
