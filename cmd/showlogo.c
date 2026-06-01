@@ -11,10 +11,13 @@
 #include <common.h>
 #include <command.h>
 #include <fs.h>
+#include <malloc.h>
 #include <mmc.h>
 #include <vsprintf.h>
 
+#include <amlogic/lcd.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
+#include <bmp_layout.h>
 
 #define DEFAULT_LOGO_FB_WIDTH	1280
 #define DEFAULT_LOGO_FB_HEIGHT	720
@@ -64,14 +67,15 @@ static const struct hdmi_timing *get_active_output_timing(void)
 	return lookup_display_timing(mode);
 }
 
-static void set_logo_fb_env(int width, int height, int bpp)
+static void set_logo_fb_env(int display_width, int display_height,
+			    int fb_width, int fb_height, int bpp)
 {
 	env_set_ulong("display_bpp", bpp);
 	env_set_ulong("display_color_index", bpp);
-	env_set_ulong("display_width", width);
-	env_set_ulong("display_height", height);
-	env_set_ulong("fb_width", width);
-	env_set_ulong("fb_height", height);
+	env_set_ulong("display_width", display_width);
+	env_set_ulong("display_height", display_height);
+	env_set_ulong("fb_width", fb_width);
+	env_set_ulong("fb_height", fb_height);
 }
 
 static void set_display_handoff_env(void)
@@ -175,19 +179,64 @@ static int load_boot_logo(void)
 	return 0;
 }
 
+static int get_boot_logo_size(ulong addr, int *width, int *height)
+{
+	bmp_image_t *bmp = (bmp_image_t *)addr;
+	void *bmp_alloc_addr = NULL;
+	unsigned long len;
+	int bmp_height;
+
+	if (!bmp || !width || !height)
+		return -EINVAL;
+
+	if (!((bmp->header.signature[0] == 'B') &&
+	      (bmp->header.signature[1] == 'M')))
+		bmp = gunzip_bmp(addr, &len, &bmp_alloc_addr);
+
+	if (!bmp)
+		return -EINVAL;
+
+	bmp_height = (int)le32_to_cpu(bmp->header.height);
+	if (bmp_height < 0)
+		bmp_height = -bmp_height;
+
+	*width = le32_to_cpu(bmp->header.width);
+	*height = bmp_height;
+
+	if (bmp_alloc_addr)
+		free(bmp_alloc_addr);
+
+	return (*width > 0 && *height > 0) ? 0 : -EINVAL;
+}
+
 static int display_logo_raw(int width, int height, int bpp)
 {
 	int ret;
 	int bmp_load = false;
+	int fb_width = width;
+	int fb_height = height;
 	char *force_hpd;
+	ulong logo_addr;
 
 	env_set("bootlogo_addr", "0x1f800000");
-	set_logo_fb_env(width, height, bpp);
 
 	set_display_handoff_env();
 
 	bmp_load = load_boot_logo();
 	if (bmp_load) {
+		int bmp_width, bmp_height;
+
+		logo_addr = simple_strtoull(env_get("bootlogo_addr"), NULL, 0);
+		ret = get_boot_logo_size(logo_addr, &bmp_width, &bmp_height);
+		if (!ret) {
+			if (fb_width < bmp_width)
+				fb_width = bmp_width;
+			if (fb_height < bmp_height)
+				fb_height = bmp_height;
+		}
+
+		set_logo_fb_env(width, height, fb_width, fb_height, bpp);
+
 		/* osd, bmp */
 		ret = run_command("osd open; osd clear", 0);
 		if (ret)
@@ -198,6 +247,8 @@ static int display_logo_raw(int width, int height, int bpp)
 			return ret;
 
 		run_command("bmp scale", 0);
+	} else {
+		set_logo_fb_env(width, height, fb_width, fb_height, bpp);
 	}
 
 	ret = run_command("vout output $outputmode", 0);
