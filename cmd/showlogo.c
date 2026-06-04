@@ -19,8 +19,6 @@
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include <bmp_layout.h>
 
-#define DEFAULT_LOGO_FB_WIDTH	1280
-#define DEFAULT_LOGO_FB_HEIGHT	720
 #define DEFAULT_LOGO_FB_BPP	32
 
 static const struct hdmi_timing *ht = NULL;
@@ -211,14 +209,24 @@ static int get_boot_logo_size(ulong addr, int *width, int *height)
 	return (*width > 0 && *height > 0) ? 0 : -EINVAL;
 }
 
-static int display_logo_raw(int width, int height, int bpp)
+static int display_logo_raw(void)
 {
 	int ret;
 	int bmp_load = false;
-	int fb_width = width;
-	int fb_height = height;
+	int width;
+	int height;
+	int fb_width;
+	int fb_height;
 	char *force_hpd;
 	ulong logo_addr;
+
+	if (!ht)
+		return -EINVAL;
+
+	width = ht->h_active;
+	height = ht->v_active;
+	fb_width = width;
+	fb_height = height;
 
 	env_set("bootlogo_addr", "0x1f800000");
 
@@ -237,7 +245,8 @@ static int display_logo_raw(int width, int height, int bpp)
 				fb_height = bmp_height;
 		}
 
-		set_logo_fb_env(width, height, fb_width, fb_height, bpp);
+		set_logo_fb_env(width, height, fb_width, fb_height,
+				DEFAULT_LOGO_FB_BPP);
 
 		/* osd, bmp */
 		ret = run_command("osd open; osd clear", 0);
@@ -250,7 +259,8 @@ static int display_logo_raw(int width, int height, int bpp)
 
 		run_command("bmp scale", 0);
 	} else {
-		set_logo_fb_env(width, height, fb_width, fb_height, bpp);
+		set_logo_fb_env(width, height, fb_width, fb_height,
+				DEFAULT_LOGO_FB_BPP);
 	}
 
 	ret = run_command("vout output $outputmode", 0);
@@ -264,7 +274,7 @@ static int display_logo_raw(int width, int height, int bpp)
 	return 0;
 }
 
-static int display_logo_(const char *mode, int width, int height, int bpp)
+static int display_logo_(const char *mode)
 {
 	int ret;
 
@@ -277,19 +287,16 @@ static int display_logo_(const char *mode, int width, int height, int bpp)
 		return ret;
 	}
 
-	return display_logo_raw(width, height, bpp);
+	return display_logo_raw();
 }
 
-static int display_logo(const char *mode, const char *bmp_width, const char *bmp_height)
+static int display_logo(const char *mode)
 {
 	ht = lookup_display_timing(mode);
 	if (!ht)
 		return -EINVAL;
 
-	return display_logo_(ht->name,
-			simple_strtoul(bmp_width, NULL, 10),
-			simple_strtoul(bmp_height, NULL, 10),
-			DEFAULT_LOGO_FB_BPP);
+	return display_logo_(ht->name);
 }
 
 static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -298,17 +305,10 @@ static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
 	int ret;
 
 	if (argc >= 2) {
-		if (argc >= 4)
-			return display_logo(argv[1], argv[2], argv[3]);
+		if (argc > 2)
+			return CMD_RET_USAGE;
 
-		ht = lookup_display_timing(argv[1]);
-		if (!ht)
-			return -EINVAL;
-
-		return display_logo_(ht->name,
-				ht->h_active,
-				ht->v_active,
-				DEFAULT_LOGO_FB_BPP);
+		return display_logo(argv[1]);
 	}
 
 	ht = get_active_output_timing();
@@ -323,24 +323,16 @@ static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
 		if (!ht)
 			return -EINVAL;
 
-		return display_logo_raw(ht->h_active, ht->v_active,
-					DEFAULT_LOGO_FB_BPP);
+		return display_logo_raw();
 	}
 
-	return display_logo_(ht->name,
-			ht->h_active,
-			ht->v_active,
-			DEFAULT_LOGO_FB_BPP);
+	return display_logo_(ht->name);
 }
 
 U_BOOT_CMD(
-		showlogo,		4,		0,	do_showlogo,
+		showlogo,		2,		0,	do_showlogo,
 		"Displaying BMP logo file to HDMI screen with the specified resolution",
-		"<resolution> [<bmp_width> <bmp_height>]\n"
+		"[resolution]\n"
 		"	resolution - screen resoltuion on HDMI screen\n"
-		"		current display timing will be detected if missing\n"
-		"	bmp_width (optional) - width of logo bmp file\n"
-		"		'1280' will be used by default if missing\n"
-		"	bmp_height (optional) - height of logo bmp file\n"
-		"		'720' will be used by default if missing"
+		"		current display timing will be detected if missing"
 );
