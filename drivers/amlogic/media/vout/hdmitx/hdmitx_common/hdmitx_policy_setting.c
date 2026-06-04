@@ -28,7 +28,8 @@ static bool is_best_policy(void) {
 
 #if defined(CONFIG_S7D_ODROIDC5)
 	char *mode = env_get("displaymode");
-	if (mode)
+
+	if (mode && *mode && strcmp(mode, "none"))
 		return false;
 #endif
 

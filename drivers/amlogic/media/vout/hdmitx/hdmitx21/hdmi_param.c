@@ -536,12 +536,17 @@ enum hdmi_vic hdmitx_edid_vic_tab_map_vic(const char *disp_mode)
 	int size = hdmitx21_timing_size();
 	const struct hdmi_timing *t = hdmitx21_get_timing_para0();
 
+#ifdef CONFIG_S7D_ODROIDC5
+	if (!disp_mode)
+		return vic;
+#endif
+
 	for (i = 0; i < size; i++) {
 		if (t->sname && strncmp(disp_mode, t->sname, strlen(t->sname)) == 0) {
 			vic = t->vic;
 			break;
 		}
-		if (strncmp(disp_mode, t->name, strlen(t->name)) == 0) {
+		if (t->name && strncmp(disp_mode, t->name, strlen(t->name)) == 0) {
 			vic = t->vic;
 			break;
 		}

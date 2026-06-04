@@ -36,10 +36,18 @@ extern int load_from_mmc(unsigned long addr, int devnum, int partnum, const char
 
 static const struct hdmi_timing *lookup_display_timing(const char *mode)
 {
-	if (!mode || !*mode)
+	if (!mode || !*mode || !strcmp(mode, "none"))
 		return NULL;
 
 	return lookup_hdmi_timing_by_name(mode);
+}
+
+static const struct hdmi_timing *lookup_standard_timing(const char *mode)
+{
+	if (!mode || !*mode || !strcmp(mode, "none"))
+		return NULL;
+
+	return hdmitx21_gettiming_from_name(mode);
 }
 
 static const struct hdmi_timing *get_active_output_timing(void)
@@ -56,13 +64,7 @@ static const struct hdmi_timing *get_active_output_timing(void)
 	if (ht)
 		return ht;
 
-	mode = env_get("outputmode");
-	ht = lookup_display_timing(mode);
-	if (ht)
-		return ht;
-
-	mode = env_get("hdmimode");
-	return lookup_display_timing(mode);
+	return NULL;
 }
 
 static void set_logo_fb_env(int display_width, int display_height,
@@ -89,8 +91,8 @@ static void set_display_handoff_env(void)
 
 	env_set("outputmode", ht->name);
 	env_set("hdmimode", ht->name);
-	env_set("displaymode", ht->vic == HDMI_ODROID_CUSTOM_VIDEO ?
-			ht->name : NULL);
+	if (env_get("displaymode"))
+		env_set("displaymode", ht->name);
 	env_set_ulong("fb_width", ht->h_active);
 	env_set_ulong("fb_height", ht->v_active);
 
@@ -296,6 +298,8 @@ static int display_logo(const char *mode)
 	if (!ht)
 		return -EINVAL;
 
+	env_set("displaymode", ht->name);
+
 	return display_logo_(ht->name);
 }
 
@@ -319,7 +323,7 @@ static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
 			return ret;
 		}
 
-		ht = lookup_display_timing(env_get("outputmode"));
+		ht = lookup_standard_timing(env_get("outputmode"));
 		if (!ht)
 			return -EINVAL;
 

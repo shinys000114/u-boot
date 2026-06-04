@@ -270,15 +270,11 @@ void hdmi_mode_frac_postprocess(void)
 
 #ifdef CONFIG_S7D_ODROIDC5
 int is_custom_mode(void) {
-	static char custom = -1;
-	if (custom == -1) {
-		char *mode = env_get("displaymode");
-		if (mode)
-			custom = 1;
-		else
-			custom = 0;
-	}
+	char *mode = env_get("displaymode");
 
-	return custom;
+	if (!mode || !*mode || !strcmp(mode, "none"))
+		return 0;
+
+	return hdmitx_edid_vic_tab_map_vic(mode) == HDMI_ODROID_CUSTOM_VIDEO;
 }
 #endif
