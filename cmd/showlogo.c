@@ -53,17 +53,17 @@ static const struct hdmi_timing *get_active_output_timing(void)
 	if (ht)
 		return ht;
 
+	mode = env_get("displaymode");
+	ht = lookup_display_timing(mode);
+	if (ht)
+		return ht;
+
 	mode = env_get("outputmode");
 	ht = lookup_display_timing(mode);
 	if (ht)
 		return ht;
 
 	mode = env_get("hdmimode");
-	ht = lookup_display_timing(mode);
-	if (ht)
-		return ht;
-
-	mode = env_get("displaymode");
 	return lookup_display_timing(mode);
 }
 
@@ -91,6 +91,8 @@ static void set_display_handoff_env(void)
 
 	env_set("outputmode", ht->name);
 	env_set("hdmimode", ht->name);
+	env_set("displaymode", ht->vic == HDMI_ODROID_CUSTOM_VIDEO ?
+			ht->name : NULL);
 	env_set_ulong("fb_width", ht->h_active);
 	env_set_ulong("fb_height", ht->v_active);
 
@@ -266,6 +268,9 @@ static int display_logo_(const char *mode, int width, int height, int bpp)
 {
 	int ret;
 
+	if (!mode)
+		return -EINVAL;
+
 	ret = init_hdmi(mode, true);
 	if (ret) {
 		printf("init hdmi fail\n");
@@ -277,7 +282,11 @@ static int display_logo_(const char *mode, int width, int height, int bpp)
 
 static int display_logo(const char *mode, const char *bmp_width, const char *bmp_height)
 {
-	return display_logo_(mode,
+	ht = lookup_display_timing(mode);
+	if (!ht)
+		return -EINVAL;
+
+	return display_logo_(ht->name,
 			simple_strtoul(bmp_width, NULL, 10),
 			simple_strtoul(bmp_height, NULL, 10),
 			DEFAULT_LOGO_FB_BPP);
@@ -286,10 +295,7 @@ static int display_logo(const char *mode, const char *bmp_width, const char *bmp
 static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
 		char *const argv[])
 {
-	const char *mode = env_get("displaymode");
-
-	if (!lookup_display_timing(mode))
-		mode = NULL;
+	int ret;
 
 	if (argc >= 2) {
 		if (argc >= 4)
@@ -299,20 +305,29 @@ static int do_showlogo(cmd_tbl_t *cmdtp, int flag, int argc,
 		if (!ht)
 			return -EINVAL;
 
-		return display_logo_(argv[1],
+		return display_logo_(ht->name,
 				ht->h_active,
 				ht->v_active,
 				DEFAULT_LOGO_FB_BPP);
 	}
 
 	ht = get_active_output_timing();
-	if (!ht)
-		return -EINVAL;
+	if (!ht) {
+		ret = init_hdmi("none", true);
+		if (ret) {
+			printf("init hdmi fail\n");
+			return ret;
+		}
 
-	if (!mode)
-		mode = ht->name;
+		ht = lookup_display_timing(env_get("outputmode"));
+		if (!ht)
+			return -EINVAL;
 
-	return display_logo_(mode,
+		return display_logo_raw(ht->h_active, ht->v_active,
+					DEFAULT_LOGO_FB_BPP);
+	}
+
+	return display_logo_(ht->name,
 			ht->h_active,
 			ht->v_active,
 			DEFAULT_LOGO_FB_BPP);

@@ -13,9 +13,73 @@ extern void hdmi_timing_from_display_timing(struct hdmi_timing *ht, struct displ
 extern void hdmi_timing_printdebug(const struct hdmi_timing *ht);
 extern int load_from_mmc(unsigned long addr, int devnum, int partnum, const char *filename);
 extern struct blk_desc *amlogic_get_bootdev(void);
+const struct hdmi_timing *set_odroid_custom_video(struct hdmi_timing *hdmi_timing);
 
 #define DRM_DISPLAY_MODE_LEN		32
 #define DISPLAY_TIMING_FILENAME		"display-timings.txt"
+
+static bool mode_has_refresh(const char *mode)
+{
+	return mode && strstr(mode, "hz");
+}
+
+static bool mode_name_matches(const char *name, const char *mode)
+{
+	size_t len;
+
+	if (!name || !mode)
+		return false;
+
+	if (!strcmp(name, mode))
+		return true;
+
+	len = strlen(mode);
+	if (strncmp(name, mode, len))
+		return false;
+
+	if (name[len] == '\0' || name[len] == '_')
+		return true;
+
+	return !mode_has_refresh(mode) && (name[len] == 'p' || name[len] == 'i');
+}
+
+static const char *custom_timing_name(struct hdmi_timing *ht, const char *name)
+{
+	char buf[DRM_DISPLAY_MODE_LEN];
+	unsigned int refresh;
+
+	if (!ht)
+		return NULL;
+
+	if (name && mode_has_refresh(name))
+		return strdup(name);
+
+	refresh = (ht->v_freq + 500) / 1000;
+	if (!refresh)
+		refresh = 60;
+
+	snprintf(buf, sizeof(buf), "%ux%u%c%uhz", ht->h_active, ht->v_active,
+		 ht->pi_mode ? 'p' : 'i', refresh);
+	return strdup(buf);
+}
+
+static const struct hdmi_timing *set_odroid_custom_video_named(
+		struct hdmi_timing *hdmi_timing, const char *name)
+{
+	const struct hdmi_timing *ht;
+
+	if (!hdmi_timing)
+		return NULL;
+
+	hdmi_timing->name = (char *)custom_timing_name(hdmi_timing, name);
+	hdmi_timing->sname = NULL;
+
+	ht = set_odroid_custom_video(hdmi_timing);
+	if (ht && ht->name)
+		env_set("displaymode", ht->name);
+
+	return ht;
+}
 
 static int gcd(int m, int n)
 {
@@ -224,15 +288,19 @@ void hdmi_timing_from_display_timing(struct hdmi_timing *ht, struct display_timi
 	ht->v_pixel = 1;
 }
 
-int lookup_display_timing(struct fdt_header *fdt, struct display_timing *timing)
+int lookup_display_timing(struct fdt_header *fdt, struct display_timing *timing,
+			  char *mode_name, size_t mode_name_len)
 {
 	int len, i = 0;
+	int found = -ENODEV;
 
 	if (!timing)
 		return -EINVAL;
 
-	while (true)
-	{
+	if (mode_name && mode_name_len)
+		*mode_name = '\0';
+
+	while (true) {
 		int node, subnode;
 		char path[1024];
 		const char *name;
@@ -248,23 +316,32 @@ int lookup_display_timing(struct fdt_header *fdt, struct display_timing *timing)
 		}
 
 		subnode = fdt_first_subnode(fdt, node);
-		name = fdt_get_name(fdt, subnode, &len);
+		name = subnode > 0 ? fdt_get_name(fdt, subnode, &len) : NULL;
 
 		/* parse display timing */
 		if (name && !strncmp(name, "display-timings",
 					strlen("display-timings"))) {
 			const char *mode;
-			fdtdec_decode_display_timing(fdt, node, 0, timing);
+			int ret;
+
+			ret = fdtdec_decode_display_timing(fdt, node, 0, timing);
+			if (ret)
+				return ret;
+
 			snprintf(path, sizeof(path),
 					"/fragment@%d/__overlay__/display-timings",
 					i);
 			node = fdt_path_offset(fdt, path);
 			subnode = fdt_first_subnode(fdt, node);
-			mode = fdt_get_name(fdt, subnode, &len);
+			mode = subnode > 0 ? fdt_get_name(fdt, subnode, &len) : NULL;
+			if (!mode)
+				return -ENODEV;
 
 			/* parse displaymode name */
 			printf("display: displaymode - %s\n", mode);
-			env_set("displaymode", mode);
+			if (mode_name && mode_name_len)
+				snprintf(mode_name, mode_name_len, "%s", mode);
+			found = 0;
 		} else {
 			const char *voutmode;
 			const char *force_hpd;
@@ -288,55 +365,34 @@ int lookup_display_timing(struct fdt_header *fdt, struct display_timing *timing)
 		i++;
 	}
 
-	if (timing)
-		return 0;
-
-	return -ENODEV;
+	return found;
 }
 
 int lookup_display_timings_node(struct fdt_header *fdt, const char *displaymode,
-			struct display_timing *timing)
+			struct display_timing *timing, char *mode_name,
+			size_t mode_name_len)
 {
 	int index = 0;
-	int nodeoffset;
-	const struct fdt_property *fdt_prop;
-	char data[1024];
+	int nodeoffset, subnode;
 	int len;
-	char *pos;
 
 	if (!displaymode || !timing)
 		return -EINVAL;
 
-	nodeoffset = fdt_path_offset(fdt, "/__symbols__");
+	nodeoffset = fdt_path_offset(fdt,
+			"/fragment@0/__overlay__/display-timings");
 	if (nodeoffset <= 0)
-		return -EINVAL;
+		return -ENODEV;
 
-	for (nodeoffset = fdt_first_property_offset(fdt, nodeoffset);
-			nodeoffset > 0; nodeoffset = fdt_next_property_offset(fdt, nodeoffset)) {
-		fdt_prop = fdt_offset_ptr(fdt, nodeoffset, sizeof(*fdt_prop));
-		len = fdt32_to_cpu(fdt_prop->len);
-		if (len <= 0)
-			continue;
+	fdt_for_each_subnode(subnode, fdt, nodeoffset) {
+		const char *name = fdt_get_name(fdt, subnode, &len);
 
-		memcpy(data, fdt_prop->data, len);
-		data[len] = '\0';
+		if (mode_name_matches(name, displaymode)) {
+			if (mode_name && mode_name_len)
+				snprintf(mode_name, mode_name_len, "%s", name);
 
-		pos = strstr(data, "display-timings");
-		if (!pos)
-			continue;
-
-		pos = strstr(pos, displaymode);
-		if (pos) {
-			const char *path = "/fragment@0/__overlay__";
-			int nodeoffset;
-
-			nodeoffset = fdt_path_offset(fdt, path);
-			if (nodeoffset <= 0)
-				break;
-
-			fdtdec_decode_display_timing(fdt, nodeoffset, index, timing);
-
-			return 0;
+			return fdtdec_decode_display_timing(fdt, nodeoffset,
+							    index, timing);
 		}
 
 		index++;
@@ -383,9 +439,13 @@ const struct hdmi_timing *load_hdmi_timing_from_display_dtbo(
 	unsigned long addr = env_get_ulong("loadaddr", 16, 0);
 	struct display_timing timing;
 	struct hdmi_timing hdmi_timing;
+	char mode_name[DRM_DISPLAY_MODE_LEN];
 	int ret;
 
 	if (!dt)
+		return NULL;
+
+	if (!dev_desc)
 		return NULL;
 
 	ret = load_from_dtbo(dev_desc, addr, dt);
@@ -393,18 +453,11 @@ const struct hdmi_timing *load_hdmi_timing_from_display_dtbo(
 	if (ret)
 		return NULL;
 
-	ret = lookup_display_timing((struct fdt_header *)addr, &timing);
+	ret = lookup_display_timing((struct fdt_header *)addr, &timing,
+				    mode_name, sizeof(mode_name));
 	if (ret == 0) {
-		struct hdmi_timing *ht = (struct hdmi_timing *)
-			hdmitx21_gettiming_from_vic(HDMI_ODROID_CUSTOM_VIDEO);
-		if (ht) {
-			hdmi_timing_from_display_timing(&hdmi_timing, &timing);
-			memcpy(ht, &hdmi_timing, sizeof(struct hdmi_timing));
-			ht->vic = HDMI_ODROID_CUSTOM_VIDEO;
-			ht->name = env_get("displaymode");
-
-			return ht;
-		}
+		hdmi_timing_from_display_timing(&hdmi_timing, &timing);
+		return set_odroid_custom_video_named(&hdmi_timing, mode_name);
 	}
 
 	return NULL;
@@ -416,9 +469,13 @@ const struct hdmi_timing *load_hdmi_timing_from_dt(
 	unsigned long addr = env_get_ulong("loadaddr", 16, 0);
 	struct display_timing timing;
 	struct hdmi_timing hdmi_timing;
+	char mode_name[DRM_DISPLAY_MODE_LEN];
 	int ret;
 
 	if (!displaymode)
+		return NULL;
+
+	if (!dev_desc)
 		return NULL;
 
 	ret = load_from_dtbo(dev_desc, addr, "display-timings");
@@ -427,18 +484,10 @@ const struct hdmi_timing *load_hdmi_timing_from_dt(
 		return NULL;
 
 	ret = lookup_display_timings_node((struct fdt_header *)addr,
-			displaymode, &timing);
+			displaymode, &timing, mode_name, sizeof(mode_name));
 	if (ret == 0) {
-		struct hdmi_timing *ht = (struct hdmi_timing *)
-			hdmitx21_gettiming_from_vic(HDMI_ODROID_CUSTOM_VIDEO);
-		if (ht) {
-			hdmi_timing_from_display_timing(&hdmi_timing, &timing);
-			memcpy(ht, &hdmi_timing, sizeof(struct hdmi_timing));
-			ht->vic = HDMI_ODROID_CUSTOM_VIDEO;
-			ht->name = (char *)displaymode;
-
-			return ht;
-		}
+		hdmi_timing_from_display_timing(&hdmi_timing, &timing);
+		return set_odroid_custom_video_named(&hdmi_timing, mode_name);
 	}
 
 	return NULL;
@@ -473,8 +522,9 @@ const struct hdmi_timing *load_hdmi_timing_from_string(
 	if (ret)
 		return NULL;
 
-	if (!strcmp(hdmi_timing.name, mode))
-		return set_odroid_custom_video(&hdmi_timing);
+	if (mode_name_matches(hdmi_timing.name, mode))
+		return set_odroid_custom_video_named(&hdmi_timing,
+						     hdmi_timing.name);
 
 	return NULL;
 }
@@ -482,12 +532,15 @@ const struct hdmi_timing *load_hdmi_timing_from_string(
 const struct hdmi_timing *load_hdmi_timing_from_modeline(
 		struct blk_desc *dev_desc, const char *displaymode)
 {
-	const struct hdmi_timing *ht = NULL;
 	unsigned long addr = env_get_ulong("loadaddr", 16, 0);
+	const struct hdmi_timing *ht = NULL;
 	int len;
 	char *buf = (char *)addr;
 	char *str;
 	int ret;
+
+	if (!dev_desc || !displaymode)
+		return NULL;
 
 	/* read from the root directory in the first partition */
 	ret = load_from_mmc(addr, dev_desc->devnum, 1, DISPLAY_TIMING_FILENAME);
@@ -527,7 +580,7 @@ const struct hdmi_timing *lookup_hdmi_timing_from_display_dt(void)
 	if (!overlays)
 		return NULL;
 
-	snprintf(display, sizeof(display), overlays);
+	snprintf(display, sizeof(display), "%s", overlays);
 
 	dts = strtok(display, " ");
 
@@ -553,13 +606,8 @@ const struct hdmi_timing *lookup_hdmi_timing_by_name(const char *mode)
 	if (!mode)
 		return NULL;
 
-	/* lookup from internal video timings */
-	ht = (struct hdmi_timing *)hdmitx21_gettiming_from_name(mode);
-	if (!ht) {
-		/* look up from video timing string */
-		ht = load_hdmi_timing_from_string(
-				env_get("video-timing"), mode);
-	}
+	/* Custom timings must win over standard VIC names. */
+	ht = load_hdmi_timing_from_string(env_get("video-timing"), mode);
 
 	/* look up from video timing from device tree */
 	if (!ht)
@@ -568,6 +616,10 @@ const struct hdmi_timing *lookup_hdmi_timing_by_name(const char *mode)
 	/* look up from video timing from modeline text file */
 	if (!ht)
 		ht = load_hdmi_timing_from_modeline(dev_desc, mode);
+
+	/* Standard HDMI/VIC modes are a fallback after all custom sources. */
+	if (!ht)
+		ht = (struct hdmi_timing *)hdmitx21_gettiming_from_name(mode);
 
 	hdmi_timing_printdebug(ht);
 

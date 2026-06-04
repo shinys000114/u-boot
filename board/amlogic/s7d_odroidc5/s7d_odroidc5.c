@@ -69,6 +69,7 @@ static void odroid_clear_display_env(void)
 	env_set("connector0_type", "HDMI-A-A");
 	env_set("hdmitx", NULL);
 	env_set("vout", NULL);
+	env_set("voutmode", NULL);
 	env_set("outputmode", NULL);
 	env_set("hdmimode", NULL);
 	env_set("display_bpp", NULL);
@@ -359,8 +360,6 @@ int board_late_init(void)
 #ifdef CONFIG_AML_VPP
 	vpp_init();
 #endif
-
-	env_set("voutmode", "hdmi");
 
 	odroid_clear_display_env();
 
