@@ -78,6 +78,17 @@ static void set_logo_fb_env(int display_width, int display_height,
 	env_set_ulong("fb_height", fb_height);
 }
 
+static void set_display_mode_env(void)
+{
+	if (!ht)
+		return;
+
+	env_set("outputmode", ht->name);
+	env_set("hdmimode", ht->name);
+	if (env_get("displaymode"))
+		env_set("displaymode", ht->name);
+}
+
 static void set_display_handoff_env(void)
 {
 	const char *colorattribute;
@@ -88,13 +99,6 @@ static void set_display_handoff_env(void)
 
 	if (!ht)
 		return;
-
-	env_set("outputmode", ht->name);
-	env_set("hdmimode", ht->name);
-	if (env_get("displaymode"))
-		env_set("displaymode", ht->name);
-	env_set_ulong("fb_width", ht->h_active);
-	env_set_ulong("fb_height", ht->v_active);
 
 	vout_init = env_get("vout_init");
 	if (ht->name && *ht->name && vout_init && *vout_init) {
@@ -232,7 +236,7 @@ static int display_logo_raw(void)
 
 	env_set("bootlogo_addr", "0x1f800000");
 
-	set_display_handoff_env();
+	set_display_mode_env();
 
 	bmp_load = load_boot_logo();
 	if (bmp_load) {
@@ -268,6 +272,8 @@ static int display_logo_raw(void)
 	ret = run_command("vout output $outputmode", 0);
 	if (ret)
 		return ret;
+
+	set_display_handoff_env();
 
 	force_hpd = env_get("early_usb_start");
 	if (force_hpd && !strncmp(force_hpd, "true", strlen("true")))
