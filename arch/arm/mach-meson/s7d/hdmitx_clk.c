@@ -473,7 +473,9 @@ static void set_hdmitx_htx_pll(struct hdmitx_dev *hdev)
 
 	set_hdmitx_s7d_htx_pll(hdev);
 	sspll_dis = env_get("sspll_dis");
-	if ((!sspll_dis || !strcmp(sspll_dis, "0")) && cd == COLORDEPTH_24B)
+	/* ODROID-C5 sends an unspread clock, as the Linux driver does */
+	if (!IS_ENABLED(CONFIG_S7D_ODROIDC5) &&
+	    (!sspll_dis || !strcmp(sspll_dis, "0")) && cd == COLORDEPTH_24B)
 		set_hpll_sspll_s7d(hdev->para->vic);
 	if (hdev->clk_analog_path) {
 		pr_info("select vid_pix_clk source for encp/pixel_clk\n");
