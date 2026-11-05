@@ -63,18 +63,17 @@ static u8 ddc_tx_fifo_size_read(void)
 	return hdmitx21_rd_reg(DDC_DOUT_CNT_IVCTX) & BIT_DDC_DOUT_CNT_DATA_OUT_CNT;
 }
 
-static bool ddc_tx_err_check(void)
+/* The bus-low and NACK status bits, cleared when set */
+static u8 ddc_tx_err_check(void)
 {
-	bool check_failed = false;
 	u8 ddc_status;
 
-	ddc_status = hdmitx21_rd_reg(DDC_STATUS_IVCTX);
-	if (ddc_status & (BIT_DDC_STATUS_BUSLOW | BIT_DDC_STATUS_NACK)) {
+	ddc_status = hdmitx21_rd_reg(DDC_STATUS_IVCTX) &
+		(BIT_DDC_STATUS_BUSLOW | BIT_DDC_STATUS_NACK);
+	if (ddc_status)
 		hdmitx21_wr_reg(DDC_STATUS_IVCTX, 0x00);
-		check_failed = true;
-	}
 
-	return check_failed;
+	return ddc_status;
 }
 
 static void ddc_tx_disable(void)
@@ -119,6 +118,27 @@ static void hdmi_ddc_error_reset(void)
 static u8 ddc_tx_busy_check(void)
 {
 	return hdmitx21_rd_reg(DDC_STATUS_IVCTX) & BIT_DDC_STATUS_INPROG;
+}
+
+/* ddc_wait_idle() of the S7D DRM driver: 200 ms for the transfer to end */
+static bool ddc_tx_wait_idle(void)
+{
+	int us;
+
+	for (us = 0; us < 200000; us += 100) {
+		if (!ddc_tx_busy_check())
+			return true;
+		udelay(100);
+	}
+	return !ddc_tx_busy_check();
+}
+
+/* The error for the bus-low and NACK status bits */
+static enum ddc_err_t ddc_tx_status_error(u8 status)
+{
+	if (status & BIT_DDC_STATUS_BUSLOW)
+		return DDC_ERR_BUSY;
+	return status & BIT_DDC_STATUS_NACK ? DDC_ERR_NACK : DDC_ERR_NONE;
 }
 
 static bool ddc_wait_free(void)
@@ -167,11 +187,18 @@ static enum ddc_err_t _hdmitx_ddcm_read_(u8 seg_index, u8 slave_addr, u8 reg_add
 		}
 
 		ddc_tx_en(seg_index, slave_addr, reg_addr);
+		/* as the S7D DRM driver: drop the status of an earlier transfer */
+		hdmitx21_wr_reg(DDC_STATUS_IVCTX, 0x00);
 		ddc_tx_read(seg_index, length, read_cmd);
 
-		timeout_ms = (u16)(length * 12 / 10);
+		/* at least the 200 ms the S7D DRM driver waits */
+		timeout_ms = max_t(u16, length * 12 / 10, 200);
 		usleep_range(2000, 3000);
 		do {
+			/* the bus-low and NACK bits at every poll */
+			ds_ddc_error = ddc_tx_status_error(ddc_tx_err_check());
+			if (ds_ddc_error)
+				break;
 			fifo_size = ddc_tx_fifo_size_read();
 
 			if (fifo_size) {
@@ -190,15 +217,18 @@ static enum ddc_err_t _hdmitx_ddcm_read_(u8 seg_index, u8 slave_addr, u8 reg_add
 			} else {
 				usleep_range(1000, 1500);
 				timeout_ms--;
-				if (ddc_tx_err_check()) {
-					ds_ddc_error = DDC_ERR_NACK;
-					break;
-				}
 			}
 		} while (length && timeout_ms);
 
+		if (!ds_ddc_error && length)
+			ds_ddc_error = DDC_ERR_TIMEOUT;
 		if (ds_ddc_error)
 			break;
+		/* and once more when the transfer has ended */
+		if (!ddc_tx_wait_idle())
+			ds_ddc_error = DDC_ERR_TIMEOUT;
+		else
+			ds_ddc_error = ddc_tx_status_error(ddc_tx_err_check());
 	} while (false);
 
 	ddc_tx_scdc_clr(val);
