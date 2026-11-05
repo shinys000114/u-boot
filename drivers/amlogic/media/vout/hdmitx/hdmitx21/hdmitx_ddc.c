@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <linux/errno.h>
 #include <amlogic/media/vout/aml_vout.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include <linux/compat.h>
@@ -283,6 +284,21 @@ int hdmitx21_read_edid(u8 *_rx_edid)
 		blk_idx++;
 	}
 	return 1;
+}
+
+/*
+ * drm_do_probe_ddc_edid(): one read of @len bytes from the start of EDID
+ * @block. Returns 0, -ENXIO when the sink NAKs, -EIO for other errors.
+ */
+int hdmitx21_read_edid_block(u8 *buf, unsigned int block, unsigned int len)
+{
+	enum ddc_err_t err;
+
+	err = _hdmitx_ddcm_read_(block >> 1, DDC_EDID_ADDR, (block * EDID_BLK_SIZE) & 0xff,
+				 buf, len, TPI_DDC_CMD_ENHANCED_DDC_READ);
+	if (err == DDC_ERR_NONE)
+		return 0;
+	return err == DDC_ERR_NACK ? -ENXIO : -EIO;
 }
 
 static void ddc_tx_sequential_write(u8 *data, u16 len)

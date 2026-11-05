@@ -234,6 +234,7 @@ int hdmitx_hw_validate_mode(struct hdmitx_hw_common *tx_hw, u32 vic, u32 max_ref
 /* DDC */
 void hdmitx_config_i2c_rate(int rate);
 int hdmitx21_read_edid(u8 *_rx_edid);
+int hdmitx21_read_edid_block(u8 *buf, unsigned int block, unsigned int len);
 void scdc21_rd_sink(u8 adr, u8 *val);
 void scdc21_wr_sink(u8 adr, u8 val, u16 len);
 bool hdmitx_ddcm_write(u8 seg_index, u8 slave_addr, u8 reg_addr, u8 *data, u16 len);
