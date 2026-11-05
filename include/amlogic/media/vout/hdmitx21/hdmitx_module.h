@@ -157,6 +157,10 @@ bool pre_process_str(char *name);
 
 void hdmitx21_set(struct hdmitx_dev *hdev);
 void hdmitx_module_disable(void);
+#ifdef CONFIG_S7D_ODROIDC5
+/* VPP OSD RGB to YUV709 matrix in front of the HDMI output (vpp.c) */
+void vpp_osd_rgb2yuv709(bool on);
+#endif
 void hdmitx21_dump_regs(void);
 void hdmitx21_infoframe_send(u16 info_type, u8 *body);
 int hdmitx21_infoframe_rawget(u8 info_type, u8 *body);

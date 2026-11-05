@@ -1674,6 +1674,32 @@ static void set_vpp_osd2_rgb2yuv(bool on)
 	vpp_reg_setb(VPP_OSD2_MATRIX_EN_CTRL, on, 0, 1);
 	VPP_PR("vpp osd2 matrix rgb2yuv..............\n");
 }
+
+#ifdef CONFIG_S7D_ODROIDC5
+/*
+ * vpp_init() turns the OSD RGB into YUV709 limited for a YCbCr HDMI
+ * output: the VPP WRAP OSD1 matrix for OSD1 (hdr_func() OSD1_HDR through
+ * mtx_setting()) and VPP_OSD2_MATRIX for OSD2. For RGB output both are
+ * off, as the Linux driver leaves them (s7d-vpp.c). The post-blend
+ * background, shown where no layer covers the screen, is in the same
+ * colour space: YUV black, its reset value, or RGB black as the Linux
+ * driver sets it (s7d-vpu.c).
+ */
+void vpp_osd_rgb2yuv709(bool on)
+{
+	if (!vpp_init_flag)
+		return;
+	if (on) {
+		vpp_reg_setb(VPP_WRAP_OSD1_MATRIX_EN_CTRL, 1, 0, 1);
+		set_vpp_osd2_rgb2yuv(1);
+		vpp_reg_setb(VPP_POST_BLEND_BLEND_DUMMY_DATA, 0x008080, 0, 24);
+	} else {
+		vpp_reg_setb(VPP_WRAP_OSD1_MATRIX_EN_CTRL, 0, 0, 2);
+		vpp_reg_setb(VPP_OSD2_MATRIX_EN_CTRL, 0, 0, 2);
+		vpp_reg_setb(VPP_POST_BLEND_BLEND_DUMMY_DATA, 0, 0, 24);
+	}
+}
+#endif
 #endif
 
 /*

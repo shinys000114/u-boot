@@ -1184,6 +1184,47 @@ int hdmitx21_set_output(const struct hdmitx21_output *out)
 	return 0;
 }
 
+#ifdef CONFIG_S7D_ODROIDC5
+/*
+ * drm_default_rgb_quant_range(): CTA modes other than VIC 1 take limited
+ * range on an HDMI sink; VIC 1, other timings and DVI sinks take full range.
+ */
+static bool hdmitx21_rgb_limited(struct hdmitx_dev *hdev)
+{
+	enum hdmi_vic vic = hdev->para->timing.vic;
+
+	return !hdmitx21_dvi_output() && vic >= HDMI_2_720x480p60_4x3 &&
+		vic <= HDMI_219_4096x2160p120_256x135;
+}
+
+/*
+ * Colour as the Linux driver sends it. RGB reaches the formatter as the
+ * OSD blends it, without the VPP matrix (s7d-vpp.c). Limited range is
+ * 64 + 877 * v / 1024 on the 10-bit components: the Linux driver folds it
+ * into its gamma LUT (s7d-gamma.c), here the formatter matrix applies it.
+ * YCbCr output keeps the VPP RGB to YUV709 matrix of vpp_init().
+ */
+static void hdmitx21_set_csc(struct hdmitx_dev *hdev)
+{
+	bool rgb = hdev->para->cs == HDMI_COLORSPACE_RGB;
+
+	vpp_osd_rgb2yuv709(!rgb);
+	if (!rgb || !hdmitx21_rgb_limited(hdev))
+		return;
+	hd21_write_reg(VPU_HDMI_MATRIX_PRE_OFFSET0_1, 0);
+	hd21_write_reg(VPU_HDMI_MATRIX_PRE_OFFSET2, 0);
+	hd21_write_reg(VPU_HDMI_MATRIX_COEF00_01, 877 << 16);
+	hd21_write_reg(VPU_HDMI_MATRIX_COEF02_10, 0);
+	hd21_write_reg(VPU_HDMI_MATRIX_COEF11_12, 877 << 16);
+	hd21_write_reg(VPU_HDMI_MATRIX_COEF20_21, 0);
+	hd21_write_reg(VPU_HDMI_MATRIX_COEF22, 877);
+	hd21_write_reg(VPU_HDMI_MATRIX_OFFSET0_1, (64 << 16) | 64);
+	hd21_write_reg(VPU_HDMI_MATRIX_OFFSET2, 64);
+	/* cntl_hdmi_matrix_en, once the matrix is complete */
+	hd21_set_reg_bits(VPU_HDMI_FMT_CTRL, 1, 31, 1);
+}
+#endif
+
 void hdmitx21_set(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = hdev->para;
@@ -1397,8 +1438,13 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 			  (2 << 22) |
 			  (0 << 24);
 		if (hdev->chip_type == MESON_CPU_ID_S7D &&
-			para->cs == HDMI_COLORSPACE_RGB)
-			data32 |= 1 << 31;
+			para->cs == HDMI_COLORSPACE_RGB) {
+			/* ODROID-C5: 4:4:4, hdmitx21_set_csc() sets the matrix */
+			if (IS_ENABLED(CONFIG_S7D_ODROIDC5))
+				data32 &= ~0x3;
+			else
+				data32 |= 1 << 31;
+		}
 		break;
 	case MESON_CPU_ID_T7:
 	case MESON_CPU_ID_S5:
@@ -1622,6 +1668,9 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		if (para->cs == HDMI_COLORSPACE_RGB)
 			vpu_hdmi_set_matrix_ycbcr2rgb();
 
+#ifdef CONFIG_S7D_ODROIDC5
+	hdmitx21_set_csc(hdev);
+#else
 	/* for s7, ycbcr -> rgb */
 	if (hdev->chip_type == MESON_CPU_ID_S7 ||
 		hdev->chip_type == MESON_CPU_ID_S7D ||
@@ -1629,6 +1678,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		if (hdev->para->cs == HDMI_COLORSPACE_RGB)
 			vpu_hdmi_set_matrix_ycbcr2rgb();
 	}
+#endif
 
 #ifdef CONFIG_AML_VOUT
 	if (info) {
@@ -2324,7 +2374,12 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	hdmitx21_wr_reg((VP_CMS_CSC0_MULTI_CSC_CONFIG_IVCTX + 1), 0x08);
 	hdmitx21_wr_reg(VP_CMS_CSC1_MULTI_CSC_CONFIG_IVCTX, 0x00);
 	hdmitx21_wr_reg((VP_CMS_CSC1_MULTI_CSC_CONFIG_IVCTX + 1), 0x08);
-	if (output_color_format == HDMI_COLORSPACE_RGB) {
+	/*
+	 * The S7D TX has no VP colour converter (the vendor kernel programs it
+	 * on T7 and S5 only); ODROID-C5 leaves it as for YCbCr.
+	 */
+	if (output_color_format == HDMI_COLORSPACE_RGB &&
+	    !IS_ENABLED(CONFIG_S7D_ODROIDC5)) {
 		hdmitx21_wr_reg(VP_CMS_CSC0_MULTI_CSC_CONFIG_IVCTX, 0x65);
 		hdmitx21_wr_reg((VP_CMS_CSC0_MULTI_CSC_CONFIG_IVCTX + 1), 0x08);
 	}
