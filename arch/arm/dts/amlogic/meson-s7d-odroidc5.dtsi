@@ -189,8 +189,6 @@
 &usb32_phy_v2 {
 	status = "okay";
 	portnum = <0>;
-	gpio-vbus-power = "GPIOH_8";
-	gpios = <&gpio GPIOH_8 GPIO_ACTIVE_HIGH>;
 };
 
 &spicc0 {
