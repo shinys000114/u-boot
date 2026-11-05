@@ -67,9 +67,6 @@
 	"uart_base=0xfe07a000\0"\
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0"\
 	"connector0_type=HDMI-A-A\0"\
-	"hdmimode=none\0"\
-	"qms_en=1\0"\
-	"scan_info=3\0"\
 	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0"\
 	"cvbs_drv=0\0"\
@@ -77,7 +74,6 @@
 	"display_color_fg=0xffff\0"\
 	"display_color_bg=0\0"\
 	"dtb_mem_addr=0x01000000\0"\
-	"hdmichecksum=0x00000000\0"\
 	"fb_addr=0x00300000\0"\
 	"dolby_status=0\0"\
 	"dolby_vision_on=0\0"\
@@ -90,8 +86,6 @@
 	"hdr_policy=0\0"\
 	"hdr_priority=268435456\0"\
 	"config_csc_en=1\0"\
-	"frac_rate_policy=1\0"\
-	"actual_frac_rate=1\0"\
 	"upgrade_key="\
 		"run upgrade_key_base;"\
 		"echo usr key;"\
@@ -100,8 +94,7 @@
 	"slot-suffixes=0\0"\
 
 #ifndef CONFIG_PXP_DDR
-#define CONFIG_PREBOOT  \
-		"run init_display"
+#define CONFIG_PREBOOT  ""
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
