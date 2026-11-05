@@ -2070,7 +2070,8 @@ void osd_setup_hw(u32 index,
 					      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
 #endif
 		}
-		if (!rma_test_addr) {
+		/* ODROID-C5 hands the logo to the kernel only through its DT. */
+		if (!IS_ENABLED(CONFIG_S7D_ODROIDC5) && !rma_test_addr) {
 			snprintf(cmd, sizeof(cmd), "setenv fb_addr 0x%x",
 				 osd_hw.fb_gem[index].addr);
 			run_command(cmd, 0);

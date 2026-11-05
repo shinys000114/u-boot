@@ -446,7 +446,9 @@ unsigned long get_fb_addr(void)
 ret_fb_addr:
 #endif
 
-	if ((!initrd_set) && (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_AXG)) {
+	/* ODROID-C5 leaves the initrd placement to bootm and its boot script. */
+	if (!IS_ENABLED(CONFIG_S7D_ODROIDC5) && !initrd_set &&
+	    osd_get_chip_type() >= MESON_CPU_MAJOR_ID_AXG) {
 		sprintf(str_fb_addr,"%lx",fb_addr);
 		env_set("initrd_high", str_fb_addr);
 		initrd_set = 1;
