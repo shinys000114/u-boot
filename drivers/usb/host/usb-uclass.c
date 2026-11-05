@@ -20,6 +20,8 @@
 
 extern bool usb_started; /* flag for the started/stopped USB status */
 static bool asynch_allowed;
+/* USB runs for usb_hub_on() only: one hub set up, no bus scanned */
+static bool usb_hub_on_started;
 
 struct usb_uclass_priv {
 	int companion_device_count;
@@ -211,6 +213,7 @@ int usb_stop(void)
 #endif
 	uc_priv->companion_device_count = 0;
 	usb_started = 0;
+	usb_hub_on_started = false;
 
 	return err;
 }
@@ -302,6 +305,9 @@ int usb_init(void)
 	struct uclass *uc;
 	int ret;
 
+	/* Stop what usb_hub_on() set up, so that every bus is scanned. */
+	if (usb_hub_on_started)
+		usb_stop();
 	asynch_allowed = 1;
 
 	ret = uclass_get(UCLASS_USB, &uc);
@@ -454,7 +460,13 @@ int usb_hub_on(int busnum)
 		return -ENODEV;
 	}
 
+	usb_hub_on_started = true;
 	return 0;
+}
+
+bool usb_hub_on_only(void)
+{
+	return usb_hub_on_started;
 }
 #endif
 

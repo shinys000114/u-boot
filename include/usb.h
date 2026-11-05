@@ -257,6 +257,12 @@ int usb_kbd_deregister(int force);
 int usb_init(void); /* initialize the USB Controller */
 #if defined(CONFIG_S7D_ODROIDC5) && CONFIG_IS_ENABLED(DM_USB)
 int usb_hub_on(int busnum); /* power on one external hub without scanning downstream */
+bool usb_hub_on_only(void); /* USB runs for usb_hub_on() only */
+#else
+static inline bool usb_hub_on_only(void)
+{
+	return false;
+}
 #endif
 int usb_stop(void); /* stop the USB Controller */
 

@@ -648,7 +648,8 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 
 	if (strncmp(argv[1], "start", 5) == 0) {
-		if (usb_started)
+		/* after "usb hub-on" usb_init() starts over and scans */
+		if (usb_started && !usb_hub_on_only())
 			return 0; /* Already started */
 		printf("starting USB...\n");
 		do_usb_start();
