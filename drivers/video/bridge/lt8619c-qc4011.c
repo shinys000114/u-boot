@@ -229,7 +229,7 @@ static void lt8619c_edid_calc(uint8_t *pbuf, struct video_timing *timing)
 	pbuf[10] = ((timing->vfp % 256) << 4) + timing->vs % 256;
 	pbuf[11] = ((timing->hfp/256) << 6) + ((timing->hs / 256) << 4)+
 		((timing->vfp / 256) << 2) + (timing->vs / 256);
-	pbuf[17] = 0x1c; /* progress negative vsync, negative hsync */
+	pbuf[17] = 0x1c; /* progressive, separate sync, V positive, H negative */
 }
 
 static uint8_t lt8619c_edid_checksum(uint8_t block, uint8_t *buf)
