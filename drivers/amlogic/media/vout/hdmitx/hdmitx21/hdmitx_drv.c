@@ -1704,6 +1704,9 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	if (hdev->pxp_mode)
 		return; /* skip in pxp */
 
+	/* ODROID-C5 hands no display state to the kernel through the env */
+	if (IS_ENABLED(CONFIG_S7D_ODROIDC5))
+		return;
 	/*
 	 * null char needed to terminate the string
 	 * otherwise garbage in checksum logopara
