@@ -1184,7 +1184,6 @@ int hdmitx21_set_output(const struct hdmitx21_output *out)
 	return 0;
 }
 
-#ifdef CONFIG_S7D_ODROIDC5
 /*
  * drm_default_rgb_quant_range(): CTA modes other than VIC 1 take limited
  * range on an HDMI sink; VIC 1, other timings and DVI sinks take full range.
@@ -1197,6 +1196,196 @@ static bool hdmitx21_rgb_limited(struct hdmitx_dev *hdev)
 		vic <= HDMI_219_4096x2160p120_256x135;
 }
 
+/* The sink facts the Linux InfoFrame helpers use */
+struct hdmitx21_sink {
+	bool hdmi_infoframe;	/* display_info.has_hdmi_infoframe */
+	bool hdmi2;		/* is_hdmi2_sink(): SCDC or YCbCr 4:2:0 */
+	bool vdb_vic;		/* the output VIC is in a video data block */
+};
+
+static u8 hdmitx21_svd_vic(u8 svd)
+{
+	if ((svd >= 1 && svd <= 64) || (svd >= 129 && svd <= 192))
+		return svd & 127;
+	return svd;
+}
+
+/* HDMI Forum VSDB or SCDB */
+static void hdmitx21_sink_hf(struct hdmitx21_sink *sink, const u8 *db)
+{
+	sink->hdmi_infoframe = true;
+	if (db[6] & BIT(7))	/* SCDC_Present */
+		sink->hdmi2 = true;
+}
+
+/* One CTA data block of payload length @len */
+static void hdmitx21_sink_block(struct hdmitx21_sink *sink, const u8 *db, int len, u8 vic)
+{
+	u32 oui;
+	int j;
+	u8 svd;
+
+	switch (db[0] >> 5) {
+	case 2: /* video */
+		for (j = 1; j <= len; j++)
+			if (hdmitx21_svd_vic(db[j]) == vic)
+				sink->vdb_vic = true;
+		break;
+	case 3: /* vendor specific */
+		if (len < 3)
+			break;
+		oui = db[1] | db[2] << 8 | db[3] << 16;
+		/* HDMI_Video_present */
+		if (oui == HDMI_IEEE_OUI && len >= 8 && db[8] & BIT(5))
+			sink->hdmi_infoframe = true;
+		else if (oui == HDMI_FORUM_IEEE_OUI && len >= 7)
+			hdmitx21_sink_hf(sink, db);
+		break;
+	case 7: /* extended tag */
+		if (len < 1)
+			break;
+		if (db[1] == 0x79 && len >= 7) {
+			hdmitx21_sink_hf(sink, db);
+		} else if (db[1] == 0x0e) {
+			/* YCbCr 4:2:0 video data block */
+			for (j = 2; j <= len; j++) {
+				svd = hdmitx21_svd_vic(db[j]);
+				if ((svd >= 1 && svd <= 127) || (svd >= 193 && svd <= 219))
+					sink->hdmi2 = true;
+			}
+		} else if (db[1] == 0x0f) {
+			/* YCbCr 4:2:0 capability map, empty for all modes */
+			if (len == 1)
+				sink->hdmi2 = true;
+			for (j = 2; j <= len && j < 10; j++)
+				if (db[j])
+					sink->hdmi2 = true;
+		}
+		break;
+	}
+}
+
+/* The CTA data blocks, as drm_edid.c reads them from revision 3 on */
+static void hdmitx21_parse_sink(const u8 *edid, u8 vic, struct hdmitx21_sink *sink)
+{
+	int count = edid[126];
+	int b, i, len;
+
+	memset(sink, 0, sizeof(*sink));
+	if (count && edid[EDID_BLK_SIZE + 4] == EXTENSION_EEODB_EXT_TAG &&
+	    edid[EDID_BLK_SIZE + 5] == EXTENSION_EEODB_EXT_CODE)
+		count = edid[EDID_BLK_SIZE + 6];
+	count = min(count, EDID_MAX_BLOCK - 1);
+	for (b = 1; b <= count; b++) {
+		const u8 *cta = edid + b * EDID_BLK_SIZE;
+		int end = cta[2];
+
+		if (cta[0] != 0x02 || cta[1] < 3 || end < 4 || end > 127)
+			continue;
+		for (i = 4; i < end; i += len + 1) {
+			len = cta[i] & 0x1f;
+			if (i + 1 + len > end)
+				break;
+			hdmitx21_sink_block(sink, cta + i, len, vic);
+		}
+	}
+}
+
+/* HDMI 1.4b 4K formats, sent as HDMI_VIC with AVI VIC 0 */
+static u8 hdmitx21_hdmi_vic(enum hdmi_vic vic)
+{
+	switch (vic) {
+	case HDMI_95_3840x2160p30_16x9:
+		return 1;
+	case HDMI_94_3840x2160p25_16x9:
+		return 2;
+	case HDMI_93_3840x2160p24_16x9:
+		return 3;
+	case HDMI_98_4096x2160p24_256x135:
+		return 4;
+	default:
+		return 0;
+	}
+}
+
+/*
+ * The InfoFrames of the Linux driver (s7d-hdmi.c): the AVI frame of
+ * drm_hdmi_avi_infoframe_from_display_mode() with the default quantization
+ * range, no colorimetry for RGB, no IT content and scan information none;
+ * the SPD frame of the ODROID-C5 display overlay; the HDMI vendor frame for
+ * a sink that takes it. A DVI sink gets none.
+ */
+static void hdmitx21_set_infoframes(struct hdmitx_dev *hdev)
+{
+	struct hdmi_avi_infoframe *avi = &hdev->infoframes.avi.avi;
+	struct hdmi_spd_infoframe *spd = &hdev->infoframes.spd.spd;
+	struct hdmi_format_para *para = hdev->para;
+	enum hdmi_vic vic = para->timing.vic;
+	enum hdmi_picture_aspect aspect;
+	struct hdmi_vendor_infoframe vend;
+	struct hdmitx21_sink sink;
+	u8 body[31] = {0};
+	u8 hdmi_vic = 0;
+	bool limited;
+
+	hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR2, NULL);
+	if (hdmitx21_dvi_output()) {
+		hdmi_avi_infoframe_set(NULL);
+		hdmi_spd_infoframe_set(NULL);
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, NULL);
+		return;
+	}
+	/* Only CTA timings have a VIC */
+	if (vic > HDMI_219_4096x2160p120_256x135)
+		vic = HDMI_0_UNKNOWN;
+	hdmitx21_parse_sink(hdev->rawedid, vic, &sink);
+	if (sink.hdmi_infoframe)
+		hdmi_vic = hdmitx21_hdmi_vic(vic);
+
+	hdmi_avi_infoframe_init(avi);
+	avi->pixel_repeat = para->timing.pixel_repetition_factor;
+	aspect = hdmitx_mode_get_vic_aspect_ratio(vic);
+	if (aspect <= HDMI_PICTURE_ASPECT_16_9)
+		avi->picture_aspect = aspect;
+	avi->active_aspect = HDMI_ACTIVE_ASPECT_PICTURE;
+	avi->scan_mode = HDMI_SCAN_MODE_NONE;
+	avi->content_type = HDMI_CONTENT_TYPE_GRAPHICS;
+	/* vic_for_avi_infoframe() */
+	if (!hdmi_vic && (sink.hdmi2 || vic <= 64 || sink.vdb_vic))
+		avi->video_code = vic;
+	if (para->cs != HDMI_COLORSPACE_RGB) {
+		/* the VPP matrix converts to BT.709 */
+		avi->colorspace = para->cs;
+		avi->colorimetry = HDMI_COLORIMETRY_ITU_709;
+		avi->quantization_range = HDMI_QUANTIZATION_RANGE_DEFAULT;
+		avi->ycc_quantization_range = HDMI_YCC_QUANTIZATION_RANGE_LIMITED;
+	} else {
+		/* drm_hdmi_avi_infoframe_quant_range() */
+		limited = hdmitx21_rgb_limited(hdev);
+		avi->colorspace = HDMI_COLORSPACE_RGB;
+		avi->quantization_range = limited ?
+			HDMI_QUANTIZATION_RANGE_LIMITED : HDMI_QUANTIZATION_RANGE_FULL;
+		avi->ycc_quantization_range = limited || !sink.hdmi2 ?
+			HDMI_YCC_QUANTIZATION_RANGE_LIMITED :
+			HDMI_YCC_QUANTIZATION_RANGE_FULL;
+	}
+	hdmi_avi_infoframe_set(avi);
+
+	hdmi_spd_infoframe_init(spd, "ODROID", "ODROID-C5");
+	spd->sdi = HDMI_SPD_SDI_PC;
+	hdmi_spd_infoframe_set(spd);
+
+	if (!sink.hdmi_infoframe) {
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, NULL);
+		return;
+	}
+	hdmi_vendor_infoframe_init(&vend);
+	vend.vic = hdmi_vic;
+	hdmi_vendor_infoframe_pack(&vend, body, sizeof(body));
+	hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, body);
+}
+
+#ifdef CONFIG_S7D_ODROIDC5
 /*
  * Colour as the Linux driver sends it. RGB reaches the formatter as the
  * OSD blends it, without the VPP matrix (s7d-vpp.c). Limited range is
@@ -1531,22 +1720,26 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		/* hdmitx21_venc_en(1, 0); */
 	/* else */
 		/* hdmitx21_venc_en(1, 1); */
-	construct_avi_packet(hdev);
-	construct_spd_packet(hdev);
+	if (IS_ENABLED(CONFIG_S7D_ODROIDC5)) {
+		hdmitx21_set_infoframes(hdev);
+	} else {
+		construct_avi_packet(hdev);
+		construct_spd_packet(hdev);
 
-	videocode = para->timing.vic;
-	if (videocode == HDMI_95_3840x2160p30_16x9 ||
-		videocode == HDMI_94_3840x2160p25_16x9 ||
-		videocode == HDMI_93_3840x2160p24_16x9 ||
-		videocode == HDMI_98_4096x2160p24_256x135)
-		hdmi_set_vend_spec_infofram(hdev, videocode);
+		videocode = para->timing.vic;
+		if (videocode == HDMI_95_3840x2160p30_16x9 ||
+		    videocode == HDMI_94_3840x2160p25_16x9 ||
+		    videocode == HDMI_93_3840x2160p24_16x9 ||
+		    videocode == HDMI_98_4096x2160p24_256x135)
+			hdmi_set_vend_spec_infofram(hdev, videocode);
 
-	/* if TV support traditional SDR, then enable hdr.sdr packet by default */
-	if (hdev->RXCap.hdr_info2.hdr_support & 0x1) {
-		struct master_display_info_s data = {0};
+		/* if TV support traditional SDR, then enable hdr.sdr packet by default */
+		if (hdev->RXCap.hdr_info2.hdr_support & 0x1) {
+			struct master_display_info_s data = {0};
 
-		data.features = 0x00010100;
-		hdmitx_set_drm_pkt(&data);
+			data.features = 0x00010100;
+			hdmitx_set_drm_pkt(&data);
+		}
 	}
 
 	/* [1   0] src_sel, t7 and s5 is differnet
