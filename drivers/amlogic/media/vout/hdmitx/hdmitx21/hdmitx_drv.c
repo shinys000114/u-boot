@@ -191,6 +191,17 @@ static void hdmitx_list_support_modes(void)
 		printf("%s\n", gxbb_modes[i].sname);
 }
 
+/*
+ * 480i and 576i run on ENCI. Their table entries count the 720 pixels of a
+ * line twice (h_active 1440, pixel repetition 1).
+ */
+static bool hdmitx21_timing_enci(const struct hdmi_timing *t)
+{
+	return t->pi_mode == 0 &&
+	       (t->h_active >> t->pixel_repetition_factor) == 720 &&
+	       (t->v_active == 480 || t->v_active == 576);
+}
+
 static void hdmitx21_test_bist(unsigned int mode)
 {
 	u32 width = 1920;
@@ -200,9 +211,7 @@ static void hdmitx21_test_bist(unsigned int mode)
 
 	if (!hdev->para)
 		return;
-	if (hdev->para->timing.pi_mode == 0 &&
-		(hdev->para->timing.h_active == 720 &&
-		(hdev->para->timing.v_active == 480 || hdev->para->timing.v_active == 576)))
+	if (hdmitx21_timing_enci(&hdev->para->timing))
 		enci_en = true;
 
 	switch (mode) {
@@ -1247,9 +1256,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	 */
 	pr_info("configure venc\n");
 	/* only 480i / 576i use the ENCI */
-	if (para->timing.pi_mode == 0 &&
-	    (para->timing.h_active == 720 &&
-		 (para->timing.v_active == 480 || para->timing.v_active == 576))) {
+	if (hdmitx21_timing_enci(&para->timing)) {
 	    /* sel enci timming */
 		hd21_write_reg(VPU_VENC_CTRL, 0);
 		set_tv_enci_new(hdev, enc_sel, vic, 1);
@@ -1519,9 +1526,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		break;
 	case MESON_CPU_ID_S1A:
 	case MESON_CPU_ID_S7:
-		if (para->timing.pi_mode == 0 &&
-			(para->timing.h_active == 720 &&
-			(para->timing.v_active == 480 || para->timing.v_active == 576)))
+		if (hdmitx21_timing_enci(&para->timing))
 			data32 |= 1;
 		else
 			data32 |= 2;
@@ -1533,9 +1538,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		break;
 	case MESON_CPU_ID_S7D:
 	case MESON_CPU_ID_S6:
-		if (para->timing.pi_mode == 0 &&
-			(para->timing.h_active == 720 &&
-			(para->timing.v_active == 480 || para->timing.v_active == 576)))
+		if (hdmitx21_timing_enci(&para->timing))
 			data32 |= 1;
 		else
 			data32 |= 2;
@@ -1599,9 +1602,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	}
 #endif
 	/* enable venc */
-	if (para->timing.pi_mode == 0 &&
-	    (para->timing.h_active == 720 &&
-	    (para->timing.v_active == 480 || para->timing.v_active == 576)))
+	if (hdmitx21_timing_enci(&para->timing))
 		hdmitx21_venc_en(1, 0);
 	else
 		hdmitx21_venc_en(1, 1);
