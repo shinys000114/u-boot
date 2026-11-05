@@ -56,9 +56,8 @@ static void set_s7d_htxpll_clk_other(const u32 clk, const bool frl_en)
 
 	quotient = clk / 12000;
 	remainder = clk - quotient * 12000;
-	/* remainder range: 0 ~ 23999, 0x5dbf, 15bits */
-	remainder *= 1 << 17;
-	remainder /= 12000;
+	/* remainder range: 0 ~ 11999; the nearest 1/2^17 step */
+	remainder = (remainder * (1 << 17) + 6000) / 12000;
 
 	hd21_write_reg(ANACTRL_HDMIPLL_CTRL0, 0x00017000 | (quotient << 0));
 	hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x9040137d);
@@ -98,8 +97,8 @@ void set21_s7d_htxpll_clk_out(const u32 clk, u32 div)
 
 	pr_info("%s[%d] htxpll vco %d div %d\n", __func__, __LINE__, clk, div);
 
-	if (clk <= 3000000 || clk > 6000000) {
-		pr_info("%s[%d] %d out of htxpll range(3~6G]\n", __func__, __LINE__, clk);
+	if (clk < MIN_HTXPLL_VCO || clk >= MAX_HTXPLL_VCO) {
+		pr_info("%s[%d] %d out of htxpll range[3~6G)\n", __func__, __LINE__, clk);
 		return;
 	}
 	set_s7d_htxpll_clk_other(clk, hdev->para->frl_rate ? 1 : 0);
