@@ -162,6 +162,8 @@
 
 #define AON_CYP_CTL_IVCTX 0x0018
 
+#define DDC_SCL_DUTY_MODE_ADDR 0x001D
+
 //==================== REGTX_AON_SOC ====================
 
 #define RST_CNTL_IVCTX 0x00a0

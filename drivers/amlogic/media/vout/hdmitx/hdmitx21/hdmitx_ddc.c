@@ -348,6 +348,8 @@ void hdmitx_config_i2c_rate(int rate)
 	default:
 		/* config i2c 50k */
 		hdmitx21_set_reg_bits(AON_CYP_CTL_IVCTX, 2, 0, 2);
+		/* SCL duty mode 0, as the S7D DRM driver sets it */
+		hdmitx21_set_reg_bits(DDC_SCL_DUTY_MODE_ADDR, 0, 0, 2);
 		hdmitx21_wr_reg(DDC_DELAY_CNT_IVCTX, 0x3d);
 		break;
 	}
