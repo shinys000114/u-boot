@@ -10,3 +10,12 @@ config VIDEO_MESON
 	select DISPLAY
 	help
 	  Enable Amlogic Meson Video Processing Unit video support.
+
+config VIDEO_MESON_S7D
+	bool "Amlogic S7D boot display on HDMI"
+	depends on VIDEO && AML_HDMITX21 && AML_OSD && AML_VOUT && AML_VPP
+	help
+	  Show a 1920x1080 frame buffer on OSD1 of the S7D VPU, scaled to
+	  the HDMI mode that the sink's EDID gives as the Linux DRM core
+	  would choose it. The frame buffer is the memory-region of the
+	  device tree node, so that the kernel can take it over.

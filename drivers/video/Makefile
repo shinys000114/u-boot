@@ -53,6 +53,7 @@ obj-$(CONFIG_VIDEO_LCD_SSD2828) += ssd2828.o
 obj-$(CONFIG_VIDEO_LCD_TDO_TL070WSH30) += tdo-tl070wsh30.o
 obj-$(CONFIG_VIDEO_MCDE_SIMPLE) += mcde_simple.o
 obj-${CONFIG_VIDEO_MESON} += meson/
+obj-$(CONFIG_VIDEO_MESON_S7D) += meson/
 obj-${CONFIG_VIDEO_MIPI_DSI} += mipi_dsi.o
 obj-$(CONFIG_VIDEO_MVEBU) += mvebu_lcd.o
 obj-$(CONFIG_VIDEO_MXS) += mxsfb.o videomodes.o
