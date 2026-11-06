@@ -310,6 +310,7 @@ int osd_rma_test_with_addr(u32 start_addr, u32 end_addr);
 unsigned int get_fb_offset(u32 index);
 unsigned int get_fb_len(u32 index);
 unsigned long get_fb_addr(void);
+int osd_show_fb(ulong fb, u32 width, u32 height, int x0, int y0, int x1, int y1);
 
 int is_vpp0(int index);
 int is_vpp1(int index);

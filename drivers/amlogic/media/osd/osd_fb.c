@@ -12,6 +12,7 @@
 #include <amlogic/cpu_id.h>
 #include <asm/amlogic/arch/cpu.h>
 #include <asm/amlogic/arch/timer.h>
+#include <asm/amlogic/arch/register.h>
 #include <asm/global_data.h>
 #include <env.h>
 
@@ -26,6 +27,7 @@
 #include "osd.h"
 #include "osd_log.h"
 #include "osd_hw.h"
+#include "osd_io.h"
 #include "osd_fb.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -1735,6 +1737,53 @@ no_scale:
 #endif
 
 	return (1);
+}
+#endif
+
+#ifdef AML_OSD_HIGH_VERSION
+/*
+ * Show the 32 bpp buffer @fb of @width x @height pixels on OSD1 of VPP0,
+ * scaled into the window (@x0, @y0)-(@x1, @y1) of the current output
+ * (vout_get_current_vinfo()). This sets OSD1 up as "osd open" and "bmp
+ * scale" do, with the sizes passed in instead of read from the
+ * environment. OSD1 replaces the alpha of every pixel with 0xff
+ * (osd_init_hw()), so the buffer is XRGB.
+ */
+int osd_show_fb(ulong fb, u32 width, u32 height, int x0, int y0, int x1, int y1)
+{
+	const struct color_bit_define_s *color =
+		&default_color_format_array[COLOR_INDEX_32_ARGB];
+	struct vinfo_s *vinfo = vout_get_current_vinfo();
+	struct pandata_s win = {
+		.x_start = x0,
+		.x_end = x1,
+		.y_start = y0,
+		.y_end = y1,
+	};
+
+	if (!fb || !width || !height || x1 < x0 || y1 < y0 || !vinfo ||
+	    !vinfo->width || !vinfo->field_height)
+		return -EINVAL;
+
+	get_osd_version();
+	if (osd_hw.osd_ver != OSD_HIGH_ONE)
+		return -ENODEV;
+	osd_hw.vpp_index[OSD1] = VPU_VPP0;
+	osd_init_hw(OSD1);
+	osd_setup_hw(OSD1, 0, 0, width, height, width, height * 2,
+		     0, 0, width - 1, height - 1, fb, color);
+	osd_set_free_scale_mode_hw(OSD1, 1);
+	osd_set_free_scale_axis_hw(OSD1, 0, 0, width - 1, height - 1);
+	osd_set_window_axis_hw(OSD1, x0, y0, x1, y1);
+	osd_set_free_scale_enable_hw(OSD1, 0x10001);
+	osd_update_blend(&win);
+	/*
+	 * osd_update_blend() also sizes the VPP output to the window; it is
+	 * the frame the encoder scans.
+	 */
+	osd_reg_write(VPP_OUT_H_V_SIZE, vinfo->width << 16 | vinfo->field_height);
+	osd_enable_hw(OSD1, 1);
+	return 0;
 }
 #endif
 
