@@ -10,6 +10,7 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <gzip.h>
+#include <lmb.h>
 #include <mapmem.h>
 #include <splash.h>
 #include <usb.h>
@@ -500,6 +501,185 @@ static void load_boot_config(struct blk_desc *dev_desc, const char *config)
 	}
 }
 
+/* What the kernel DT reserves for the boot logo (linux,meson-fb). */
+#define ODROID_LOGO_SIZE	SZ_8M
+
+/* The buffer that OSD1 scans for the boot logo. */
+static struct {
+	ulong addr;
+	u32 width;
+	u32 height;
+	u32 stride;
+} odroid_logo;
+
+static void odroid_logo_forget(void)
+{
+	memset(&odroid_logo, 0, sizeof(odroid_logo));
+}
+
+/* The kernel DT places linux,meson-fb 4 MB aligned. */
+static void odroid_logo_record(ulong addr, u32 width, u32 height, u32 stride)
+{
+	odroid_logo_forget();
+	if (!addr || !IS_ALIGNED(addr, SZ_4M) || !width || !height ||
+	    (u64)height * stride > ODROID_LOGO_SIZE) {
+		printf("logo: %#lx %ux%u stride %u does not fit the hand-off\n",
+		       addr, width, height, stride);
+		return;
+	}
+	odroid_logo.addr = addr;
+	odroid_logo.width = width;
+	odroid_logo.height = height;
+	odroid_logo.stride = stride;
+}
+
+/*
+ * Keep bootm and "load" out of a logo that OSD1 still scans. bootm sets up
+ * lmb and places the ramdisk and the FDT before it adds the kernel DT
+ * reservations, long before ft_board_setup points linux,meson-fb at the
+ * logo. Its lmb spans bootm_size, which board_init_mem() sets to all of
+ * RAM, so on a 2 GB board it holds the top 8 MB that U-Boot hides from
+ * itself, the first memory lmb hands out. There the range joins the U-Boot
+ * region below it, and the kernel DT entry for it, which then overlaps,
+ * is reported as failed; the range stays reserved.
+ */
+void board_lmb_reserve(struct lmb *lmb)
+{
+	if (odroid_logo.addr &&
+	    lmb_reserve(lmb, odroid_logo.addr, ODROID_LOGO_SIZE) < 0)
+		printf("logo: cannot reserve %#lx in lmb\n", odroid_logo.addr);
+}
+
+/*
+ * Whether OSD1 still shows the recorded logo on a running output, checked
+ * the way the kernel S7D DRM driver does before it takes a logo over
+ * (s7d_vpu_check_logo()): ENCP on, OSD1 on, linear and physically
+ * addressed at the recorded buffer, its fetch window inside the region.
+ * Only called with a recorded logo, so the VPU is powered and clocked.
+ */
+static bool odroid_logo_live(void)
+{
+	u32 ctrl = readl(VIU_OSD1_CTRL_STAT);
+	u32 cfg = readl(VIU_OSD1_BLK0_CFG_W0);
+	u64 base = (u64)readl(VIU_OSD1_BLK1_CFG_W4) << 4;
+	u64 stride = (u64)(readl(VIU_OSD1_BLK2_CFG_W4) & 0xfff) << 4;
+	u32 h = readl(VIU_OSD1_BLK0_CFG_W1);
+	u32 v = readl(VIU_OSD1_BLK0_CFG_W2);
+	u32 x1 = h & 0x1fff, x2 = (h >> 16) & 0x1fff;
+	u32 y1 = v & 0x1fff, y2 = (v >> 16) & 0x1fff;
+	u32 cpp;
+
+	switch ((cfg >> 8) & 0xf) {
+	case 4:
+		cpp = 2;
+		break;
+	case 5:
+		cpp = 4;
+		break;
+	case 7:
+		cpp = 3;
+		break;
+	default:
+		cpp = 0;
+		break;
+	}
+	if (!(readl(ENCP_VIDEO_EN) & BIT(0)) ||
+	    (ctrl & (BIT(0) | BIT(2))) != (BIT(0) | BIT(2)) || (cfg & BIT(30)) ||
+	    base != odroid_logo.addr || !cpp || !stride || x2 < x1 || y2 < y1 ||
+	    (x2 + 1) * cpp > stride ||
+	    y2 * stride + (x2 + 1) * cpp > ODROID_LOGO_SIZE) {
+		printf("logo: OSD1 no longer shows it (%#x %#x %#llx %#llx %#x %#x)\n",
+		       ctrl, cfg, base, stride, h, v);
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Point the reg of linux,meson-fb at the logo, in the cells of its parent.
+ * The logo must lie inside the region that the node reserves: the kernel
+ * finds it there also when no fixup runs, and a buffer anywhere else, such
+ * as at the fb_addr fallback of get_fb_addr(), may be memory that the
+ * kernel or the secure world uses.
+ */
+static int odroid_logo_set_reg(void *blob, int node)
+{
+	int parent = fdt_parent_offset(blob, node);
+	int ac = fdt_address_cells(blob, parent);
+	int sc = fdt_size_cells(blob, parent);
+	const fdt32_t *old;
+	fdt32_t reg[4];
+	u64 base, size;
+	int len, n = 0, ret;
+
+	if (ac < 1 || ac > 2 || sc < 1 || sc > 2 ||
+	    (ac == 1 && upper_32_bits(odroid_logo.addr))) {
+		printf("logo: linux,meson-fb cells %d/%d do not fit %#lx\n",
+		       ac, sc, odroid_logo.addr);
+		return -FDT_ERR_BADNCELLS;
+	}
+	old = fdt_getprop(blob, node, "reg", &len);
+	if (!old || len < (ac + sc) * (int)sizeof(*old)) {
+		printf("logo: linux,meson-fb has no reg\n");
+		return -FDT_ERR_BADVALUE;
+	}
+	base = fdt_read_number(old, ac);
+	size = fdt_read_number(old + ac, sc);
+	if (odroid_logo.addr < base ||
+	    odroid_logo.addr + ODROID_LOGO_SIZE > base + size) {
+		printf("logo: %#lx+%#x is outside linux,meson-fb %#llx+%#llx\n",
+		       odroid_logo.addr, ODROID_LOGO_SIZE, base, size);
+		return -FDT_ERR_BADVALUE;
+	}
+
+	if (ac == 2)
+		reg[n++] = cpu_to_fdt32(upper_32_bits(odroid_logo.addr));
+	reg[n++] = cpu_to_fdt32(lower_32_bits(odroid_logo.addr));
+	if (sc == 2)
+		reg[n++] = cpu_to_fdt32(0);
+	reg[n++] = cpu_to_fdt32(ODROID_LOGO_SIZE);
+	ret = fdt_setprop(blob, node, "reg", reg, n * sizeof(*reg));
+	if (ret)
+		printf("logo: cannot set linux,meson-fb: %s\n", fdt_strerror(ret));
+	return ret;
+}
+
+/*
+ * Hand the logo buffer, and nothing else, to the kernel. While OSD1 still
+ * shows it, point the reg of /reserved-memory/linux,meson-fb at it, kept
+ * mapped so that the kernel can return it after its first modeset.
+ * Otherwise delete the node: the vendor DRM frees it by path even when it
+ * is disabled, and a size of 0 fails the reservation. A missing node is
+ * not created; the S7D DRM driver finds the region through its overlay.
+ */
+static void odroid_fixup_logo(void *blob)
+{
+	int node, ret;
+
+	node = fdt_path_offset(blob, "/reserved-memory/linux,meson-fb");
+	if (node < 0) {
+		if (odroid_logo.addr)
+			printf("logo: no linux,meson-fb in the kernel DT\n");
+		return;
+	}
+
+	if (odroid_logo.addr && odroid_logo_live() &&
+	    !odroid_logo_set_reg(blob, node)) {
+		fdt_delprop(blob, node, "no-map");
+		fdt_delprop(blob, node, "reusable");
+		printf("logo: %ux%u at %#lx+%#x handed to the kernel\n",
+		       odroid_logo.width, odroid_logo.height,
+		       odroid_logo.addr, ODROID_LOGO_SIZE);
+		return;
+	}
+
+	ret = fdt_del_node(blob, node);
+	if (ret)
+		printf("logo: cannot delete linux,meson-fb: %s\n", fdt_strerror(ret));
+	else
+		printf("logo: not handed over, linux,meson-fb removed\n");
+}
+
 /* Where the BMP file is loaded, and the logo buffer size it must fit */
 #define ODROID_BMP_ADDR		0x1f800000UL
 #define ODROID_LOGO_WIDTH	1920
@@ -605,14 +785,17 @@ static bool odroid_draw_logo(struct udevice *dev)
  * is enumerated. A VU7C gets its LT8619C bridge bound. The video driver
  * then starts the HDMI output with OSD1 on its frame buffer, and the logo
  * goes into it. Without a logo, the device goes away again: OSD1 turns off
- * and the output runs on, black.
+ * and the output runs on, black. Only a shown logo is handed to the
+ * kernel.
  */
 static void odroid_boot_display(void)
 {
 	struct udevice *dev, *bridge = NULL;
+	struct video_uc_plat *plat;
 	struct gpio_desc backlight;
 	int ret;
 
+	odroid_logo_forget();
 	printf("starting USB hub VBUS on bus 1...\n");
 	if (usb_hub_on(1))
 		printf("usb: hub on bus 1 not powered\n");
@@ -633,8 +816,13 @@ static void odroid_boot_display(void)
 		dm_gpio_free(backlight.dev, &backlight);
 	}
 
-	if (!odroid_draw_logo(dev))
+	if (!odroid_draw_logo(dev)) {
 		device_remove(dev, DM_REMOVE_NORMAL);
+		return;
+	}
+	plat = dev_get_uclass_plat(dev);
+	odroid_logo_record(plat->base, ODROID_LOGO_WIDTH, ODROID_LOGO_HEIGHT,
+			   ODROID_LOGO_WIDTH * 4);
 }
 
 int board_late_init(void)
@@ -770,12 +958,14 @@ static int odroid_fixup_reserved_heap_gfx(void *blob, u64 size)
 	return err;
 }
 
+/* Fixup failures only print: a non-zero return stops bootm. */
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	char *gfx_heap_size;
 	u64 size = 0;
 
 	odroid_fixup_display(blob, env_get("outputmode"));
+	odroid_fixup_logo(blob);
 
 	// Use GFX heap buffer in size of 'gfx-heap-size'
 	gfx_heap_size = env_get("gfx-heap-size");	// in MB
