@@ -30,6 +30,11 @@ struct hdmitx21_output {
 	enum hdmi_colorspace cs;
 	/* The sink takes DVI: no data islands */
 	bool dvi;
+	/*
+	 * The mode is not the CTA mode of its timing entry: no VIC in the AVI
+	 * InfoFrame and full-range RGB, as for a timing outside the CTA table
+	 */
+	bool no_vic;
 };
 
 /* Start @out on the transmitter. Returns 0, or -EINVAL for a bad @out. */

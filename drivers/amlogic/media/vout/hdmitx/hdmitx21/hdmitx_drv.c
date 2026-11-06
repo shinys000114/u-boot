@@ -1185,12 +1185,24 @@ int hdmitx21_set_output(const struct hdmitx21_output *out)
 }
 
 /*
+ * The VIC of the output for the InfoFrames and the RGB range: none when
+ * the caller found no CTA VIC for its mode, where drm_match_cea_mode()
+ * gives 0 in the Linux driver.
+ */
+static enum hdmi_vic hdmitx21_output_vic(struct hdmitx_dev *hdev)
+{
+	if (caller_output_set && caller_output.no_vic)
+		return HDMI_0_UNKNOWN;
+	return hdev->para->timing.vic;
+}
+
+/*
  * drm_default_rgb_quant_range(): CTA modes other than VIC 1 take limited
  * range on an HDMI sink; VIC 1, other timings and DVI sinks take full range.
  */
 static bool hdmitx21_rgb_limited(struct hdmitx_dev *hdev)
 {
-	enum hdmi_vic vic = hdev->para->timing.vic;
+	enum hdmi_vic vic = hdmitx21_output_vic(hdev);
 
 	return !hdmitx21_dvi_output() && vic >= HDMI_2_720x480p60_4x3 &&
 		vic <= HDMI_219_4096x2160p120_256x135;
@@ -1320,7 +1332,7 @@ static void hdmitx21_set_infoframes(struct hdmitx_dev *hdev)
 	struct hdmi_avi_infoframe *avi = &hdev->infoframes.avi.avi;
 	struct hdmi_spd_infoframe *spd = &hdev->infoframes.spd.spd;
 	struct hdmi_format_para *para = hdev->para;
-	enum hdmi_vic vic = para->timing.vic;
+	enum hdmi_vic vic = hdmitx21_output_vic(hdev);
 	enum hdmi_picture_aspect aspect;
 	struct hdmi_vendor_infoframe vend;
 	struct hdmitx21_sink sink;
