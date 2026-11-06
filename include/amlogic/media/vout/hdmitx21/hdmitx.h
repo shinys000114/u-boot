@@ -35,6 +35,11 @@ struct hdmitx21_output {
 	 * InfoFrame and full-range RGB, as for a timing outside the CTA table
 	 */
 	bool no_vic;
+	/*
+	 * The VPP already compresses limited-range RGB (its gamma LUT), so the
+	 * HDMI formatter passes RGB unchanged
+	 */
+	bool vpp_range;
 };
 
 /* Start @out on the transmitter. Returns 0, or -EINVAL for a bad @out. */

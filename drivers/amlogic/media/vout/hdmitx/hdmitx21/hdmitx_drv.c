@@ -1412,6 +1412,9 @@ static void hdmitx21_set_csc(struct hdmitx_dev *hdev)
 	vpp_osd_rgb2yuv709(!rgb);
 	if (!rgb || !hdmitx21_rgb_limited(hdev))
 		return;
+	/* As the Linux driver does, the caller folded the range into the VPP. */
+	if (caller_output_set && caller_output.vpp_range)
+		return;
 	hd21_write_reg(VPU_HDMI_MATRIX_PRE_OFFSET0_1, 0);
 	hd21_write_reg(VPU_HDMI_MATRIX_PRE_OFFSET2, 0);
 	hd21_write_reg(VPU_HDMI_MATRIX_COEF00_01, 877 << 16);
