@@ -931,6 +931,15 @@ static int lt8619c_attach(struct udevice *dev)
 	return 0;
 }
 
+/* The panel EDID that lt8619c_poweron() wrote into the bridge */
+static int lt8619c_read_edid(struct udevice *dev, u8 *buf, int buf_size)
+{
+	int len = min_t(int, buf_size, sizeof(onchip_edid));
+
+	memcpy(buf, onchip_edid, len);
+	return len;
+}
+
 static int lt8619c_enable(struct udevice *dev)
 {
 	int ret;
@@ -1002,6 +1011,7 @@ static int lt8619c_probe(struct udevice *dev)
 
 struct video_bridge_ops lt8619c_ops = {
 	.attach = lt8619c_attach,
+	.read_edid = lt8619c_read_edid,
 };
 
 static const struct udevice_id lt8619c_ids[] = {
