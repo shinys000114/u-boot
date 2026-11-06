@@ -64,20 +64,45 @@ struct blk_desc *amlogic_get_bootdev(void);
  */
 extern const struct hdmi_timing *hdmitx21_gettiming_from_name(const char *name);
 
-static void odroid_clear_display_env(void)
+/*
+ * Display state that older builds wrote and saved to the environment on
+ * every boot, including the display keys they imported from config.ini,
+ * and the user policy and debug keys of the vendor output. This U-Boot
+ * sets what it needs during the boot and saves none of it; a saved copy
+ * would steer the output policy and reach the kernel through the boot
+ * script.
+ */
+static const char *const odroid_stale_display_env[] = {
+	/* kernel command line hand-off */
+	"vout", "hdmitx", "vout_init", "voutmode", "actual_frac_rate",
+	/* output policy state */
+	"outputmode", "hdmimode", "colorattribute", "user_colorattribute",
+	"hdmichecksum", "frac_rate_policy", "user_frac_rate", "qms_en",
+	"is.bestmode",
+	/* HPD debug key that "hdmitx hpd" reads */
+	"hdmitx_hpd_bypass",
+	/* USB hub power after the output, for force_hpd display overlays */
+	"early_usb_start",
+	/* logo framebuffer */
+	"display_bpp", "display_color_index", "display_width", "display_height",
+	"fb_width", "fb_height", "initrd_high", "bootlogo_addr",
+	/* config.ini display keys */
+	"displaymode", "displaymode_option", "video-timing", "disablehpd",
+	"force_hpd", "enable_hdr", "bootlogo",
+};
+
+/* Drop them from RAM only; the saved environment stays as it is. */
+static void odroid_drop_stale_display_env(void)
 {
+	const char *preboot = env_get("preboot");
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(odroid_stale_display_env); i++)
+		env_set(odroid_stale_display_env[i], NULL);
+	/* The default of older builds, which built the vendor bootargs. */
+	if (preboot && !strcmp(preboot, "run init_display"))
+		env_set("preboot", NULL);
 	env_set("connector0_type", "HDMI-A-A");
-	env_set("hdmitx", NULL);
-	env_set("vout", NULL);
-	env_set("voutmode", NULL);
-	env_set("outputmode", NULL);
-	env_set("hdmimode", NULL);
-	env_set("display_bpp", NULL);
-	env_set("display_color_index", NULL);
-	env_set("display_width", NULL);
-	env_set("display_height", NULL);
-	env_set("fb_width", NULL);
-	env_set("fb_height", NULL);
 }
 
 void sys_led_init(void)
@@ -361,7 +386,7 @@ int board_late_init(void)
 	vpp_init();
 #endif
 
-	odroid_clear_display_env();
+	odroid_drop_stale_display_env();
 
 	if (dev_desc) {
 		if (load_odroid_bios(dev_desc) != 0) {
@@ -389,7 +414,7 @@ int board_late_init(void)
 
 	ret = run_command("showlogo", 0);
 	if (ret)
-		odroid_clear_display_env();
+		odroid_drop_stale_display_env();
 
 #if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
 	/* vu7c backlight on */
