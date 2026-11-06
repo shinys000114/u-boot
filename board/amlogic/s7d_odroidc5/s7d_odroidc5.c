@@ -9,6 +9,14 @@
 #include <errno.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <gzip.h>
+#include <mapmem.h>
+#include <splash.h>
+#include <usb.h>
+#include <video.h>
+#include <bmp_layout.h>
+#include <asm/unaligned.h>
+#include <linux/ctype.h>
 #include <linux/libfdt.h>
 #include <amlogic/cpu_id.h>
 #include <asm/amlogic/arch/secure_apb.h>
@@ -31,6 +39,7 @@
 #include <blk.h>
 #include <mmc.h>
 
+#include "dm/device-internal.h"
 #include "dm/lists.h"
 #include "dm/root.h"
 #include "dm/uclass-internal.h"
@@ -68,9 +77,9 @@ extern const struct hdmi_timing *hdmitx21_gettiming_from_name(const char *name);
  * Display state that older builds wrote and saved to the environment on
  * every boot, including the display keys they imported from config.ini,
  * and the user policy and debug keys of the vendor output. This U-Boot
- * sets what it needs during the boot and saves none of it; a saved copy
- * would steer the output policy and reach the kernel through the boot
- * script.
+ * keeps its display state in its video driver and saves none; a saved
+ * copy would steer the vendor output code and reach the kernel through
+ * the boot script.
  */
 static const char *const odroid_stale_display_env[] = {
 	/* kernel command line hand-off */
@@ -103,6 +112,27 @@ static void odroid_drop_stale_display_env(void)
 	if (preboot && !strcmp(preboot, "run init_display"))
 		env_set("preboot", NULL);
 	env_set("connector0_type", "HDMI-A-A");
+}
+
+/* The overlays list of config.ini. */
+static char odroid_overlays[256];
+
+/* Whether @word is one of the blank-separated words of @list. */
+static bool odroid_list_has(const char *list, const char *word)
+{
+	size_t len = strlen(word), n;
+
+	for (;;) {
+		while (isspace(*list))
+			list++;
+		if (!*list)
+			return false;
+		for (n = 0; list[n] && !isspace(list[n]); n++)
+			;
+		if (n == len && !strncmp(list, word, len))
+			return true;
+		list += n;
+	}
 }
 
 void sys_led_init(void)
@@ -195,7 +225,7 @@ int eth_get_efuse_mac(struct udevice *dev) {
 
 #if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
 
-static int vu7c_hw_init(void)
+static struct udevice *vu7c_hw_init(void)
 {
 	struct udevice *soc_dev, *i2c_dev, *bridge_dev;
 	ofnode i2c_node, bridge_node;
@@ -204,13 +234,13 @@ static int vu7c_hw_init(void)
 	i2c_node = ofnode_path("/soc/i2c@fe066c00");
 	if (!ofnode_valid(i2c_node)) {
 		printf("vu7c: i2c3 node not found\n");
-		return -1;
+		return NULL;
 	}
 
 	ret = uclass_get_device_by_ofnode(UCLASS_SIMPLE_BUS, ofnode_get_parent(i2c_node), &soc_dev);
 	if (ret) {
 		printf("vu7c: failed to get soc device (ret=%d)\n", ret);
-		return -1;
+		return NULL;
 	}
 
 	if (uclass_find_device_by_ofnode(UCLASS_I2C, i2c_node, &i2c_dev)) {
@@ -218,7 +248,7 @@ static int vu7c_hw_init(void)
 						 i2c_node, &i2c_dev);
 		if (ret) {
 			printf("vu7c: failed to bind i2c_meson (ret=%d)\n", ret);
-			return -1;
+			return NULL;
 		}
 	}
 
@@ -236,30 +266,29 @@ static int vu7c_hw_init(void)
 	bridge_node = ofnode_find_subnode(i2c_node, "hdmi-bridge@32");
 	if (!ofnode_valid(bridge_node)) {
 		printf("vu7c: bridge node not found\n");
-		return -1;
+		return NULL;
 	}
 
 	ret = device_bind_driver_to_node(i2c_dev, "lt8619c", "hdmi-bridge@32",
 					 bridge_node, &bridge_dev);
 	if (ret && ret != -EEXIST) {
 		printf("vu7c: failed to bind lt8619c (ret=%d)\n", ret);
-		return -1;
+		return NULL;
 	}
 
-	return 0;
+	return bridge_dev;
 }
 
-int vu7c_init(void)
+/*
+ * A VU7C is attached when the overlays list names display_vu7c. Bind its
+ * LT8619C bridge; the video driver starts it, which writes the panel EDID
+ * into the bridge for the mode selection to read like any sink.
+ */
+static struct udevice *vu7c_init(void)
 {
-	char* overlays = env_get("overlays");
-
-	if (overlays && strstr(overlays, "display_vu7c") != NULL)
-	{
-		vu7c_hw_init();
-		run_command("i2c dev 3", 0);
-		return run_command("i2c probe 0x32", 0);
-	}
-	return -1;
+	if (!odroid_list_has(odroid_overlays, "display_vu7c"))
+		return NULL;
+	return vu7c_hw_init();
 }
 #endif
 
@@ -343,37 +372,275 @@ int load_odroid_bios(struct blk_desc *dev_desc)
 	return -EIO;
 }
 
-static int load_boot_config(struct blk_desc *dev_desc, const char *config)
+/* As find_char_or_comment() in cmd/ini.c: a ';' after a blank starts a comment. */
+static char *odroid_ini_find(char *s, char c)
 {
-	char buf[128];
-	int ret = -EINVAL;
-	unsigned long loadaddr = env_get_ulong("loadaddr", 16, 0);
+	bool blank = false;
 
-	ret = load_from_mmc(loadaddr, dev_desc->devnum, 1,
-			config ? config : "config.ini");
+	while (*s && *s != c && !(blank && *s == ';')) {
+		blank = isspace(*s);
+		s++;
+	}
+	return s;
+}
+
+static char *odroid_ini_strip(char *s)
+{
+	char *e = s + strlen(s);
+
+	while (e > s && isspace(e[-1]))
+		*--e = '\0';
+	while (isspace(*s))
+		s++;
+	return s;
+}
+
+/*
+ * Copy the value of @key in [@section] of the INI text @buf into @val,
+ * parsed as the "ini" command does (cmd/ini.c): ';' and '#' lines are
+ * comments, pairs are name=value or name:value, a ';' after a blank ends
+ * the value and one pair of double quotes is stripped. The last match
+ * wins. Returns false if there is none.
+ */
+static bool odroid_ini_get(const char *buf, size_t size, const char *section,
+			   const char *key, char *val, size_t len)
+{
+	const char *end = buf + size;
+	bool in_section = false, found = false;
+	char line[256];
+
+	while (buf < end) {
+		const char *nl = memchr(buf, '\n', end - buf);
+		size_t n = (nl ? nl : end) - buf;
+		char *s, *e, *v;
+
+		memcpy(line, buf, min(n, sizeof(line) - 1));
+		line[min(n, sizeof(line) - 1)] = '\0';
+		buf = nl ? nl + 1 : end;
+
+		s = odroid_ini_strip(line);
+		if (*s == ';' || *s == '#' || !*s)
+			continue;
+		if (*s == '[') {
+			e = odroid_ini_find(s + 1, ']');
+			if (*e == ']') {
+				*e = '\0';
+				in_section = !strcmp(s + 1, section);
+			}
+			continue;
+		}
+		e = odroid_ini_find(s, '=');
+		if (*e != '=')
+			e = odroid_ini_find(s, ':');
+		if (!in_section || (*e != '=' && *e != ':'))
+			continue;
+		*e = '\0';
+		if (strcmp(odroid_ini_strip(s), key))
+			continue;
+		v = odroid_ini_strip(e + 1);
+		e = odroid_ini_find(v, '\0');
+		*e = '\0';
+		v = odroid_ini_strip(v);
+		n = strlen(v);
+		if (n >= 2 && v[0] == '"' && v[n - 1] == '"') {
+			v[n - 1] = '\0';
+			v++;
+		}
+		strlcpy(val, v, len);
+		found = true;
+	}
+	return found;
+}
+
+/*
+ * @key of config.ini as the "ini generic" and "ini overlay_<profile>"
+ * imports set it: from [generic], then from @section, the profile
+ * section, when there is one.
+ */
+static bool odroid_ini_key(const char *buf, size_t size, const char *section,
+			   const char *key, char *val, size_t len)
+{
+	bool found = odroid_ini_get(buf, size, "generic", key, val, len);
+
+	if (*section)
+		found |= odroid_ini_get(buf, size, section, key, val, len);
+	return found;
+}
+
+/*
+ * Read two keys from config.ini: the overlays list, and bootlogo, the
+ * logo file that the boot display loads first. Only bootlogo goes into the
+ * environment, in RAM; no other key of the file does: the boot script
+ * imports config.ini itself.
+ */
+static void load_boot_config(struct blk_desc *dev_desc, const char *config)
+{
+	ulong addr = env_get_ulong("loadaddr", 16, 0);
+	const char *buf = (const char *)addr;
+	char profile[64], section[80] = "", bootlogo[128];
+	ulong size;
+
+	odroid_overlays[0] = '\0';
+	if (load_from_mmc(addr, dev_desc->devnum, 1, config) &&
+	    load_from_mmc(addr, dev_desc->devnum, 2, config))
+		return;
+	/* load_from_mmc() sets filesize in decimal. */
+	size = env_get_ulong("filesize", 10, 0);
+
+	if (odroid_ini_get(buf, size, "generic", "overlay_profile", profile,
+			   sizeof(profile)) && *profile)
+		snprintf(section, sizeof(section), "overlay_%s", profile);
+	odroid_ini_key(buf, size, section, "overlays", odroid_overlays,
+		       sizeof(odroid_overlays));
+	printf("config.ini: overlays \"%s\"\n", odroid_overlays);
+	if (odroid_ini_key(buf, size, section, "bootlogo", bootlogo,
+			   sizeof(bootlogo))) {
+		env_set("bootlogo", bootlogo);
+		printf("config.ini: bootlogo \"%s\"\n", bootlogo);
+	}
+}
+
+/* Where the BMP file is loaded, and the logo buffer size it must fit */
+#define ODROID_BMP_ADDR		0x1f800000UL
+#define ODROID_LOGO_WIDTH	1920
+#define ODROID_LOGO_HEIGHT	1080
+
+/*
+ * Load the logo file into @addr: the bootlogo file of config.ini, then
+ * boot-logo.bmp.gz and boot-logo.bmp, each from the first and then the
+ * second partition of the boot device.
+ */
+static bool odroid_load_logo(ulong addr)
+{
+	const char *files[] = { env_get("bootlogo"), "boot-logo.bmp.gz",
+				"boot-logo.bmp" };
+	struct blk_desc *dev_desc = amlogic_get_bootdev();
+	int i;
+
+	if (!dev_desc)
+		return false;
+	for (i = 0; i < ARRAY_SIZE(files); i++) {
+		if (!files[i])
+			continue;
+		if (!load_from_mmc(addr, dev_desc->devnum, 1, files[i]) ||
+		    !load_from_mmc(addr, dev_desc->devnum, 2, files[i]))
+			return true;
+	}
+	return false;
+}
+
+/*
+ * The BMP at @addr, inflated into a new buffer of CONFIG_VIDEO_LOGO_MAX_SIZE
+ * that *@alloc points to when it is a gzip file. NULL when it is neither a
+ * BMP nor a gzip BMP that fits.
+ */
+static struct bmp_image *odroid_logo_bmp(ulong addr, void **alloc)
+{
+	struct bmp_image *bmp = (struct bmp_image *)addr;
+	unsigned long len = CONFIG_VIDEO_LOGO_MAX_SIZE;
+	void *dst;
+
+	*alloc = NULL;
+	if (bmp->header.signature[0] == 'B' && bmp->header.signature[1] == 'M')
+		return bmp;
+	dst = malloc(CONFIG_VIDEO_LOGO_MAX_SIZE);
+	if (!dst)
+		return NULL;
+	if (gunzip(dst, CONFIG_VIDEO_LOGO_MAX_SIZE, (uchar *)addr, &len) ||
+	    len < sizeof(bmp->header)) {
+		free(dst);
+		return NULL;
+	}
+	bmp = dst;
+	if (bmp->header.signature[0] != 'B' || bmp->header.signature[1] != 'M') {
+		free(dst);
+		return NULL;
+	}
+	*alloc = dst;
+	return bmp;
+}
+
+/*
+ * Draw the logo into the frame buffer of @dev, centred. A BMP larger than
+ * the 1920x1080 buffer is not shown.
+ */
+static bool odroid_draw_logo(struct udevice *dev)
+{
+	struct bmp_image *bmp;
+	void *alloc;
+	s32 width, height;
+	bool shown = false;
+
+	if (!odroid_load_logo(ODROID_BMP_ADDR)) {
+		printf("logo: no logo file\n");
+		return false;
+	}
+	bmp = odroid_logo_bmp(ODROID_BMP_ADDR, &alloc);
+	if (!bmp) {
+		printf("logo: not a BMP\n");
+		return false;
+	}
+	width = get_unaligned_le32(&bmp->header.width);
+	height = get_unaligned_le32(&bmp->header.height);
+	if (height < 0)
+		height = -height;
+	if (width <= 0 || !height || width > ODROID_LOGO_WIDTH ||
+	    height > ODROID_LOGO_HEIGHT)
+		printf("logo: %dx%d BMP does not fit %dx%d, no logo\n",
+		       width, height, ODROID_LOGO_WIDTH, ODROID_LOGO_HEIGHT);
+	else
+		shown = !video_bmp_display(dev, map_to_sysmem(bmp),
+					   BMP_ALIGN_CENTER, BMP_ALIGN_CENTER,
+					   true);
+	free(alloc);
+	if (shown)
+		video_sync(dev, true);
+	return shown;
+}
+
+/*
+ * The boot display. A VU5, VU7 or VU7+ panel runs from a port of the USB
+ * hub and raises HPD and answers EDID reads only once powered, so power
+ * the hub ports first (the Type-A hub on crg2, USB bus 1); nothing on them
+ * is enumerated. A VU7C gets its LT8619C bridge bound. The video driver
+ * then starts the HDMI output with OSD1 on its frame buffer, and the logo
+ * goes into it. Without a logo, the device goes away again: OSD1 turns off
+ * and the output runs on, black.
+ */
+static void odroid_boot_display(void)
+{
+	struct udevice *dev, *bridge = NULL;
+	struct gpio_desc backlight;
+	int ret;
+
+	printf("starting USB hub VBUS on bus 1...\n");
+	if (usb_hub_on(1))
+		printf("usb: hub on bus 1 not powered\n");
+#if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
+	bridge = vu7c_init();
+#endif
+	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
 	if (ret) {
-		ret = load_from_mmc(loadaddr, dev_desc->devnum, 2,
-				config ? config : "config.ini");
-	}
-	if (ret)
-		return ret;
-
-	run_command("ini generic $loadaddr", 0);
-
-	char *overlay_profile = env_get("overlay_profile");
-	if (overlay_profile) {
-		snprintf(buf, sizeof(buf), "ini overlay_%s $loadaddr", overlay_profile);
-		run_command(buf, 0);
+		printf("display: not started (%d)\n", ret);
+		return;
 	}
 
-	return 0;
+	/* VU7C backlight on */
+	if (bridge && device_active(bridge) &&
+	    !dm_gpio_lookup_name("GPIOX_6", &backlight) &&
+	    !dm_gpio_request(&backlight, "vu7c_backlight")) {
+		dm_gpio_set_dir_flags(&backlight, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		dm_gpio_free(backlight.dev, &backlight);
+	}
+
+	if (!odroid_draw_logo(dev))
+		device_remove(dev, DM_REMOVE_NORMAL);
 }
 
 int board_late_init(void)
 {
 	unsigned char chipid[16];
 	struct blk_desc *dev_desc = amlogic_get_bootdev();
-	int ret;
 
 	board_init_mem();
 
@@ -394,33 +661,10 @@ int board_late_init(void)
 					(dev_desc->devnum == 0) ? "0 1" : "1 0");
 		}
 
-		/* Remove saved env values */
-		env_set("video-timing", NULL);
-		env_set("displaymode", NULL);
-		env_set("displaymode_option", NULL);
-		env_set("bootlogo", NULL);
-
-		ret = load_boot_config(dev_desc, "config.ini");
+		load_boot_config(dev_desc, "config.ini");
 	}
 
-#if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
-	ret = vu7c_init();
-	if (ret == 0) {
-		env_set("user_colorattribute", "rgb,8bit");
-		env_set("colorattribute", "rgb,8bit");
-		env_set("displaymode", "1024x600p60hz");
-	}
-#endif
-
-	ret = run_command("showlogo", 0);
-	if (ret)
-		odroid_drop_stale_display_env();
-
-#if defined(CONFIG_VIDEO_BRIDGE_LT8619C_QC4011)
-	/* vu7c backlight on */
-	if (ret == 0)
-		run_command("gpio set GPIOX_6", 0);
-#endif
+	odroid_boot_display();
 
 	memset(chipid, 0, 16);
 	env_set("cpu_id", "1234567890");
