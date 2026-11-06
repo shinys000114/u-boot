@@ -191,6 +191,22 @@ static int s7d_vpu_start(struct udevice *dev, ulong fb)
 			priv->osd = false;
 		}
 	}
+	/*
+	 * A progressive RGB output gets the OSD1 path that the kernel S7D DRM
+	 * driver programs, with the RGB range in the VPP gamma LUT, so that
+	 * the kernel finds the static settings it would write itself.
+	 */
+	if (priv->osd && t->pi_mode && !priv->mode.yuv420) {
+		bool limited = !priv->mode.dvi && !priv->mode.no_vic &&
+			t->vic >= HDMI_2_720x480p60_4x3 &&
+			t->vic <= HDMI_219_4096x2160p120_256x135;
+
+		ret = s7d_osd_align(S7D_FB_WIDTH, S7D_FB_HEIGHT, t, win, limited);
+		if (ret)
+			printf("display: OSD1 path left as set up (%d)\n", ret);
+		else
+			out.vpp_range = true;
+	}
 
 	/* do_vout_output_job(): the matrix of the last output's format */
 	fmt = vinfo->vpp_post_out_color_fmt;
