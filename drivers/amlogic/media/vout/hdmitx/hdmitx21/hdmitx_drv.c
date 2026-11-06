@@ -31,6 +31,14 @@
 
 static struct hdmitx_dev hdmitx_device;
 
+/*
+ * The output that hdmitx21_set_output() starts, and whether the current
+ * output is one: an output of the "hdmitx output" command uses the
+ * environment again.
+ */
+static struct hdmitx21_output caller_output;
+static bool caller_output_next, caller_output_set;
+
 static void hdmitx_set_phy(struct hdmitx_dev *hdev);
 static void hdmitx_set_div40(bool div40);
 static void hdmitx21_dither_config(struct hdmitx_dev *hdev);
@@ -1132,6 +1140,50 @@ void hdmitx_soft_reset(u32 bits_nr)
 	}
 }
 
+/* A DVI sink takes no data islands: no InfoFrames, no GCP */
+static bool hdmitx21_dvi_output(void)
+{
+	char *voutmode;
+
+	if (caller_output_set)
+		return caller_output.dvi;
+	voutmode = env_get("voutmode");
+	return voutmode && strncmp(voutmode, "hdmi", 4);
+}
+
+int hdmitx21_set_output(const struct hdmitx21_output *out)
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	struct hdmi_format_para *para = hdev->para;
+	const struct hdmi_timing *t = out ? out->timing : NULL;
+
+	if (!t || !para || !out->pixel_khz ||
+	    (out->cs != HDMI_COLORSPACE_RGB && out->cs != HDMI_COLORSPACE_YUV420))
+		return -EINVAL;
+	/* A rate further off than the 1000/1001 step is another mode */
+	if (abs((int)out->pixel_khz - (int)t->pixel_freq) > t->pixel_freq / 500) {
+		pr_err("hdmitx: %u kHz does not fit VIC %d (%u kHz)\n",
+		       out->pixel_khz, t->vic, t->pixel_freq);
+		return -EINVAL;
+	}
+
+	/* hdmitx21_get_fmtpara() of the timing and "rgb,8bit" or "420,8bit" */
+	para->timing = *t;
+	para->timing.pixel_freq = out->pixel_khz;
+	para->vic = t->vic;
+	para->cs = out->cs;
+	para->cd = COLORDEPTH_24B;
+	para->cr = COLORRANGE_FUL;
+	para->tmds_clk = hdmitx_calc_tmds_clk(out->pixel_khz, para->cs, para->cd);
+	hdev->vic = t->vic;
+	hdev->qms_en = 0;
+
+	caller_output = *out;
+	caller_output_next = true;
+	hdmitx21_set(hdev);
+	return 0;
+}
+
 void hdmitx21_set(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = hdev->para;
@@ -1144,6 +1196,11 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	struct vinfo_s *info = vout_get_current_vinfo();
 #endif
 	struct dsc_notifier_data_s dsc_notifier_data;
+
+	/* The caller's pixel clock is sent as it is, without a frac shift */
+	caller_output_set = caller_output_next;
+	caller_output_next = false;
+	hdev->exact_pixel_clock = caller_output_set;
 
 	para->frl_rate = hdmitx_select_frl_rate(&para->dsc_en,
 						hdev->tx_common.tx_hw->hdmi_tx_cap.dsc_policy,
@@ -2162,7 +2219,6 @@ static int hdmi_move_hdr_pkt(bool flag)
 static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = hdev->para;
-	char *voutmode = NULL;
 	/* Pixel bit width: 4=24-bit; 5=30-bit; 6=36-bit; 7=48-bit. */
 	u8 color_depth = COLORDEPTH_24B;
 	/* Pixel format: 0=RGB444; 1=YCbCr422; 2=YCbCr444; 3=YCbCr420. */
@@ -2176,10 +2232,6 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	u32 data32;
 	u8 data8;
 	u8 dp_color_depth = 0;
-
-	voutmode = env_get("voutmode");
-	if (voutmode == NULL)
-		voutmode = "hdmi";
 
 	if (para->tmds_clk > 340000) {
 		para->scrambler_en = 1;
@@ -2390,10 +2442,7 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	data32 |= (active_pixels << 0); /* [14: 0] cntl_hactive */
 	hdmitx21_wr_reg(HDMITX_TOP_HV_ACTIVE, data32);
 	hdmitx_soft_reset(RESET_18OR10TO20 | RESET_PFIFO);
-	if (strncmp(voutmode, "hdmi", 4) == 0)
-		hdmitx21_set_reg_bits(TPI_SC_IVCTX, 1, 0, 1);
-	else
-		hdmitx21_set_reg_bits(TPI_SC_IVCTX, 0, 0, 1);
+	hdmitx21_set_reg_bits(TPI_SC_IVCTX, hdmitx21_dvi_output() ? 0 : 1, 0, 1);
 	/*
 	 * On Huawei TVs, HDR will cause a flickering screen,
 	 * and HDR PKT needs to be moved behind VSYNC on S7 or S7D
@@ -3204,6 +3253,11 @@ u32 hdmitx_check_frac_rate(struct hdmitx_dev *hdev)
 
 	if (!para)
 		return 0;
+	/* The caller set the exact rate; no policy shifts it. */
+	if (hdev->exact_pixel_clock) {
+		hdev->frac_rate_policy = 0;
+		return 0;
+	}
 	memset(ext_name, 0, sizeof(ext_name));
 	if (para->timing.sname)
 		memcpy(ext_name, para->timing.sname, sizeof(ext_name));

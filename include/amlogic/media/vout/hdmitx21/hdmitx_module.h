@@ -107,6 +107,8 @@ struct hdmitx_dev {
 	/* pps data and clk info from dsc module */
 	struct dsc_offer_tx_data dsc_data;
 	unsigned int frac_rate_policy;
+	/* para->timing.pixel_freq is the exact rate to send: no frac shift */
+	bool exact_pixel_clock;
 	unsigned int mode420;
 	unsigned int dc30;
 	enum eotf_type hdmi_current_eotf_type;
